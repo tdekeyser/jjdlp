@@ -1,0 +1,70 @@
+{% extends 'JJDLP/dummy_base.html' %}
+{% load resolve_hits %}
+{% load activeurl %}
+
+{% block title %}Joyce Web Library{% endblock %}
+
+{% block heads %}
+<script src="{{ STATIC_URL }}JJDLP/js/jquery-1.11.2.js"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<script type="text/javascript" src="{{ STATIC_URL }}library/js/unfold.js"></script>
+{% endblock %}
+
+{% block body_title %}{% endblock %}
+
+{% block body %}
+	{% block search %}
+		<div class="library_nav">
+			<img id="si" height="30" width="30" src="{{ STATIC_URL }}JJDLP/images/search_icon.png">
+			<div class="search_fields">
+				<form action="{% url 'library_fast_search' %}" method="get">
+					<input id="searchquery" type="text" name='q' placeholder="Fast search library">
+					<input id="submit" type="submit" value="Search">
+				</form>
+				<a href="{% url 'haystack_search' %}" style="text-decoration: underline; font-size: 90%;">Advanced search</a>
+			</div>
+
+			<div class="sort_fields">
+				<img height="30" width="30" src="{{ STATIC_URL }}JJDLP/images/sort_icon.png">
+				{% if source_field and first_letter %}
+					<a href="" id="edit"><strong>{{ source_field|title }}, {{ first_letter }} ({{ page.paginator.count }})</strong></a>
+				{% else %}
+					<a href="" id="edit">No filter.</a>
+				{% endif %}
+			</div>
+			<div class="sort" title="Edit sort filter:">
+				{% activeurl %}
+				<ul>
+					<li>{% block order_author_letter %}<a href="{% url 'order_all' source_field='author' first_letter='A' %}">{% endblock %}Author</a></li>
+					<li>{% block order_title_letter %}<a href="{% url 'order_all' source_field='title' first_letter='A' %}">{% endblock %}Title</a></li>
+					<!-- publisher is not included, only city! -->
+					<li>{% block order_city_letter %}<a href="{% url 'order_all' source_field='city' first_letter='A' %}">{% endblock %}City</a></li>
+					<!-- Date does not work yet! -->
+					<li>Date</li>
+				</ul>
+				{% endactiveurl %}
+				{% activeurl %}
+				<ul>
+					{% for letter in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' %}
+					<li>{% block order_field_field %}<a href="{% url 'order_all' source_field='author' first_letter=letter %}">{% endblock %}({{ letter }}: <span id="hits">{% block order_field2_field %}{% resolve_hits source_field='author' first_letter=letter %}{% endblock %})</span></a></li>
+					{% endfor %}
+				</ul>
+				{% endactiveurl %}
+			</div>
+
+			{% block right_floater_info %}
+		{% endblock %}
+		</div>
+	{% endblock %}
+
+<section id="content">
+	{% block content %}
+	<div class="text">
+	<div id="Info">
+		<p>Oops, you have found the dummy base! This is rather problematic, so please contact the developers.</p>
+	</div>
+	</div>
+	{% endblock %}
+</section>
+{% endblock %}

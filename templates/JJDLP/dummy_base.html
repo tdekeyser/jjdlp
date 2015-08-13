@@ -1,0 +1,30 @@
+{% extends 'JJDLP/JJDLP_base.html' %}
+{% load activeurl %}
+
+{% block navigation %}
+<div id="mainheader-wrap">
+	<div class="head_nav">
+		<div id="title-wrap">
+			<div class="project_title"><a href="{% url 'home' %}">Joyce Web Archive</a></div>
+			<div class="cmg"><a id="cmg" href="https://www.uantwerpen.be/en/rg/centre-for-manuscript-genetics/"><img height="38" src="{{ STATIC_URL }}JJDLP/images/cmg.png"></a></div>
+		</div>
+		{% activeurl %}
+		<ul class="head_orient">
+			<li class="head_sec subtitle"><span>Exploring James Joyce's works in progress.</span></li>
+			<li class="head_sec rightborder"><a href="{% url 'library_home' %}">Library</a></li>
+			<li class="head_sec rightborder"><a href="{% url 'notebooks_home' %}">Notebooks</a></li>
+			<li class="head_sec rightborder"><a href="manuscripts">Manuscripts</a></li>
+			<li class="head_sec"><a href="novels">Novels</a></li>
+		</ul>
+		{% endactiveurl %}
+		<ul class="head_icons">
+			<li><a title="Stats" href="{% url 'stats' %}"><img src="{{ STATIC_URL }}JJDLP/images/stats.ico" height="15"></a></li>
+			<li><a title="About" href="{% url 'about' %}"><img src="{{ STATIC_URL }}JJDLP/images/about.ico" height="15"></a></li>
+			<li><a title="Notify developers" href=""><img src="{{ STATIC_URL }}JJDLP/images/message.ico" height="15"></a></li>
+			<li><a title="Login" href=""><img src="{{ STATIC_URL }}JJDLP/images/login.ico" height="15"></a></li>
+			<li><a title="Admin" href="{% url 'home' %}admin"><img src="{{ STATIC_URL }}JJDLP/images/admin.ico" height="15"></a></li>
+		</ul>
+	</div>
+</div>
+{% endblock %}
+

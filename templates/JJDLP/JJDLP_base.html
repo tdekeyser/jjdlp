@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+<head>
+	<title>{% block title %}Joyce Web Archive{% endblock %}</title>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}JJDLP/css/JJDLP_css.css" />
+<link rel="shortcut icon" href="{{ STATIC_URL }}JJDLP/images/favicon.ico">
+	{% block heads %}
+<script src="{{ STATIC_URL }}JJDLP/js/jquery-1.11.2.js"></script>
+<link href="http://fonts.googleapis.com/css?family=Dancing+Script" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}JJDLP/css/homepage_css.css" />
+
+<script type="text/javascript" src="{{ STATIC_URL }}JJDLP/js/smooth_anchorage.js"></script>
+
+<link href="http://cdnjs.cloudflare.com/ajax/libs/fotorama/4.6.3/fotorama.css" rel="stylesheet">
+<script src="http://cdnjs.cloudflare.com/ajax/libs/fotorama/4.6.3/fotorama.js"></script>
+	{% endblock %}
+</head>
+<body>
+	{% block navigation %}
+	<div id="header-wrap">
+		<div class="page-wrap">
+		<div class="head_nav">
+			<ul id="CMG">
+				<li><a href="https://www.uantwerpen.be/en/rg/centre-for-manuscript-genetics/" style="color:#efefef;">Centre for Manuscript Genetics</a> presents</li>
+			</ul>
+			<ul class="head_icons">
+					<li><a title="Stats" href="{% url 'stats' %}"><img src="{{ STATIC_URL }}JJDLP/images/stats.ico" height="15"></a></li>
+					<li><a title="About" href="{% url 'about' %}"><img src="{{ STATIC_URL }}JJDLP/images/about.ico" height="15"></a></li>
+					<li><a title="Notify developers" href=""><img src="{{ STATIC_URL }}JJDLP/images/message.ico" height="15"></a></li>
+					<li><a title="Login" href=""><img src="{{ STATIC_URL }}JJDLP/images/login.ico" height="15"></a></li>
+					<li><a title="Admin" href="{% url 'home' %}admin"><img src="{{ STATIC_URL }}JJDLP/images/admin.ico" height="15"></a></li>
+			</ul>
+		</div>
+
+		<div id="homesection_1">
+			<a href="" title="Joyce Web Archive" class="hovertext"><img src="{{ STATIC_URL }}JJDLP/images/homep_joyce_image.jpg" title="Joyce Web Archive" id="homep_im"></a>
+			<ul id="homepage_navigator">
+				<li><a href="#homesection_2">Library</a></li>
+				<li>Notebooks</li>
+				<li>Manuscripts</li>
+				<li>Novels</li>
+			</ul>
+			<br/>
+			<div style="float:right;">Ready? <a href="login" style="text-decoration:underline;">Login</a>.</div>
+		</div>
+		</div>
+	</div>
+	{% endblock %}
+	<div id="body">
+		<div id="banner-wrap">
+			<div class="page-wrap">
+			{% block body_title %}{% endblock %}
+			</div>
+		</div>
+		<div class="page-wrap">
+		<div class="bottom-shadow"></div>
+	{% block body %}
+		<div id="homesection_2">
+			<img id="library_image" src="{{ STATIC_URL }}JJDLP/images/library_cropped-0.jpg" width="100%">
+			<table class="homepage_table">
+				<tr>
+					<td style="text-align:right;">
+						<span style="font-size:400%;"><a href="{% url 'library_home' %}">Library</a></span>
+						<br/>
+						<br/>
+						<span style="font-size:150%;">Explore James Joyce's personal library, both extant and virtual.</span>
+						<br/>
+						<br/>
+						<span>Just getting started? Try our <a href="brokenlink!!!" style="text-decoration:underline;">tutorial</a>.</span>
+					</td>
+					<td>
+						<div id="page-wrap">
+							<div id="tech-slideshow">
+								<div id="slideshow"></div>
+							</div>
+						</div>
+					</td>
+				</tr>
+			</table>
+			<br/>
+			<div style="float:right;"><a href="#homesection_1">Back to top</a></div>
+		</div>
+	{% endblock %}
+		</div>
+		<div class="push"></div>
+	</div>
+	<div class="footer">
+		<div class="bottom-shadow"></div>
+		<div>Created by you-know-who.</div>
+	</div>
+</body>
+</html>

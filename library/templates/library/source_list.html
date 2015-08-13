@@ -1,0 +1,48 @@
+{% extends "library/library_dummy_base.html" %}
+{% load resolve_hits %}
+{% load thumbnail %}
+
+{% block order_author_letter %}<a href="{% url 'order_all' source_field='author' first_letter=first_letter %}">{% endblock %}
+{% block order_title_letter %}<a href="{% url 'order_all' source_field='title' first_letter=first_letter %}">{% endblock %}
+{% block order_city_letter %}<a href="{% url 'order_all' source_field='city' first_letter=first_letter %}">{% endblock %}
+{% block order_field_field %}<a href="{% url 'order_all' source_field=source_field first_letter=letter %}">{% endblock %}
+{% block order_field2_field %}{% resolve_hits source_field=source_field first_letter=letter %}{% endblock %}
+
+{% block content %}
+<div class="books_list">
+	{% if page.object_list %}
+		<div class="pagination" id="pag_info">Your sorting options "<strong>{{ source_field }}</strong>" and "<strong>{{ first_letter }}</strong>" match <strong>{{ page.paginator.count }} source{{ page|pluralize }}</strong>
+	    	{% if is_paginated %}
+	    	, showing {{ page.start_index }} to {{ page.end_index }}.</div>
+			{% else %}
+			.</div>
+    		{% endif %}
+		<table class="source_list">
+			<tbody>
+				{% for result in page.object_list %}
+				<tr>
+					<td class="list_pages">
+					{% with frontcover=result.page_source.get_frontcover %}
+						{% thumbnail frontcover "90x150" crop="98% 0%" as im %}
+						<a href="{% url 'source_detail' slug=result.slug %}">
+							<img id="thumbnail" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" style="border:1px solid black;">
+						</a>
+						{% empty %}
+							<img id="thumbnail" src="{{ MEDIA_URL }}JJDLP/images/torn_paper_thumb.jpg" width="90" height="150">
+						{% endthumbnail %}
+					</td>
+					<td><a onclick="" href="{% url 'source_detail' slug=result.slug %}">{{ result.verbose_source_name }}</a></td>
+					<td>
+						<a href="{% url 'haystack_search' %}?q={{ use }}">{{ result.get_usage }}</a>
+					</td>
+					{% endwith %}
+				</tr>		
+				{% endfor %}
+			</tbody>
+		</table>
+        {% include 'search/includes/bottom_paginator.html' %}
+	{% else %}
+		<div class="fail">Your sort <strong>"{{ source_field }}"</strong> and <strong>"{{ first_letter }}"</strong> contains no sources.</div>
+	{% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'JJDLP/dummy_base.html' %}
+
+{% block title %}Advanced Search Docs{% endblock %}
+
+{% block body %}
+	<section id="title"><h1>Advanced search docs</h1></section>
+	<div id="body">
+	<div id="specified_info">
+		<p>Congratulations, you are actually willing to read the docs in order to constitute useful search queries.</p>
+		<p>The search engine behind this website is Elasticsearch, implemented through the Python library Haystack. The <span class="typewriter">input</span> fields provide the choice of the different sections of the website. Choosing "Sources" will provide iteration over all the sources, "Notes" over notes, etc. Leaving all field blank allows searching throughout every field. Within "Sources", title and author have received extra <span class="typewriter">boost</span> attributes, allowing them to rank higher on hit. The searchbox allows any query, and iterates over its indexed database via <span class="typewriter">contain</span> statements. This means that partial searches will not be valid, and queries such as "sulli" or "kel" will, for various reasons, not return <i>The Book of Kells</i> by Edward Sullivan. Furthermore, the engine interprets multiple words as <span class="typewriter">AND</span> statements (e.g. "sullivan kells" is interpreted as "sullivan <span class="typewriter">AND</span> kells"). <span class="typewriter">OR</span> statements are not (yet) valid ("sullivan OR gwynn" will return no results).</p>
+		<p>Click the type icon to search all of this type.</p>
+		<p>Note to myself: think about faceting; making suggestions of new, more detailed searches that the user might be interested in (see Haystack Faceting).</p>
+		<p>Finished? Back to the <a href="{% url 'haystack_search' %}" style="text-decoration: underline;">advanced search</a> form.</p>
+	</div>
+	</div>
+
+{% endblock %}

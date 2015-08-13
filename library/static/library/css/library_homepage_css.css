@@ -1,0 +1,90 @@
+#title {
+	color: #efefef;
+	font: 100 160% sans-serif;
+	font-variant: small-caps;
+/*	font: 100 160% 'Dancing Script', Georgia, Times, serif;
+*/}
+
+div#info {
+	color: #efefef;
+	line-height: 120%;
+	padding-top: 1em;
+	padding-bottom: 1em;
+	margin-bottom: 5px;
+	font: 100 110% sans-serif;
+}
+
+#lib_count {
+	padding: 2em;
+	text-align: center;
+	font-size: 150%;
+}
+
+div#fast_sort, div#fast_search {
+	display: inline-block;
+}
+
+#fast_sort {
+	float: right;
+	margin-right: 100px;
+}
+
+#fast_search {
+	margin-left: 100px;
+}
+
+div#search_info, div#search_box, div#sort_info, div#sort_box, #s_icon {
+	display:inline-block;
+	line-height: 200%;
+}
+
+div#search_info, div#sort_info {
+	font-size: 140%;
+}
+
+#search_info, #sort_info {
+	padding-right: 1em;
+}
+
+.sort_li li {
+	display:inline;
+	padding-right: 5px;
+}
+
+div#sort_wrapper ul.sort {
+	position:absolute;
+	width: 20%;
+}
+
+div#author_box, div#title_box, div#city_box, div#date_box {
+	display:none;
+}
+
+#info-wrap {
+	margin-bottom: 1em;	
+}
+
+#extra_searchinfo, #extra_sortinfo {
+	display: inline-block;
+	font-size: 90%;
+	width: 170px;
+}
+
+#extra_sortinfo {
+	float: right;
+	margin-right: 150px;
+}
+
+#extra_searchinfo {
+	margin-left: 150px;
+}
+
+div#lib_pic {
+	padding-top: 2em;
+}
+
+img#library_picture {
+	width: 1100px;
+	height: 320px;
+	box-shadow: 0 8px 10px #2E2D2D;
+}

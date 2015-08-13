@@ -1,0 +1,151 @@
+{% extends 'notebooks/notebook_detail.html' %}
+{% load thumbnail %}
+{% load activeurl %}
+
+{% block heads %}
+<script src="{{ STATIC_URL }}JJDLP/js/jquery-1.11.2.js"></script>
+<script src="{{ STATIC_URL }}library/js/scrollsneak.js"></script>
+<script src="{{ STATIC_URL }}notebooks/js/noteinfo_onclick.js"></script>
+{% endblock %}
+
+{% block cover %}
+{% endblock %}
+
+{% block macro_view %}
+{% endblock %}
+
+{% block source_info_cover %}
+			<td id="source_info_cover" style="float:left;">
+			{% if frontcover %}
+				{% thumbnail frontcover "67x100" crop="98% 0%" as thum %}
+				<a href="{% url 'notebook_detail' noteb=object.name %}">
+				<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}" style="border:1px solid black;">
+				</a>
+				{% endthumbnail %}
+			{% else %}
+				<a href="{% url 'notebook_detail' noteb=object.name %}">
+				<img id="thumbnail" src="{{ MEDIA_URL }}JJDLP/images/torn_paper_thumb.jpg" width="70" height="100">
+				</a>
+			{% endif %}
+			</td>
+{% endblock %}
+
+{% block extra_sourceinfo %}
+<a href="{% url 'notebookpage_detail' notebpage=page_obj.page_number %}">Page {{ page_obj.page_number }}</a>
+{% endblock %}
+
+{% block page_gallery %}
+</div></div></div>
+<div class="gallery-wrap">
+	<div id="gallery_toolbar">
+		<ul>
+			<li id="allbutton">All</li>
+			<li id="annotationbutton">Annotation</li>
+			<li id="sourcebutton">Source</li>
+			<li id="ctransferbutton">C Transfer</li>
+			<li id="msinfobutton">MS info</li>
+		</ul>
+	</div>
+	<table class="table_page_gallery">
+		<tr>
+			<td>
+				<figure>
+					{% thumbnail page_obj.image "500" as im %}
+						<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" style="border:1px solid black">
+						<div id="transcription" style="height:{{ im.height }}px;">
+							<ul>
+								{% if notes %}
+								{% for note in notes %}
+								<li class="notetext">{{ note|safe }}</li>
+									{% with note.annotation as annotation %}
+									{% if annotation %}
+									<ul class="annotation noteinfo">
+										<li>{{ annotation }}</li>
+									</ul>
+									{% endif %}
+									{% endwith %}
+
+									{% with note.source_info as sourceinfo %}
+									{% if sourceinfo %}
+									<ul class="sourceinfo noteinfo">
+										<li>{{ sourceinfo }}</li>
+									</ul>
+									{% endif %}
+									{% endwith %}
+
+									{% with note.ctransfer as ctransfer %}
+									{% if ctransfer %}
+									<ul class="ctransfer noteinfo">
+										<li>Transferred to: {{ ctransfer }}</li>
+									</ul>
+									{% endif %}
+									{% endwith %}
+
+									{% with note.msinfo as msinfo %}
+									{% if msinfo %}
+									<ul class="msinfo noteinfo">
+										<li>{{ msinfo }}</li>
+									</ul>
+									{% endif %}
+									{% endwith %}
+								{% endfor %}
+								{% endif %}
+							</ul>
+						</div>
+					{% endthumbnail %}
+				<figcaption>
+				<ul id="tabs">
+				{% if previous_page %}
+					<li class="paginator_thum">
+					{% thumbnail previous_page.image "x170" as previous_thum %}
+						<a href="{% url 'notebookpage_detail' notebpage=previous_page.page_number %}" class="hovertext" title="{{ previous_page.page_number }}" style="font-size:85%;">
+							<img src="{{ previous_thum.url }}" width="{{ previous_thum.width }}" height="{{ previous_thum.height }}">
+						</a>
+					{% endthumbnail %}
+					</li>
+				{% endif %}
+					<li class="actual_image">
+					{% thumbnail page_obj.image "x170" as actual_thum %}
+						<img id="actual" class="hovertext" src="{{ actual_thum.url }}" width="{{ actual_thum.url }}" height="{{ actual_thum.height }}">
+					{% endthumbnail %}
+					</li>
+				{% if next_page %}
+					<li class="paginator_thum">
+					{% thumbnail next_page.image "x170" as next_thum %}
+						<a href="{% url 'notebookpage_detail' notebpage=next_page.page_number %}" class="hovertext" title="{{ next_page.page_number }}" style="font-size:85%;">
+							<img src="{{ next_thum.url }}" width="{{ next_thum.width }}" height="{{ next_thum.height }}">
+						</a>
+					{% endthumbnail %}
+					</li>
+				{% endif %}
+				</ul>
+				</figcaption>
+				</figure>
+			</td>
+		</tr>
+	</table>
+
+	<script>
+	(function() {
+	    var sneaky = new ScrollSneak(location.hostname), tabs = document.getElementById('tabs').getElementsByTagName('li'), i = 0, len = tabs.length;
+	    for (; i < len; i++) {
+	        tabs[i].onclick = sneaky.sneak;
+	    }
+	})();
+	</script>
+	{% endblock %}
+
+	{% block pagegallery_paginator %}
+	<div class="paginator_select" style="text-align:center;">
+	    <select class="selector" onchange="location = this.options[this.selectedIndex].value;">
+	    	{% for c_page in c_pages %}
+	    	<option value="{% url 'notebookpage_detail' notebpage=c_page.page_number %}" {% ifequal c_page page_obj %}selected{% endifequal %}>{{ c_page.page_number }}</option>
+	    	{% endfor %}
+	    </select>
+	</div>
+</div>
+{% endblock %}
+
+{% block detailed_content %}
+
+{% endblock %}

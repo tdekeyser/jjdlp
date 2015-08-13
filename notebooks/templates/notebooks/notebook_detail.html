@@ -1,0 +1,102 @@
+{% extends 'notebooks/notebooks_base.html' %}
+{% load humanize %}
+{% load thumbnail %}
+
+{% block heads %}
+{% endblock %}
+
+{% block body_title %}
+{% endblock %}
+
+{% block body %}
+
+{% block macro_view %}
+<div class="macro_view">
+Here comes the macro view timeline.
+</div>
+{% endblock %}
+
+<div id="detail">
+	{% block cover %}
+	{% if cover %}
+		<table id="cover" style="border:none !important;" width="385" height="550">
+		<tr><td>
+			<a href="" title="" class="">
+			{% thumbnail cover "360x550" crop="96% 40%" as im %}
+				<img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+			{% endthumbnail %}
+			</a>
+		</td></tr>
+		</table>
+	{% else %}
+		<table id="cover" width="385" height="550">
+			<tr>
+				<td>
+					<figure>
+					<img id="ghost_page" alt="" src="{{ MEDIA_URL }}JJDLP/images/torn_paper.png">
+					<figcaption>The front cover has vanished...</figcaption>
+					</figure>
+				</td>
+			</tr>
+		</table>
+	{% endif %}
+	{% endblock %}
+	<div class="source_info">
+		<div class="short_sourceinfo">
+			<table id="source_info">
+				<tr>
+					{% block source_info_cover %}{% endblock %}
+					<td>
+						<strong>{{ object.name }}</strong>
+						<br/>
+						{% block extra_sourceinfo %}{% endblock %}
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<div>
+	{% block page_gallery %}
+		<table id="sourcepage_overview">
+			{% if notebook_pages %}
+			<tr>
+				<td>
+					This notebook contains {{ counted_pages|apnumber }} page{{ notebook_pages|pluralize }}, showing {{ page.start_index }} to {{ page.end_index }}.
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<ul class="page_grid">
+					{% for page in notebook_pages %}
+						{% thumbnail page.image "x200" as thum %}
+						<li style="padding:.5em;">
+							<figure>
+								<a href="{% url 'notebookpage_detail' notebpage=page.page_number %}" title="{{ page.page_number }}" class="hovertext" style="font-size:90%;">
+									<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
+								</a>
+							</figure>
+						</li>
+						{% endthumbnail %}
+					{% endfor %}
+					</ul>
+				</td>
+			</tr>
+			{% endif %}
+		</table>
+	{% endblock %}
+	{% block pagegallery_paginator %}
+	</div>
+    {% include 'search/includes/bottom_paginator.html' %}
+    <div class="paginator_select" style="text-align:center;">
+	    <select class="selector" onchange="location = this.options[this.selectedIndex].value;">
+	    	<option>Choose page</option>
+	    	{% for number in paginator.page_range %}
+	    	<option value="?page={{ number }}">{{ number }}: notebook page x to y</option>
+	    	{% endfor %}
+	    </select>
+    </div>
+    {% endblock %}
+    
+</div>
+{% endblock %}
+

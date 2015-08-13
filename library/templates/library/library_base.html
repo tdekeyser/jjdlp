@@ -1,0 +1,94 @@
+{% extends 'JJDLP/dummy_base.html' %}
+
+{% block heads %}
+<script src="{{ STATIC_URL }}JJDLP/js/jquery-1.11.2.js"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}library/css/library_homepage_css.css" />
+<script type="text/javascript" src="{{ STATIC_URL }}library/js/appear_onclick.js"></script>
+<!-- Icons made by <a href="http://www.flaticon.com/authors/simpleicon" title="SimpleIcon">SimpleIcon</a>, <a href="http://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a> -->
+{% endblock %}
+
+{% block title %}Joyce Web Library{% endblock %}
+
+{% block body_title %}
+<table id="head_banner">
+	<tr>
+		<td><section id="title"><h1>Library</h1></section>
+			<div id="info">
+				<p>Joyce was constantly looking for useful material from his immediate environment. The library section is a reconstruction of some of the material that he owned (the <i>extant</i> library) or may have read and used according to existing  evidence (the <i>virtual</i> library). These items are therefore the uttermost foundation of Joyce's writing process.</p>
+			</div>
+		</td>
+	</tr>
+</table>
+{% endblock %}
+
+{% block body %}
+<div id="library-wrap">
+
+<div id="lib_count"><strong>{{ source_amount }}</strong> items in the library</div>
+
+<div id="fast_search">
+	<div id="s_icon"><img src="{{ STATIC_URL }}JJDLP/images/search_icon.png" height="30" width="30"></div>
+	<div id="search_info">Search</div>
+	<div id="search_box">
+		<form action="{% url 'library_fast_search' %}" method="get">
+			<input id="searchquery" type="text" name='q' placeholder=" Fast search library">
+			<input id="submit" type="submit" value="Search">
+		</form>
+	</div>
+</div>
+
+<div id="fast_sort">
+	<div id="s_icon"><img src="{{ STATIC_URL }}JJDLP/images/sort_icon.png" height="30" width="30"></div>
+	<div id="sort_info">Sort</div>
+	<div id="sort_box">
+		<ul class="sort_li">
+			<li class="rightborder"><a href="" id="authorsorter_link">Author</a></li>
+			<li class="rightborder"><a href="" id="titlesorter_link">Title</a></li>
+			<!-- publisher is not included, only city! -->
+			<li class="rightborder"><a href="" id="citysorter_link">City</a></li>
+			<!-- Date does not work yet! -->
+			<li><a href="" id="datesorter_link">Date</a></li>
+		</ul>
+			<div id="author_box" title="Sort on author:">
+				<ul class="sort_li">
+					{% for letter in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' %}
+					<li><a href="{% url 'order_all' source_field='author' first_letter=letter %}">({{ letter }})</a></li>
+					{% endfor %}
+				</ul>
+			</div>
+			<div id="title_box" title="Sort on title:">
+				<ul class="sort_li">
+					{% for letter in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' %}
+					<li id="title_box"><a href="{% url 'order_all' source_field='title' first_letter=letter %}">({{ letter }})</a></li>
+					{% endfor %}
+				</ul>
+			</div>
+			<div id="city_box" title="Sort on city:">
+				<ul class="sort_li">
+					{% for letter in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' %}
+					<li id="city_box"><a href="{% url 'order_all' source_field='city' first_letter=letter %}">({{ letter }})</a></li>
+					{% endfor %}
+				</ul>
+			</div>
+			<div id="date_box" title="Sort on period:">
+				<ul class="sort_li">
+					<li id="date_box"><a href="http://en.wikipedia.org/wiki/Fermat%27s_Last_Theorem">Sorry, period sorting not yet operational. <span style="font-size:80%;">Annoyed? If so, try showing that x<sup>n</sup> + y<sup>n</sup> = z<sup>n</sup> does not have solutions for integers x, y, z, and n (with n > 2).</span></a></li>
+				</ul>
+			</div>
+	</div>
+</div>
+
+<div id="info-wrap">
+	<div id="extra_searchinfo">Fast search the library, or visit the <a href="{% url 'haystack_search' %}" style="text-decoration: underline;">advanced search</a> page for more thorough searches.</div> 
+	<div id="extra_sortinfo">Sort the items of the library based on a specific field and first letter.</div>
+</div>
+
+<div id="lib_pic">
+	<img id="library_picture" src="{{ STATIC_URL }}JJDLP/images/half_lib.jpg">
+</div>
+
+</div>
+
+{% endblock %}

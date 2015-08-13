@@ -1,0 +1,31 @@
+{% extends 'JJDLP/dummy_base.html' %}
+
+{% block heads %}
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}library/css/library_homepage_css.css" />
+{% endblock %}
+
+{% block title %}Joyce Notebooks{% endblock %}
+
+{% block body_title %}
+<table id="head_banner">
+	<tr>
+		<td><section id="title"><h1>Notebooks</h1></section>
+		<div id="info">
+				<p>Welcome to the digital environment of James Joyce's notebooks.</p>
+				<p>To search throughout the notebooks, please be referred to the <a href="{% url 'haystack_search' %}" style="text-decoration:underline;">advanced search</a> page, and tick "notebooks" before submitting your query.</p>
+			</div>
+		</td>
+	</tr>
+</table>
+{% endblock %}
+
+{% block body %}
+<div class="">
+	Browse through James Joyce's notebooks:
+		<ul>
+			{% for notebook in notebooks %}
+				<li><a href="{% url 'notebook_detail' noteb=notebook %}">{{ notebook }}</a></li>
+			{% endfor %}
+		</ul>
+</div>
+{% endblock %}

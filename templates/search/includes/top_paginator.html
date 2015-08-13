@@ -1,0 +1,8 @@
+{% ifnotequal paginator.count 0 %}
+	<div class="pagination" id="pag_info">Your search query "<strong>{{ query }}</strong>" matches <strong>{{ paginator.count }} source{{ page|pluralize }}</strong>
+	{% if paginator.count == 1 %}
+	.</div>
+	{% else %}
+	, showing {{ page.start_index }} to {{ page.end_index }}.</div>
+	{% endif %}
+{% endifnotequal %}

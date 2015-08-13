@@ -1,0 +1,19 @@
+{% if paginator.num_pages > 1 %}
+    <div class="pagination" id="pag_steps">
+        {% if page.has_previous %}
+            <a href="?{% if query %}q={{ query }}&amp;{% endif %}page={{ page.previous_page_number }}"{% ifequal p page %} class="selected"{% endifequal %}>&laquo; {{ page.previous_page_number }} |</a>
+        {% endif %}
+
+        <span class="current">
+            <b>{{ page.number }}</b>
+        </span>
+
+        {% if page.has_next %}
+            <a href="?{% if query %}q={{ query }}&amp;{% endif %}page={{ page.next_page_number }}"> | {{ page.next_page_number }} &raquo;</a>
+        {% endif %}
+
+        <span class="total">
+            ({{ paginator.num_pages }} page{{ page|pluralize }})
+        </span>
+    </div>
+{% endif %}

@@ -1,0 +1,3 @@
+{{ object.source_type }}
+{{ object.title }}
+{{ object.verbose_source_name }}
