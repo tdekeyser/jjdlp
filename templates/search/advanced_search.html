@@ -1,13 +1,11 @@
 {% extends 'JJDLP/dummy_base.html' %}
-{% load highlight %}
 
 {% block title %}Advanced Search{% endblock %}
 
 {% block body %}
     <div class="search_docs" style="margin-right:1em;"><b>Hint:</b> To gain better results, read about how the engine has been set up in the <a href="{% url 'search_docs' %}" style="text-decoration: underline;"> search docs</a>.</div>
 
-    <section id="title"><h1>Advanced search</h1></section>
-    <div id="body">
+    <h1>Advanced search</h1>
     <div id="specified_info">
         <form method="get" action=".">
             <table id="advanced_search">
@@ -20,29 +18,32 @@
                 </tr>
             </table>
 
-    <img id="advanced_search_image" width="250" src="{{ STATIC_URL }}JJDLP/images/joyce_critic.jpg">
-
             {% if query %}
                 {% include 'search/includes/top_paginator.html' %}
-                <table class="advanced_search_list">
+                <table class="result_list">
     				<thead></thead>
     				<tbody>
     					{% for result in page.object_list %}
-                        <!-- if result.content_type == "library.source", then do this: (possibly not in table form); if other templates, use include(pampam.html)  -->
-    					<tr>
-    						<td>
-    							<a href="{% url 'haystack_search' %}?q={{ result.object.source_type }}"><img id="thumbnail" alt="" src="{{ STATIC_URL }}{% ifequal result.object.source_type 'book' %}JJDLP/images/Book_pic.png{% else %}JJDLP/images/News_pic.png{% endifequal %}" height="30" /></a>
-    						</td>
-    						<td>
-    							<a href="{% url 'source_detail' slug=result.object.slug %}">{% highlight result.object.verbose_source_name with query max_length 100000 %}</a>
-    						</td>
-    					</tr>
-                        <tr class="advanced_info">
-                            <td></td>
-                            <td class="advanced_info">from {{ result.verbose_name_plural }} | score {{ result.score }}</td>
-                        </tr>
-    					{% empty %}
-                        <div class="fail">No sources matched your search criteria "<strong>{{ query }}</strong>". Modify your existing search or try a new query.</div>
+
+                    {% with result.object.notepage as notepagenumber %}
+                    {% with result.object.slug as sourceslug %}
+                    {% with result.object.linenumber as line %}
+
+                        {% if notepagenumber %}
+                            {% include 'notebooks/includes/notebooks_searchresults.html' %}
+
+                        {% elif sourceslug %}
+                            {% include 'library/includes/library_searchresults.html' %}
+
+                        {% elif line %}
+                            {% include 'novels/includes/novels_searchresults.html' %}
+
+                        {% endif %}
+
+                    {% endwith %}
+                    {% endwith %}
+                    {% endwith %}
+
     					{% endfor %}
     				</tbody>
     			</table>
@@ -52,6 +53,5 @@
                 Please enter a search query.</div>
             {% endif %}
         </form>
-    </div>
     </div>
 {% endblock %}

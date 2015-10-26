@@ -1,0 +1,101 @@
+{% extends 'library/library_dummy_base.html' %}
+{% load thumbnail %}
+
+{% block heads %}
+<script src="{{ STATIC_URL }}library/js/scrollsneak.js"></script>
+{% endblock %}
+
+{% block source_pages %}
+{% endblock %}
+
+{% block content %}
+<div class="panel panel-default">
+	<div class="panel-body">
+		<div class="media">
+			{% if frontcover %}
+		 	<div class="media-left">
+				{% thumbnail frontcover "67x100" crop="98% 0%" as thum %}
+				<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
+		    	{% endthumbnail %}
+		  	</div>
+		 	{% endif %}
+			<div class="media-body">
+			    <h4 class="media-heading">{{ sourceitem.title }}</h4>
+			    	Page {{ chosen_page.actual_pagenumber }}
+			    	<br/>
+			    	{% if found_notes %}
+			    	<div class="media">
+			  			<div class="media-left">
+			  				<span class="glyphicon glyphicon-list-alt"></span>
+			  			</div>
+			  			<div class="media-body">
+			    			<h4 class="media-heading">Notes traced <span class="badge">{{ counted_found_notes }}</span></h4>
+					    	{% for note in found_notes %}
+					    		<a href="{% url 'notebookpage_detail' noteb=note.noteb notebpage=note.notepage %}">{{ note.notepage }} {{ note.notejj }}</a><br/>
+					    	{% endfor %}
+					    </div>
+					</div>
+					{% endif %}
+			</div>
+		</div>
+	</div>
+</div>
+
+</div>
+<!-- page wrap closed and open gallery wrap -->
+<div class="gallery-wrap">
+	<div class="page-gallery">
+		<div class="detail_page">
+			{% if chosen_page.image|is_portrait %}
+				{% thumbnail chosen_page.image "x700" as im %}
+					<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+				{% endthumbnail %}
+			{% else %}
+				{% thumbnail chosen_page.image "900" as im %}
+					<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+				{% endthumbnail %}
+			{% endif %}
+		</div>
+		<div class="page-row-well well well-sm">
+			{% if previous_pages %}
+				{% for previous_page in previous_pages %}
+					<div class="page-row">
+					{% thumbnail previous_page.image "x100" as previous_thum %}
+						<a href="{% url 'librarypage_detail' itemslug=sourceitem.slug req_page=previous_page.actual_pagenumber %}" title="{{ previous_page.actual_pagenumber }}">
+							<img class="thumbnail" src="{{ previous_thum.url }}" width="{{ previous_thum.width }}" height="{{ previous_thum.height }}">
+						</a>
+					{% endthumbnail %}
+					</div>
+				{% endfor %}
+			{% endif %}
+					<div class="page-row">
+					{% thumbnail chosen_page.image "x100" as actual_thum %}
+						<img class="thumbnail active" src="{{ actual_thum.url }}" width="{{ actual_thum.width }}" height="{{ actual_thum.height }}">
+					{% endthumbnail %}
+					</div>
+			{% if next_pages %}
+				{% for next_page in next_pages %}
+					<div class="page-row">
+					{% thumbnail next_page.image "x100" as next_thum %}
+						<a href="{% url 'librarypage_detail' itemslug=sourceitem.slug req_page=next_page.actual_pagenumber %}" title="{{ next_page.actual_pagenumber }}" >
+							<img class="thumbnail" src="{{ next_thum.url }}" width="{{ next_thum.width }}" height="{{ next_thum.height }}">
+						</a>
+					{% endthumbnail %}
+					</div>
+				{% endfor %}
+			{% endif %}
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block finaljavascript %}
+<!-- <script>
+(function() {
+    var sneaky = new ScrollSneak(location.hostname), tabs = document.getElementById('tabs').getElementsByTagName('li'), i = 0, len = tabs.length;
+    for (; i < len; i++) {
+        tabs[i].onclick = sneaky.sneak;
+    }
+})();
+</script>
+ -->{% endblock %}

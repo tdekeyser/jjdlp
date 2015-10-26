@@ -18,9 +18,9 @@ class NotebookPageAdmin(admin.ModelAdmin):
 	fields = ('notebook_ref', 'page_number', 'image')
 
 class NoteAdmin(admin.ModelAdmin):
-	list_display = ('notepage', 'notejj', 'source', 'source_info', 'annotation', 'msinfo', 'ctransfer')
+	list_display = ('notepage', 'notejj', 'source', 'source_info', 'source_page_ref', 'annotation', 'ctransfer', 'msinfo', 'novelpage')
 	search_fields = ('notejj',)
-	fields = ('notepage', 'notejj', 'source', 'source_info', 'annotation', 'msinfo', 'ctransfer')
+	fields = ('noteb', 'notepage', 'notejj', 'source', 'source_info', 'source_page_ref', 'annotation', 'msinfo', 'ctransfer', 'novelpage', 'novelpage_ref')
 
 class NotebookPageInline(admin.TabularInline):
     model = NotebookPage

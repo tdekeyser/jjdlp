@@ -1,0 +1,9 @@
+{% load highlight %}
+
+<tr>
+    <td class="list_pages">
+        <span class="glyphicon glyphicon-list-alt"></span>
+    </td>
+    <td class="bib_info"><a class="notred" href="{% url 'notebookpage_detail' noteb=result.object.noteb notebpage=notepagenumber %}">{{ notepagenumber }}&emsp;&emsp;{% highlight result.object.notejj with query max_length 100000000 %}</a></td>
+    <td class="bib_info" style="margin: 5px; margin-left: 50px;">{% highlight result.object.source_info with query max_length 100 %}</td>
+</tr>

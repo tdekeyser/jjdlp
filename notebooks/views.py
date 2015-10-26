@@ -1,21 +1,56 @@
 import re
 from django.shortcuts import render
-from notebooks.models import Notebook, NotebookPage
 from django.views.generic import TemplateView, ListView, DetailView
+from django.core.exceptions import ObjectDoesNotExist
+
+from haystack.views import SearchView
+from haystack.query import SearchQuerySet
+from haystack.forms import HighlightedModelSearchForm
+
+from notebooks.models import Notebook, NotebookPage, Note
+
 
 class NotebookHomeView(TemplateView):
+	'''
+	NOTEBOOKS_HOME presents:
+		- short information on notebooks section
+		- search functionality
+		- a list of all available notebooks
+		- amount of notebooks and notes
+	'''
+	
 	template_name = 'notebooks/notebooks_base.html'
 
 	def get_context_data(self, **kwargs):
 		context = super(NotebookHomeView, self).get_context_data(**kwargs)
 		context['notebooks'] = Notebook.objects.all()
 		context['counted_notebooks'] = Notebook.objects.all().count()
+		context['counted_notes'] = Note.objects.all().count()
+
+		# notebook images
+		context['b1frontcover'] = NotebookPage.objects.get(page_number__exact='B.1.a_frco')
+		context['c_example'] = None
+		context['d_example'] = None
+		
 		return context
 
+class NoteSearchView(SearchView):
+	form = HighlightedModelSearchForm
+	template = 'notebooks/search_results.html'
+
+	def extra_context(self, **kwargs):
+		return {'specific_model': 'models=notebooks.note'}
+
 class NotebookView(ListView):
-	'''Detail notebook with listed pages'''
+	'''
+	Passes context to NOTEBOOK_DETAIL:
+		- frontcover
+		- counts notebook pages and notes
+		- paginates 4 notebook pages
+	'''
+
 	context_object_name = 'notebook_pages'
-	paginate_by = 5
+	paginate_by = 4
 
 	def get_context_data(self, **kwargs):
 		context = super(NotebookView, self).get_context_data(**kwargs)
@@ -33,7 +68,9 @@ class NotebookView(ListView):
 				pass
 			
 		context['object'] = requested_notebook
+		context['object_pages'] = requested_notebook.notebook_page.get_contentimages()
 		context['counted_pages'] = requested_notebook.notebook_page.all().count()
+		context['counted_notes'] = requested_notebook.note_of_book.all().count()
 		context['page'] = context['page_obj']
 		del context['page_obj']
 		return context
@@ -45,7 +82,14 @@ class NotebookView(ListView):
 		return 'notebooks/notebook_detail.html'
 
 class NotebookPageDetail(DetailView):
-	'''Detail notebookpage, takes notebookpage as object'''
+	'''
+	NOTEBOOKPAGE_DETAIL,
+		takes notebookpage as object,
+		lists all notes on the page,
+		provides detailed information on each note,
+		allows easy navigation to other notebookpages.
+	'''
+
 	model = NotebookPage
 	pk_url_kwarg = 'notebpage'
 
@@ -65,10 +109,10 @@ class NotebookPageDetail(DetailView):
 
 		try:
 			context['frontcover'] = notebook_obj.notebook_page.get_frontcover()
-		except:
+		except ObjectDoesNotExist:
 			try:
 				context['frontcover'] = notebook_obj.notebook_page.get_backcover()
-			except:
+			except ObjectDoesNotExist:
 				pass
 
 		context['page_obj'] = context['object']
@@ -78,7 +122,14 @@ class NotebookPageDetail(DetailView):
 		context['next_page'] = surrounding_images['next_image']
 		context['c_pages'] = notebook_obj.notebook_page.get_contentimages()
 
-		if self.object.note.all():
-			context['notes'] = self.object.note.all()
+		notes = self.object.note_of_page.all()
+		if notes:
+			context['notes'] = notes
+
+			traced_objects = notebook_obj.notebook_page.get_traced_objects_list(self.object)
+			context['set_of_sources'] = traced_objects['sources']
+			context['sources_count'] = traced_objects['sources_count']
+			context['set_of_novelpages'] = traced_objects['novelpages']
+			context['novelpages_count'] = traced_objects['novelpages_count']
 		
 		return context

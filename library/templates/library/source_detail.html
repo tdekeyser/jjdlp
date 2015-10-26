@@ -8,6 +8,8 @@
 <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 <script type="text/javascript" src="{{ STATIC_URL }}library/js/unfold.js"></script>
+
+<!-- carousel -->
 <link href="http://cdnjs.cloudflare.com/ajax/libs/fotorama/4.6.3/fotorama.css" rel="stylesheet">
 <script src="http://cdnjs.cloudflare.com/ajax/libs/fotorama/4.6.3/fotorama.js"></script>
 {% endblock %}
@@ -16,8 +18,9 @@
 {% block sort_fields %} {% endblock %}
 
 {% block content %}
-<div id="detail">
+<div class="detail">
 	{% block source_pages %}
+	<div id="detailcover">
 		{% if coverimages %}
 			<table id="cover" style="border:none !important;">
 			<tr><td>
@@ -31,7 +34,7 @@
 			</td></tr>
 			</table>
 		{% else %}
-			<table id="cover">
+			<table id="cover" height="550" width="360" style="text-align:center;">
 				<tr>
 					<td>
 						<figure>
@@ -42,80 +45,82 @@
 				</tr>
 			</table>
 		{% endif %}
+	</div>
 	{% endblock %}
-	<div class="source_info">
-		<div class="short_sourceinfo">
+
+
+<div class="tabnav column650">
+	<div class="tabs">
+		<ul class="nav nav-tabs" role="tablist">
+			<li role="presentation" class="active"><a href="#item" aria-controls="home" role="tab" data-toggle="tab" class="taba"><span class="glyphicon glyphicon-book"></span> Item</a></li>
+			<li role="presentation"><a href="#rnotes" aria-controls="profile" role="tab" data-toggle="tab" class="taba"><span class="glyphicon glyphicon-list-alt"></span> Reading notes 
+			{% if tracedimages %}<span class="badge">{{ counted_tracedimages }}</span>{% endif %}</a></li>
+		</ul>
+	</div>
+
+	<div class="tab-content">
 			{% block source_info_cover %}{% endblock %}
-			<table id="source_info" width="60%">
-				<tr>
-					<td><strong>{{ object.title }}</strong> | <a href="{% url 'haystack_search' %}?q={{ object.get_authors }}">{{ object.get_authors }}</a></td>
-				</tr>
-				<tr>
-					<td><a href="{% url 'haystack_search' %}?q={{ object.publication_date }}">{{ object.publication_date }}</a> | {{ object.publisher }}</td>
-				</tr>
-				<tr>
-					<td style="display:inline-block;">
-						<a href="{% url 'haystack_search' %}?q={{ object.source_type }}"><img id="thumbnail" alt="" src="{{ STATIC_URL }}{% ifequal object.source_type 'book' %}JJDLP/images/Book_pic.png{% else %}JJDLP/images/News_pic.png{% endifequal %}" height="30" style="" /></a>
-					</td>
-					<td style="display:inline-block;">
-					{% if object.certainty_info %}
-						<a href="{% url 'cou_regulations' %}">
-							<div class="square" style="width:20px; height: 20px; background-color: {% resolve_colour object.certainty_info %};border:1px solid #efefef;border-radius:2px;"></div>
-						</a>
-						<div class="info_on_hover" style="display:none;">{{ object.certainty_info }}</div>
-					{% else %}
-						<div class="square" style="width:20px;height:20px;background-color:none;border:1px solid #efefef;border-radius:2px;text-align:center;">C</div>
-					{% endif %}				
-					</td>
-				</tr>
-				{% block extra_sourceinfo %}{% endblock %}
-			</table>
+	<div role="tabpanel" class="tab-pane active" id="item">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<strong>{{ object.title }}</strong>
+				<br/>
+				{{ object.get_authors }}
+				<br/>
+				{{ object.publisher }}, {{ object.publication_date }}
+			</div>
+			<div class="panel-body">
+				{{ object.info }}
+			</div>
 		</div>
+				
+					{% block extra_sourceinfo %}{% endblock %}
+
+	</div>
 		{% block related_noteinfo %}{% endblock %}
-	{% block page_gallery %}
-		<table id="sourcepage_overview">
+		{% block page_gallery %}
+	<div role="tabpanel" class="tab-pane" id="rnotes">
 		{% if coverimages %}
 			{% if tracedimages %}
-			<tr>
-				<td>
-					{{ counted_tracedimages|apnumber|title }} page{{ counted_tracedimages|pluralize }} with reading notes available below.
-						{% if object.source_link %}
-							<br/>
-							For the complete book, please be referred <a href="{{ object.source_link }}" target="_blank" style="text-decoration:underline;">elsewhere</a>.
-						{% endif %}
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<ul class="page_grid">
-					{% for trace in tracedimages %}
-						{% thumbnail trace.image "x100" as thum %}
-						<li>
-							<figure>
-								<a href="{% url 'page_detail' slug=object.slug req_page=trace.actual_pagenumber %}" title="{{ trace.actual_pagenumber }}" class="hovertext" style="font-size:85%;">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">{{ counted_tracedimages|apnumber|title }} page{{ counted_tracedimages|pluralize }} with reading notes available</h3>
+				</div>
+				<div class="panel-body">
+					<div class="row">
+						{% for trace in tracedimages %}
+							<div class="col-xs-6 col-md-3">
+							{% thumbnail trace.image "x100" as thum %}
+								<a href="{% url 'librarypage_detail' itemslug=object.slug req_page=trace.actual_pagenumber %}" title="{{ trace.actual_pagenumber }}" class="thumbnail">
 									<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
 								</a>
-							</figure>
-						</li>
-						{% endthumbnail %}
-					{% endfor %}
-					</ul>
-				</td>
-			</tr>
+							{% endthumbnail %}
+							</div>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+				{% if object.source_link %}
+				<div class="panel panel-default">
+					<div class="panel-body">
+						The complete book can be found <a href="{{ object.source_link }}" target="_blank" style="text-decoration:underline;">here</a>.
+					</div>
+				</div>
+				{% endif %}
 			{% else %}
-			<tr>
-				<td style="line-height:30em;">
 					{% if object.source_link %}
 						Bibliographical information can be studied here. For the complete book, please be referred <a href="{{ object.source_link }}" target="_blank" style="text-decoration:underline;">elsewhere</a>.
 					{% endif %}
-				</td>
-			</tr>
 			{% endif %}
 		{% endif %}
-		</table>
+	</div>
 	{% endblock %}
 	</div>
 	{% block detailed_content %}
 	{% endblock %}
 </div>
+</div>
+{% endblock %}
+
+{% block finaljavascript %}
 {% endblock %}

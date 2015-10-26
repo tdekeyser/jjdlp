@@ -1,102 +1,135 @@
-{% extends 'notebooks/notebooks_base.html' %}
+{% extends 'notebooks/notebooks_dummy_base.html' %}
 {% load humanize %}
 {% load thumbnail %}
 
 {% block heads %}
+<link rel="stylesheet" href="{{ STATIC_URL }}notebooks/css/timeline.css">
+<link title="timeline-styles" rel="stylesheet" href="//cdn.knightlab.com/libs/timeline3/latest/css/fonts/font.pt.css">
 {% endblock %}
 
 {% block body_title %}
 {% endblock %}
 
-{% block body %}
-
-{% block macro_view %}
-<div class="macro_view">
-Here comes the macro view timeline.
-</div>
-{% endblock %}
+{% block content %}
 
 <div id="detail">
 	{% block cover %}
+	<div id="detailcover">
 	{% if cover %}
-		<table id="cover" style="border:none !important;" width="385" height="550">
+		<table id="cover" style="border:none !important;" width="360" height="550">
 		<tr><td>
-			<a href="" title="" class="">
 			{% thumbnail cover "360x550" crop="96% 40%" as im %}
 				<img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
 			{% endthumbnail %}
-			</a>
 		</td></tr>
 		</table>
 	{% else %}
-		<table id="cover" width="385" height="550">
+		<table id="cover" width="360" height="550">
 			<tr>
 				<td>
 					<figure>
 					<img id="ghost_page" alt="" src="{{ MEDIA_URL }}JJDLP/images/torn_paper.png">
-					<figcaption>The front cover has vanished...</figcaption>
 					</figure>
 				</td>
 			</tr>
 		</table>
 	{% endif %}
+	</div>
 	{% endblock %}
-	<div class="source_info">
-		<div class="short_sourceinfo">
-			<table id="source_info">
-				<tr>
-					{% block source_info_cover %}{% endblock %}
-					<td>
-						<strong>{{ object.name }}</strong>
-						<br/>
-						{% block extra_sourceinfo %}{% endblock %}
-					</td>
-				</tr>
-			</table>
+
+<div class="tabnav column650">
+	<div class="tabs">
+		<ul class="nav nav-tabs" role="tablist">
+			<li role="presentation" class="active"><a href="#item" aria-controls="home" role="tab" data-toggle="tab" class="taba"><span class="glyphicon glyphicon-list-alt"></span> Notebook</a></li>
+			<li role="presentation"><a href="#rnotes" aria-controls="profile" role="tab" data-toggle="tab" class="taba"><span class="glyphicon glyphicon-file"></span> Pages 
+			{% if notebook_pages %}<span class="badge">{{ counted_pages }}</span>{% endif %}</a></li>
+		</ul>
+	</div>
+
+	<div class="tab-content">
+
+	<div role="tabpanel" class="tab-pane active" id="item">
+		<div class="panel panel-default">
+			<div class="panel-heading"><strong>{{ object.name }}</strong></div>
+			<div class="panel-body">
+				{{ object.info }}
+				{% block source_info_cover %}{% endblock %}
+				{% block extra_sourceinfo %}{% endblock %}
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+			<h3 class="panel-title">Specific background</h3>
+			</div>
+			<div class="panel-body">
+				<div class="timeline-wrap detail-timeline detailtimeline">
+					<div id='timeline-embed' style="width: 100%; height: 170px;"></div>
+				</div>				
+			</div>
+		</div>
+
+	</div>
+	<div role="tabpanel" class="tab-pane" id="rnotes">
+		{% block page_gallery %}
+			{% if notebook_pages %}
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">
+					{{ counted_notes }} notes, showing page {{ page.start_index }} to {{ page.end_index }}.
+					</h3>
+				</div>
+			
+				<div class="panel-body">
+					<div class="row">
+					{% for page in notebook_pages %}
+						<div class="col-xs-6 col-md-3">
+						{% thumbnail page.image "x180" as thum %}
+							<a href="{% url 'notebookpage_detail' noteb=object.name notebpage=page.page_number %}" title="{{ page.page_number }}" class="thumbnail" style="font-size:90%;">
+								<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
+							</a>
+						{% endthumbnail %}
+						</div>
+					{% endfor %}
+					</div>
+				</div>
+			</div>
+			{% endif %}
+		{% endblock %}
+		{% block pagegallery_paginator %}
+		    {% include 'search/includes/bottom_paginator.html' %}
+			<div class="paginator_select" style="text-align:center;">
+			    <select class="selector" onchange="location = this.options[this.selectedIndex].value;">
+			    	{% for page in object_pages %}
+			    	<option value="{% url 'notebookpage_detail' noteb=object.name notebpage=page.page_number %}">{{ page.page_number }}</option>
+			    	{% endfor %}
+			    </select>
+			</div>
+		    {% endblock %}
 		</div>
 	</div>
-	<div>
-	{% block page_gallery %}
-		<table id="sourcepage_overview">
-			{% if notebook_pages %}
-			<tr>
-				<td>
-					This notebook contains {{ counted_pages|apnumber }} page{{ notebook_pages|pluralize }}, showing {{ page.start_index }} to {{ page.end_index }}.
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<ul class="page_grid">
-					{% for page in notebook_pages %}
-						{% thumbnail page.image "x200" as thum %}
-						<li style="padding:.5em;">
-							<figure>
-								<a href="{% url 'notebookpage_detail' notebpage=page.page_number %}" title="{{ page.page_number }}" class="hovertext" style="font-size:90%;">
-									<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
-								</a>
-							</figure>
-						</li>
-						{% endthumbnail %}
-					{% endfor %}
-					</ul>
-				</td>
-			</tr>
-			{% endif %}
-		</table>
-	{% endblock %}
-	{% block pagegallery_paginator %}
 	</div>
-    {% include 'search/includes/bottom_paginator.html' %}
-    <div class="paginator_select" style="text-align:center;">
-	    <select class="selector" onchange="location = this.options[this.selectedIndex].value;">
-	    	<option>Choose page</option>
-	    	{% for number in paginator.page_range %}
-	    	<option value="?page={{ number }}">{{ number }}: notebook page x to y</option>
-	    	{% endfor %}
-	    </select>
-    </div>
-    {% endblock %}
-    
 </div>
 {% endblock %}
 
+{% block finaljavascript %}
+<script src="//cdn.knightlab.com/libs/timeline3/latest/js/timeline.js"></script>
+
+<script type="text/javascript">
+      // The TL.Timeline constructor takes at least two arguments:
+      // the id of the Timeline container (no '#'), and
+      // the URL to your JSON data file or Google spreadsheet.
+      // the id must refer to an element "above" this code,
+      // and the element must have CSS styling to give it width and height
+      // optionally, a third argument with configuration options can be passed.
+      // See below for more about options.
+      var options = {
+      	hash_bookmark: true,
+      	initial_zoom: 5,
+      }
+
+      var timeline = new TL.Timeline('timeline-embed',
+        'https://docs.google.com/spreadsheets/d/1KGk2ZgJjLbS_INGUqV4eTCNDHsIKTRXNgjIT1hIl6-0/edit#gid=0',
+        options);
+
+</script>
+{% endblock %}

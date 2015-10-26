@@ -1,6 +1,7 @@
-{% extends 'notebooks/notebook_detail.html' %}
+{% extends 'notebooks/notebooks_dummy_base.html' %}
 {% load thumbnail %}
 {% load activeurl %}
+{% load stringoperations %}
 
 {% block heads %}
 <script src="{{ STATIC_URL }}JJDLP/js/jquery-1.11.2.js"></script>
@@ -8,144 +9,203 @@
 <script src="{{ STATIC_URL }}notebooks/js/noteinfo_onclick.js"></script>
 {% endblock %}
 
-{% block cover %}
-{% endblock %}
+{% block content %}
 
 {% block macro_view %}
 {% endblock %}
-
-{% block source_info_cover %}
-			<td id="source_info_cover" style="float:left;">
+<div class="panel panel-default">
+	<div class="panel-body">
+		<div class="media">
 			{% if frontcover %}
+		 	<div class="media-left">
 				{% thumbnail frontcover "67x100" crop="98% 0%" as thum %}
-				<a href="{% url 'notebook_detail' noteb=object.name %}">
-				<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}" style="border:1px solid black;">
-				</a>
-				{% endthumbnail %}
-			{% else %}
-				<a href="{% url 'notebook_detail' noteb=object.name %}">
-				<img id="thumbnail" src="{{ MEDIA_URL }}JJDLP/images/torn_paper_thumb.jpg" width="70" height="100">
-				</a>
-			{% endif %}
-			</td>
-{% endblock %}
-
-{% block extra_sourceinfo %}
-<a href="{% url 'notebookpage_detail' notebpage=page_obj.page_number %}">Page {{ page_obj.page_number }}</a>
-{% endblock %}
-
-{% block page_gallery %}
-</div></div></div>
-<div class="gallery-wrap">
-	<div id="gallery_toolbar">
-		<ul>
-			<li id="allbutton">All</li>
-			<li id="annotationbutton">Annotation</li>
-			<li id="sourcebutton">Source</li>
-			<li id="ctransferbutton">C Transfer</li>
-			<li id="msinfobutton">MS info</li>
-		</ul>
+				<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
+		    	{% endthumbnail %}
+		  	</div>
+		 	{% endif %}
+			<div class="media-body">
+			    <h4 class="media-heading">{{ object.name }}</h4>
+			    	{{ page_obj.page_number }}
+			    	<br/>
+			    	{% if notes %}
+			    	<div class="media">
+			  			<div class="media-left">
+			  				<span class="glyphicon glyphicon-book"></span>
+			  			</div>
+			  			<div class="media-body">
+			    			<h4 class="media-heading">Sources traced <span class="badge">{{ sources_count }}</span></h4>
+					    	{% for source in set_of_sources %}
+					    		<a href="{% url 'source_detail' slug=source.slug %}">{{ source }}</a><br/>
+					    	{% endfor %}
+					    </div>
+					</div>
+			    	<div class="media">
+			  			<div class="media-left">
+			  				<span class="glyphicon glyphicon-certificate"></span>
+			  			</div>
+			  			<div class="media-body">
+			    			<h4 class="media-heading">Novel references <span class="badge">{{ novelpages_count }}</span></h4>
+					    	{% for novelpage in set_of_novelpages %}
+					    		<a href="{% url 'novelpage_detail' novelslug=novelpage.novel_ref.slug novelpage=novelpage.pagenumber %}">{{ novelpage.novel_ref }} {{ novelpage }}</a><br/>
+					    	{% endfor %}
+					    </div>
+					</div>
+					{% endif %}
+			</div>
+		</div>
 	</div>
-	<table class="table_page_gallery">
-		<tr>
-			<td>
-				<figure>
-					{% thumbnail page_obj.image "500" as im %}
-						<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" style="border:1px solid black">
-						<div id="transcription" style="height:{{ im.height }}px;">
-							<ul>
-								{% if notes %}
-								{% for note in notes %}
-								<li class="notetext">{{ note|safe }}</li>
-									{% with note.annotation as annotation %}
-									{% if annotation %}
-									<ul class="annotation noteinfo">
-										<li>{{ annotation }}</li>
-									</ul>
-									{% endif %}
-									{% endwith %}
+</div>
 
-									{% with note.source_info as sourceinfo %}
-									{% if sourceinfo %}
-									<ul class="sourceinfo noteinfo">
-										<li>{{ sourceinfo }}</li>
-									</ul>
-									{% endif %}
-									{% endwith %}
+</div>
+<!-- page wrap closed and open gallery wrap -->
+<div class="gallery-wrap">
+	<div class="page-gallery">
 
-									{% with note.ctransfer as ctransfer %}
-									{% if ctransfer %}
-									<ul class="ctransfer noteinfo">
-										<li>Transferred to: {{ ctransfer }}</li>
-									</ul>
-									{% endif %}
-									{% endwith %}
 
-									{% with note.msinfo as msinfo %}
-									{% if msinfo %}
-									<ul class="msinfo noteinfo">
-										<li>{{ msinfo }}</li>
-									</ul>
-									{% endif %}
+	<div class="gallery_toolbar">
+		<div class="btn-group">
+			<button type="button" class="btn btn-default button">
+				<span class="glyphicon glyphicon-align-justify"></span>
+			</button>
+			<button type="button" class="btn btn-default">
+				<span class="glyphicon glyphicon-question-sign"></span>
+			</button>
+		</div>
+	</div>
+
+	<div class="page_and_transcription">
+		<div class="detail_page">
+			<div class="page1">
+			{% thumbnail page_obj.image "500" as im %}
+				<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" style="border:1px solid black">
+			</div>
+			<div id="transcription" class="panel paneldefault">
+			<div height="{{ im.height }}px;">
+			{% endthumbnail %}
+				<div class="panel-body">
+					{% if notes %}
+					{% for note in notes %}
+					<div class="media">
+					  <div class="media-body">
+					    <h4 class="media-heading notejj noteclick">{{ note|safe }}</h4>
+					    	{% with note.source_info as sourceinfo %}
+							{% if sourceinfo %}
+								<div class="media sourceinfo noteinfo">
+								  <div class="media-left">
+								      <span class="glyphicon glyphicon-book"></span>
+								  </div>
+								  <div class="media-body">
+								  	{% if note.source_page_ref %}
+									{% with note.source_page_ref.page_number|splitoncomma as pagenumber %}
+									    <a href="{% url 'librarypage_detail' itemslug=note.source.slug req_page=pagenumber %}">
+											<div>{{ sourceinfo }}</div>
+										</a>
 									{% endwith %}
-								{% endfor %}
-								{% endif %}
-							</ul>
-						</div>
-					{% endthumbnail %}
-				<figcaption>
-				<ul id="tabs">
+									{% else %}
+										{{ sourceinfo }}
+									{% endif %}
+								  </div>
+								</div>
+							{% endif %}
+							{% endwith %}
+
+							{% with note.annotation as annotation %}
+							{% if annotation %}
+								<div class="media annotation noteinfo">
+								  <div class="media-body">
+								  	{{ annotation }}
+								  </div>
+								</div>
+							{% endif %}
+							{% endwith %}
+
+							{% with note.ctransfer as ctransfer %}
+							{% if ctransfer %}
+								<div class="media ctransfer noteinfo">
+								  <div class="media-body">
+								  	Transferred to: {{ ctransfer }}
+								  </div>
+								</div>
+							{% endif %}
+							{% endwith %}
+
+							{% with note.msinfo as msinfo %}
+							{% if msinfo %}
+								<div class="media msinfo noteinfo">
+								  <div class="media-body">
+								  	{{ msinfo }}
+								  </div>
+								</div>
+							{% endif %}
+							{% endwith %}
+
+							{% with note.novelpage as novelpage %}
+							{% if novelpage %}
+								<div class="media novelpage noteinfo">
+								  <div class="media-left">
+								      <span class="glyphicon glyphicon-certificate"></span>
+								  </div>
+								  <div class="media-body">
+								  	<a href="{% url 'novelpage_detail' novelslug=note.novelpage_ref.novel_ref.slug novelpage=novelpage|novelpagesplitter %}">{{ novelpage }}</a>
+								  </div>
+								</div>
+							{% endif %}
+							{% endwith %}
+
+					  </div>
+					</div>
+					{% endfor %}
+					{% endif %}
+				</div>
+			</div>
+		</div>
+		</div>
+		<div class="clear"></div>
+			<div class="page-row-well well well-sm">
 				{% if previous_page %}
-					<li class="paginator_thum">
+					<div class="page-row">
 					{% thumbnail previous_page.image "x170" as previous_thum %}
-						<a href="{% url 'notebookpage_detail' notebpage=previous_page.page_number %}" class="hovertext" title="{{ previous_page.page_number }}" style="font-size:85%;">
-							<img src="{{ previous_thum.url }}" width="{{ previous_thum.width }}" height="{{ previous_thum.height }}">
+						<a href="{% url 'notebookpage_detail' noteb=object.name notebpage=previous_page.page_number %}" title="{{ previous_page.page_number }}">
+							<img class="thumbnail" src="{{ previous_thum.url }}" width="{{ previous_thum.width }}" height="{{ previous_thum.height }}">
 						</a>
 					{% endthumbnail %}
-					</li>
+					</div>
 				{% endif %}
-					<li class="actual_image">
+					<div class="page-row">
 					{% thumbnail page_obj.image "x170" as actual_thum %}
-						<img id="actual" class="hovertext" src="{{ actual_thum.url }}" width="{{ actual_thum.url }}" height="{{ actual_thum.height }}">
+						<img class="active thumbnail" src="{{ actual_thum.url }}" width="{{ actual_thum.url }}" height="{{ actual_thum.height }}">
 					{% endthumbnail %}
-					</li>
+					</div>
 				{% if next_page %}
-					<li class="paginator_thum">
+					<div class="page-row">
 					{% thumbnail next_page.image "x170" as next_thum %}
-						<a href="{% url 'notebookpage_detail' notebpage=next_page.page_number %}" class="hovertext" title="{{ next_page.page_number }}" style="font-size:85%;">
-							<img src="{{ next_thum.url }}" width="{{ next_thum.width }}" height="{{ next_thum.height }}">
+						<a href="{% url 'notebookpage_detail' noteb=object.name notebpage=next_page.page_number %}" title="{{ next_page.page_number }}">
+							<img class="thumbnail" src="{{ next_thum.url }}" width="{{ next_thum.width }}" height="{{ next_thum.height }}">
 						</a>
 					{% endthumbnail %}
-					</li>
+					</div>
 				{% endif %}
-				</ul>
-				</figcaption>
-				</figure>
-			</td>
-		</tr>
-	</table>
-
-	<script>
-	(function() {
-	    var sneaky = new ScrollSneak(location.hostname), tabs = document.getElementById('tabs').getElementsByTagName('li'), i = 0, len = tabs.length;
-	    for (; i < len; i++) {
-	        tabs[i].onclick = sneaky.sneak;
-	    }
-	})();
-	</script>
-	{% endblock %}
-
-	{% block pagegallery_paginator %}
+			</div>
+	</div>
 	<div class="paginator_select" style="text-align:center;">
 	    <select class="selector" onchange="location = this.options[this.selectedIndex].value;">
 	    	{% for c_page in c_pages %}
-	    	<option value="{% url 'notebookpage_detail' notebpage=c_page.page_number %}" {% ifequal c_page page_obj %}selected{% endifequal %}>{{ c_page.page_number }}</option>
+	    	<option value="{% url 'notebookpage_detail' noteb=object.name notebpage=c_page.page_number %}" {% ifequal c_page page_obj %}selected{% endifequal %}>{{ c_page.page_number }}</option>
 	    	{% endfor %}
 	    </select>
 	</div>
 </div>
+</div>
+</div>
 {% endblock %}
 
-{% block detailed_content %}
-
-{% endblock %}
+{% block finaljavascript %}
+<!-- <script>
+(function() {
+    var sneaky = new ScrollSneak(location.hostname), tabs = document.getElementById('tabs').getElementsByTagName('li'), i = 0, len = tabs.length;
+    for (; i < len; i++) {
+        tabs[i].onclick = sneaky.sneak;
+    }
+})();
+</script>
+ -->{% endblock %}

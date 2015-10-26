@@ -1,31 +1,151 @@
 {% extends 'JJDLP/dummy_base.html' %}
+{% load stringoperations %}
+{% load thumbnail %}
 
 {% block heads %}
+<script src="{{ STATIC_URL }}JJDLP/js/jquery-1.11.2.js"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}library/css/library_homepage_css.css" />
+<script type="text/javascript" src="{{ STATIC_URL }}library/js/appear_onclick.js"></script>
+<link rel="stylesheet" href="{{ STATIC_URL }}notebooks/css/timeline.css">
+<link title="timeline-styles" rel="stylesheet" href="//cdn.knightlab.com/libs/timeline3/latest/css/fonts/font.pt.css">
 {% endblock %}
 
-{% block title %}Joyce Notebooks{% endblock %}
+{% block title %}Notebooks - James Joyce Database{% endblock %}
 
 {% block body_title %}
+<div id="toolbar">
+	<div class="url_navigator">
+		{% include 'library/includes/breadcrumb.html' %}
+	</div>
+</div>
+
 <table id="head_banner">
 	<tr>
-		<td><section id="title"><h1>Notebooks</h1></section>
-		<div id="info">
-				<p>Welcome to the digital environment of James Joyce's notebooks.</p>
-				<p>To search throughout the notebooks, please be referred to the <a href="{% url 'haystack_search' %}" style="text-decoration:underline;">advanced search</a> page, and tick "notebooks" before submitting your query.</p>
-			</div>
-		</td>
+
+		<script src="//cdn.knightlab.com/libs/timeline3/latest/js/timeline.js"></script>
+		<div class="timeline-wrap">
+			<div id='timeline-embed' style="width: 100%; height: 280px"></div>
+		</div>
+
 	</tr>
 </table>
 {% endblock %}
 
 {% block body %}
-<div class="">
-	Browse through James Joyce's notebooks:
-		<ul>
-			{% for notebook in notebooks %}
-				<li><a href="{% url 'notebook_detail' noteb=notebook %}">{{ notebook }}</a></li>
-			{% endfor %}
-		</ul>
+<div id="lib_count"><strong>{{ counted_notebooks }}</strong> notebooks and <strong>{{ counted_notes }}</strong> notes in the notebook database</div>
+
+<div class="double-paneldisplay">
+<div class="leftpanel">
+	<div class="panel panel-default well" style="min-height: 170px;">
+		<div class="panel-body">
+			<h3 style="display:inline;padding-right: 40px;"><span class="glyphicon glyphicon-search"></span> Search</h3>
+				<div id="search_box">
+					<form action="{% url 'notebooks_fast_search' %}" method="get">
+						<input style="width: 120%;" class="form-control" id="searchquery" type="text" name='q' placeholder="Search notes...">
+						<input type="hidden" name="models" value="notebooks.note" /> 
+					</form>
+				</div>
+
+			<div class="timeline-wrap detail-timeline detailtimeline">
+				Visit the <a href="{% url 'haystack_search' %}">advanced search</a> page for more thorough searches.
+			</div>				
+		</div>
+	</div>
 </div>
+<div class="rightpanel" data-toggle="modal" data-target="#browsemodal">
+	<div class="panel panel-default well" style="min-height: 170px;">
+		<div class="panel-body">
+			<h3 style="display: inline;"><span class="glyphicon glyphicon-th"></span> Browse</h3>
+			<div class="timeline-wrap detail-timeline detailtimeline">
+				Click to browse the available notebooks.
+			</div>				
+		</div>
+	</div>
+</div>
+</div>
+
+<div class="modal fade" id="browsemodal" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+	    <div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="myModalLabel">Browse notebooks</h4>
+			</div>
+			<div class="modal-body">
+				<div class="sorter">
+					<ul class="list-group">
+						{% for notebook in notebooks %}
+						<li class="list-group-item blocklist"><a class="notred neverred" href="{% url 'notebook_detail' noteb=notebook.name %}#event-{{ notebook.name|slugify }}">VI.{{ notebook.name }}; {{ notebook.note_of_book.count }} notes</a></li>
+						{% endfor %}
+					</ul>
+				</div>
+			</div>
+	    </div>
+	</div>
+</div>
+
+
+<div class="panel panel-default">
+	<div class="panel-body">
+	<div class="media">
+		<div class="media-body">
+			<h4 class="media-heading">The <i>Finnegans Wake</i> Notebooks</h4>
+			Between 1922 and 1940, Joyce compiled more than fifty notebooks in order to compose the drafts of <i>Finnegans Wake</i>. Danis Rose has chronologically ordered the notebooks in <i>Textual Diaries</i> (1995), and the notebook timeline has been based on this work. Next to a chronological ordering of the notebooks, a distinction based on the notebook's content can also be made. Apart from "Scribbledehobble", Peter Spielberg has made three distinctions between the notebooks prepared for the <i>Wake</i>. Dirk Van Hulle has listed useful information of these different categories in <i>Textual Awareness</i> (cf. Van Hulle 2004, 168):
+		</div>
+		<div class="media">
+		  <div class="media-left">
+		  	{% thumbnail b1frontcover.image "x150" as b1frco %}
+		      <img class="media-object" src="{{ b1frco.url }}" alt="" height="{{ b1frco.height }}" width="{{ b1frco.width }}">
+		  	{% endthumbnail %}
+		  </div>
+		  <div class="media-body">
+		    <h4 class="media-heading">The B-notebooks (VI.B.1-VI.B.48)</h4>
+		    "Peter Spielberg catalogs fifly B-notebooks (B.49 and B.50 are loose notesheets). The B-notebooks contain all sorts of (sometimes barely legible) notes and fragmentary excerpts from external sources, never <i>in extenso</i>, mostly reduced to a few catchwords. Material drawn from a single source is referred to as an "index." Several researchers (Vincent Deane, Daniel Ferrer, Danis Rose, John O'Hanlon, David Hayman, Geert Lernout, Inge Landuyt, Wim Van Mierlo, Sam Slote, Mikio Fuse, and others) have been working on transcriptions of these notebooks in order to map Joyce's points of interests during the composition of his last work. This research has made it possible to discern clusters of notebook entries and to retrace quite a number of external sources (articles from the <i>Irish Times</i>, the <i>Encyclopaedia Britannica</i>, books on various subjects)." A portion of this research has been published as <i><a href="http://www.brepols.net/Pages/BrowseBySeries.aspx?TreeSeries=FWNB">The "Finnegans Wake" Notebooks at Buffalo</a></i> (2001-2004) or as separate articles for <a href="http://www.geneticjoycestudies.org/">Genetic Joyce Studies</a>.
+		  </div>
+		</div>
+		<div class="media">
+		  <div class="media-left">
+		      <img class="media-object" src="..." alt="...">
+		  </div>
+		  <div class="media-body">
+		    <h4 class="media-heading">The C-notebooks (VI.C.01-VI.C.18)</h4>
+		    "At die end of 1933, Mme France Raphael started copying--on Joyce's request--the B-notebooks he had already compiled, leaving out the crossed-out entries. At Joyce's request, these transcriptions were made in a very clear and large handwriting, because of the author's bad eyes." (Van Hulle 2004, 168)
+		  </div>
+		</div>
+		<div class="media">
+		  <div class="media-left">
+		      <img class="media-object" src="..." alt="...">
+		  </div>
+		  <div class="media-body">
+		    <h4 class="media-heading">The D-notebooks</h4>
+		    "These have not been preserved. Thanks to Mme Raphael's transcriptions, however, it is possible to (partially) reconstruct seven of these missing notebooks: D.1 corresponding with C.2:123-97; D.2 cf. C.3:178-242 and C.15:177-252; D.3 cf. C.4:220-80 and C.5:l-91; D.4 cf. C.136-269; D.5 cf. C.8:217-end plus C.9T-19 and C.10:249-end plus C.16T-65; D.6 cf. C.ll:96-217; D.7 cf. 0.16:232-74. According to Danis Notes to Pages 77-79 / 169 Rose's chronological survey of the notebooks (<i>Textual Diaries</i> 25-35), five more notebooks are missing: X.l (late January/early March 1923), X.2 (December 1923), X.3 (summer 1923), X.4 (November-December 1930), and X.5 (March-August 1938)." (Van Hulle 2004, 168)
+		  </div>
+		</div>
+	</div>
+</div>
+</div>
+
+{% endblock %}
+
+{% block finaljavascript %}
+<script type="text/javascript">
+      // The TL.Timeline constructor takes at least two arguments:
+      // the id of the Timeline container (no '#'), and
+      // the URL to your JSON data file or Google spreadsheet.
+      // the id must refer to an element "above" this code,
+      // and the element must have CSS styling to give it width and height
+      // optionally, a third argument with configuration options can be passed.
+      // See below for more about options.
+      var options = {
+      	hash_bookmark: true,
+      	initial_zoom: 5,
+      }
+
+      var timeline = new TL.Timeline('timeline-embed',
+        'https://docs.google.com/spreadsheets/d/1KGk2ZgJjLbS_INGUqV4eTCNDHsIKTRXNgjIT1hIl6-0/edit#gid=0',
+        options);
+
+</script>
 {% endblock %}

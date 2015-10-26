@@ -1,0 +1,11 @@
+#info {
+	text-align: center;
+}
+
+#booklist li.book {
+	display: inline;
+}
+
+.book, .bookinfo {
+	list-style-type: none;
+}

@@ -3,28 +3,51 @@
 
 {% block navigation %}
 <div id="mainheader-wrap">
+	<nav class="navbar navbar-default collapse navbar-collapse">
+
 	<div class="head_nav">
-		<div id="title-wrap">
-			<div class="project_title"><a href="{% url 'home' %}">Joyce Web Archive</a></div>
+<!-- 		<div id="title-wrap">
+			<div class="project_title"><a href="{% url 'home' %}">JOYCE WEB ARCHIVE</a></div>
 			<div class="cmg"><a id="cmg" href="https://www.uantwerpen.be/en/rg/centre-for-manuscript-genetics/"><img height="38" src="{{ STATIC_URL }}JJDLP/images/cmg.png"></a></div>
 		</div>
-		{% activeurl %}
-		<ul class="head_orient">
-			<li class="head_sec subtitle"><span>Exploring James Joyce's works in progress.</span></li>
-			<li class="head_sec rightborder"><a href="{% url 'library_home' %}">Library</a></li>
-			<li class="head_sec rightborder"><a href="{% url 'notebooks_home' %}">Notebooks</a></li>
-			<li class="head_sec rightborder"><a href="manuscripts">Manuscripts</a></li>
-			<li class="head_sec"><a href="novels">Novels</a></li>
-		</ul>
-		{% endactiveurl %}
-		<ul class="head_icons">
-			<li><a title="Stats" href="{% url 'stats' %}"><img src="{{ STATIC_URL }}JJDLP/images/stats.ico" height="15"></a></li>
-			<li><a title="About" href="{% url 'about' %}"><img src="{{ STATIC_URL }}JJDLP/images/about.ico" height="15"></a></li>
-			<li><a title="Notify developers" href=""><img src="{{ STATIC_URL }}JJDLP/images/message.ico" height="15"></a></li>
-			<li><a title="Login" href=""><img src="{{ STATIC_URL }}JJDLP/images/login.ico" height="15"></a></li>
-			<li><a title="Admin" href="{% url 'home' %}admin"><img src="{{ STATIC_URL }}JJDLP/images/admin.ico" height="15"></a></li>
-		</ul>
+ -->
+		<div id="sec-wrap container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="{% url 'home' %}" style="padding-left: 10px;padding-right:10px;padding-top: 5px">
+					<img class="img-circle" style="" src="{{ STATIC_URL }}JJDLP/images/jjoyce.png" width="50" height="40">
+				</a>
+			</div>
+			{% activeurl %}
+			<ul class="nav navbar-nav">
+				<li class=""><a href="{% url 'library_home' %}">Library</a></li>
+				<li class=""><a href="{% url 'notebooks_home' %}">Notebooks</a></li>
+				<li class=""><a href="manuscripts">Manuscripts</a></li>
+				<li class=""><a href="{% url 'novels_home' %}">Novels</a></li>
+				<li><a style="cursor: default;">|</a></li>
+				<li><a title="Advanced Search" href="{% url 'haystack_search' %}"><span class="glyphicon glyphicon-search"></span></a></li>
+			</ul>
+			{% endactiveurl %}
+			{% activeurl %}
+			<ul class="nav navbar-nav navbar-right">
+				<li><a style="cursor: default;">|</a></li>
+				<li><a title="Login" href="login"><span class="glyphicon glyphicon-log-in"></span></a></li>
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-cog"></span> <span class="caret"></span></a>
+					<ul class="dropdown-menu">
+						<li><a title="Bibliography" href="{% url 'bibliography' %}"><span class="glyphicon glyphicon-bold"></span> Bibliography</a></li>				
+						<li><a href="{% url 'stats' %}"><span class="glyphicon glyphicon-stats"></span> Stats</a></li>
+						<li><a href="{% url 'about' %}"><span class="glyphicon glyphicon-question-sign"></span> About</a></li>
+						<li><a href="develop"><span class="glyphicon glyphicon-edit"></span> Notify</a></li>
+						<li><a href="{% url 'home' %}admin"><span class="glyphicon glyphicon-wrench"></span> Admin</a></li>
+					</ul>
+				</li>
+			</ul>
+			{% endactiveurl %}
+		</div>
+
 	</div>
+	
+	</nav>
+
 </div>
 {% endblock %}
-

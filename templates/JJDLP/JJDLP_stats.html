@@ -1,6 +1,6 @@
 {% extends "JJDLP/dummy_base.html" %}
 
-{% block title %}Archive stats{% endblock %}
+{% block title %}Stats - James Joyce Database{% endblock %}
 
 {% block heads %}
 {% endblock %}
@@ -8,14 +8,98 @@
 {% block body_title %}{% endblock %}
 
 {% block body %}
-<section id="title"><h1>Stats</h1></section>
+<h1>Stats</h1>
 
-<div id="body">
-<div id="specified_info">
-<p>Structure of the models</p>
-<div>
-	<img src="{{ STATIC_URL }}JJDLP/images/test_library.png">
+<div class="panel panel-default">
+	<div class="panel-body">
+		<span class="glyphicon glyphicon-stats"></span> Information on the progress and setup of the project.
+	</div>
 </div>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		Distribution of the database content
+	</div>
+	<div class="panel-body">
+		<div class="chart-wrap">
+			<div id="distribution_pie"></div>
+		</div>
+		<div class="distribution-info">
+			Library items: {{ library_items }},
+			Notes: {{ notebooks_notes }},
+			Novel pages: {{ novels_pages }}
+		</div>
+	</div>
 </div>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		Structure of the models
+	</div>
+	<div class="panel-body">
+		<img src="{{ STATIC_URL }}JJDLP/images/database_model.png" width="980px;">
+	</div>
 </div>
+
+{% endblock %}
+
+{% block finaljavascript %}
+<!-- d3pie -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.4/d3.min.js"></script>
+<script src="{{ STATIC_URL }}library/js/d3pie.min.js"></script>
+
+<script>
+
+	var pie = new d3pie("distribution_pie", {
+		"header": {
+			"title": {
+				"text": ""
+			}
+		},
+		"size": {
+			"canvasWidth": 590,
+			"pieOuterRadius": "80%"
+		},
+		"data": {
+			
+			"content": [
+				{
+					"label": "Library items",
+					"value": {{ library_items }},
+					"color": "#F15854",
+				},
+				{
+					"label": "Notes",
+					"value": {{ notebooks_notes }},
+					"color": "#4D4D4D",
+				},
+				{
+					"label": "Novel pages",
+					"value": {{ novels_pages }},
+					"color": "#B2912F",
+				}
+			]
+		},
+		"labels": {
+			"outer": {
+				"pieDistance": 32
+			},
+			"inner": {
+				"format": "percentage",
+				"hideWhenLessThanPercentage": 3
+			},
+			"mainLabel": {
+				"fontSize": 11
+			},
+			"lines": {
+				"enabled": true
+			},
+			"truncation": {
+				"enabled": true
+			}
+		},
+	});
+
+</script>
+
 {% endblock %}

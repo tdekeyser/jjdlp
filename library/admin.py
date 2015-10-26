@@ -1,6 +1,12 @@
 from django.contrib import admin
 from library.models import Source, Author, Publisher, Usage, SourcePage
 
+class AuthorAdmin(admin.ModelAdmin):
+	list_display = ('__unicode__',)
+
+class PublisherAdmin(admin.ModelAdmin):
+	list_display = ('__unicode__',)
+
 class SourceAdmin(admin.ModelAdmin):
 	list_display = ('__unicode__', 'get_usage')
 	search_fields = (
@@ -33,5 +39,7 @@ class SourcePageAdmin(admin.ModelAdmin):
 #         SourcePageInline,
 #     ]
 
+admin.site.register(Author, AuthorAdmin)
+admin.site.register(Publisher, PublisherAdmin)
 admin.site.register(Source, SourceAdmin)
 admin.site.register(SourcePage, SourcePageAdmin)

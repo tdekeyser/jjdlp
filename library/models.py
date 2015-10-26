@@ -1,9 +1,9 @@
-#apply models with python manage.py validate; then manage.py sqlall (model); then manage.py syncdb
+# changes in models are put into effect by calling $ python manage.py makemigrations ; and then $ python manage.py migrate
 
 from django.db import models
 from django.template.defaultfilters import slugify
 from model_utils.managers import PassThroughManager
-from library.managers import library_managers
+from JJDLP.managers import custom_managers
 
 def get_model_fields(model):
 	fields = []
@@ -30,6 +30,10 @@ class Publisher(models.Model):
 		return u'%s: %s' % (self.city, self.publisher_name)
 
 class Usage(models.Model):
+	'''
+	If present, gets section and title of the published work
+	'''
+
 	used_book = models.CharField(max_length=100)
 	used_book_chapter = models.CharField(max_length=15, blank=True)
 
@@ -37,15 +41,21 @@ class Usage(models.Model):
 		return u'%s \n %s' % (self.used_book, self.used_book_chapter)
 
 class Source(models.Model):
-	'''Fields for the sources'''
+	'''
+	Fields for the sources:
+		verbose_source_name is the complete stringified title,
+		creates slug, used for all book urls, on new save,
+		uses custom manager, SourceQuerySet, with specific 
+	'''
+
 	source_type = models.CharField(max_length=10, blank=True)
+	info = models.TextField(max_length=1000, blank=True)
 	title = models.CharField(max_length=300)
 	author = models.ManyToManyField(Author, blank=True)
 	publisher = models.ForeignKey(Publisher, blank=True, null=True)
 	publication_date = models.PositiveSmallIntegerField()
 	usage = models.ManyToManyField(Usage, blank=True)
 	lib_type = models.CharField(max_length=10, blank=True)
-	note = models.TextField(max_length=1000, blank=True)
 	source_link = models.CharField(max_length=255, blank=True)
 	certainty_info = models.TextField(max_length=500, blank=True)
 
@@ -65,14 +75,17 @@ class Source(models.Model):
 		super(Source, self).save(*args, **kwargs)
 
 	'''Manager'''
-	objects = PassThroughManager.for_queryset_class(library_managers.SourceQuerySet)()
+	objects = PassThroughManager.for_queryset_class(custom_managers.SourceQuerySet)()
 
 	'''Methods'''
 	def __unicode__(self):
 		return u'%s' % (self.title)
 
 	def verbose_source_name(self):
-		return u'%s. %s. %s. %s.' % (self.get_authors(), self.publication_date, self.title, self.publisher)
+		if self.get_authors():
+			return u'{0}. {1}. {2}. {3}.'.format(self.get_authors(), self.publication_date, self.title, self.publisher)
+		else:
+			return u'{0}. {1}. {2}'.format(self.title, self.publication_date, self.publisher)
 
 	def get_authors(self):
 		names = u' & '.join([u'%s %s' % (a.first_name, a.last_name) for a in self.author.all()])
@@ -82,18 +95,26 @@ class Source(models.Model):
 		usages = u' & '.join([u'%s %s' % (u.used_book, u.used_book_chapter) for u in self.usage.all()])
 		return usages
 
-class SourcePage(models.Model):
-	def upload_to_file(self, filename):
-		url = 'library/images/%s/%s' % (self.source_ref.slug, filename)
-		return url
+def upload_to_file(instance, filename):
+	'''Defines where newly uploaded notebook images should be saved.'''
+	url = 'library/images/%s/%s' % (instance.source_ref.slug, filename)
+	return url
 
-	'''Fields for source pages'''
-	source_ref = models.ForeignKey(Source, blank=True, null=True, related_name='page_source', max_length=255)
+class SourcePage(models.Model):
+	'''
+	Fields for source pages,
+		saves image to library media folder
+	'''
+
+	source_ref = models.ForeignKey(Source, blank=True, null=True, related_name='page_of_source', max_length=255)
 	page_number = models.CharField(max_length=20, primary_key=True)
 	image = models.ImageField(upload_to=upload_to_file, blank=True)
 	image_caption = models.CharField(max_length=200)
 
 	actual_pagenumber = models.CharField(max_length=10, blank=True)
+
+	width = models.PositiveSmallIntegerField(blank=True, null=True)
+	height = models.PositiveSmallIntegerField(blank=True, null=True)
 
 	def save(self, *args, **kwargs):
 		self.actual_pagenumber = str(self.page_number.split(',')[1])
@@ -103,7 +124,7 @@ class SourcePage(models.Model):
 		return u'%s' % (self.page_number)
 
 	'''Manager'''
-	objects = PassThroughManager.for_queryset_class(library_managers.PageQuerySet)()
+	objects = PassThroughManager.for_queryset_class(custom_managers.PageQuerySet)()
 
 	class Meta:
 		ordering = ['source_ref']

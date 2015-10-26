@@ -1,17 +1,21 @@
 #title {
-	color: #efefef;
-	font: 100 160% sans-serif;
-	font-variant: small-caps;
+	padding-top: 1em;
+	padding-left: 150px;
+	padding-bottom: 10px;
+	text-transform: uppercase;
+	font-weight: 700;
+	font-size: 48px;
+	font-family: 'PT Sans Narrow',sans-serif;
 /*	font: 100 160% 'Dancing Script', Georgia, Times, serif;
 */}
 
 div#info {
-	color: #efefef;
-	line-height: 120%;
-	padding-top: 1em;
+	padding-left: 150px;
 	padding-bottom: 1em;
+	line-height: 120%;
 	margin-bottom: 5px;
-	font: 100 110% sans-serif;
+	font-family: 'PT Sans Narrow',sans-serif;
+	color: #737373;
 }
 
 #lib_count {
@@ -80,11 +84,16 @@ div#author_box, div#title_box, div#city_box, div#date_box {
 }
 
 div#lib_pic {
-	padding-top: 2em;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	height: 200px;
+	width: 1000px;
+	overflow: hidden;
+	position: relative;
 }
 
 img#library_picture {
-	width: 1100px;
-	height: 320px;
-	box-shadow: 0 8px 10px #2E2D2D;
-}
+	top: -90px;
+	position: absolute;
+/*	box-shadow: 0 8px 10px #2E2D2D;
+*/}

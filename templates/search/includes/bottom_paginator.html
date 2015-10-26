@@ -1,19 +1,22 @@
 {% if paginator.num_pages > 1 %}
-    <div class="pagination" id="pag_steps">
+<!--     <div class="pagination" id="pag_steps">
+ -->    <ul class="djpagination">
         {% if page.has_previous %}
-            <a href="?{% if query %}q={{ query }}&amp;{% endif %}page={{ page.previous_page_number }}"{% ifequal p page %} class="selected"{% endifequal %}>&laquo; {{ page.previous_page_number }} |</a>
+            <li><a href="?q={{ query }}&amp;{% if specific_model %}{{ specific_model }}&amp;{% endif %}page={{ page.previous_page_number }}"{% ifequal p page %} class="selected"{% endifequal %}>&laquo; {{ page.previous_page_number }} |</a></li>
         {% endif %}
-
+        <li>
         <span class="current">
             <b>{{ page.number }}</b>
         </span>
-
+        </li>
         {% if page.has_next %}
-            <a href="?{% if query %}q={{ query }}&amp;{% endif %}page={{ page.next_page_number }}"> | {{ page.next_page_number }} &raquo;</a>
+            <li><a href="?{% if query %}q={{ query }}&amp;{% if specific_model %}{{ specific_model }}&amp;{% endif %}{% endif %}page={{ page.next_page_number }}"> | {{ page.next_page_number }} &raquo;</a></li>
         {% endif %}
-
+        <li>
         <span class="total">
             ({{ paginator.num_pages }} page{{ page|pluralize }})
         </span>
-    </div>
-{% endif %}
+        </li>
+    </ul>
+<!--     </div>
+ -->{% endif %}

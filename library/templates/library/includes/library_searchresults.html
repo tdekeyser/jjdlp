@@ -1,0 +1,9 @@
+{% load highlight %}
+
+<tr>
+	<td class="list_pages">
+		<span class="glyphicon glyphicon-book"></span>
+	</td>
+	<td class="bib_info"><a class="notred" href="{% url 'source_detail' slug=result.object.slug %}">{% highlight result.object.verbose_source_name with query max_length 100000000 %}</a></td>
+	<td class="bib_info" style="margin: 5px; margin-left: 50px;"><a href="{% url 'novel_detail' novelslug=result.object.get_usage|slugify %}">{{ result.object.get_usage }}</a></td>
+</tr>

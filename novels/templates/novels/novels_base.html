@@ -1,0 +1,44 @@
+{% extends 'JJDLP/dummy_base.html' %}
+
+{% block heads %}
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}library/css/library_homepage_css.css" />
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}novels/css/novels_homepage_css.css" />
+{% endblock %}
+
+{% block title %}Novels - James Joyce Database{% endblock %}
+
+{% block body_title %}
+<div id="toolbar">
+	<div class="url_navigator">
+		{% include 'library/includes/breadcrumb.html' %}
+	</div>
+</div>
+
+<table id="head_banner">
+	<tr>
+		<td>
+			<section id="title"><h1>Novels</h1></section>
+		</td>
+	</tr>
+</table>
+{% endblock %}
+
+{% block body %}
+<div id="lib_count"><strong>{{ lines }}</strong> lines of text in the novels database</div>
+
+<div style="text-align: center;">
+{% for book in books %}
+<a href="{% url 'novel_detail' novelslug=book.slug %}">			
+	<div class="panel panel-default well" style="min-height: 170px;">
+		<div class="panel-heading">
+		{{ book }} | {{ book.line_of_novel.count }} lines
+		</div>
+		<div class="panel-body">
+				<img src="{{ STATIC_URL }}JJDLP/images/finneganswake_cover.jpg" width="150" height="230" style="border-radius: 5px;">
+		</div>
+	</div>
+</a>
+{% endfor %}
+</div>
+
+{% endblock %}
