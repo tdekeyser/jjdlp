@@ -1,0 +1,102 @@
+{% extends 'manuscripts/manuscripts_dummy_base.html' %}
+{% load thumbnail %}
+{% load humanize %}
+
+{% block heads %}
+{% endblock %}
+
+{% block content %}
+<div id="detail">
+	<div id="detailcover">
+	{% if frontcover %}
+		<table id="cover" style="border:none !important;" width="360" height="550">
+		<tr><td>
+			{% thumbnail frontcover "360x550" crop="90% 0%" as im %}
+				<img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+			{% endthumbnail %}
+		</td></tr>
+		</table>
+	{% else %}
+		<table id="cover" width="360" height="550">
+			<tr>
+				<td>
+					<figure>
+					<img id="ghost_page" alt="" src="">
+					</figure>
+				</td>
+			</tr>
+		</table>
+	{% endif %}
+	</div>
+
+<div class="tabnav column650">
+	<div class="tabs">
+		<ul class="nav nav-tabs" role="tablist">
+			<li role="presentation" class="active"><a href="#item" aria-controls="home" role="tab" data-toggle="tab" class="taba"><span class="glyphicon glyphicon-duplicate"></span> Collection</a></li>
+			<li role="presentation"><a href="#rnotes" aria-controls="profile" role="tab" data-toggle="tab" class="taba"><span class="glyphicon glyphicon-file"></span> Pages 
+			{% if manuscript_pages %}<span class="badge">{{ counted_pages }}</span>{% endif %}</a></li>
+		</ul>
+	</div>
+
+	<div class="tab-content">
+
+	<div role="tabpanel" class="tab-pane active" id="item">
+		<div class="panel panel-default">
+			<div class="panel-heading"><strong>{{ object.title }}</strong></div>
+			<div class="panel-body">
+				<p>{{ object.homepage_info|safe }}</p>
+				<p>{{ object.info|safe }}</p>
+			</div>
+		</div>
+	</div>
+
+	<div role="tabpanel" class="tab-pane" id="rnotes">
+			{% if manuscript_pages %}
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">
+					{{ counted_pages|apnumber|title }} page{{ counted_pages|pluralize }}, showing page {{ page.start_index }} to {{ page.end_index }}.
+					</h3>
+				</div>
+			
+				<div class="panel-body">
+					<div class="row">
+					{% for page in manuscript_pages %}
+						<div class="col-xs-6 col-md-3">
+						{% thumbnail page.image "x90" as thum %}
+							<a href="{% url 'manuscriptpage_detail' collectionslug=object.slug manuscriptpage=page.page_number|slugify %}" title="{{ page.page_number }}" class="thumbnail" style="font-size:90%;">
+								<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
+							</a>
+						{% endthumbnail %}
+						</div>
+					{% endfor %}
+					</div>
+				</div>
+
+				<ul class="list-group">
+				<li class="list-group-item">
+				<div class="paginator_select" style="text-align:center;">
+				    <select class="selector" onchange="location = this.options[this.selectedIndex].value;">
+				    	{% for page in manuscript_pages %}
+				    	<option value="">{{ page.page_number }}</option>
+				    	{% endfor %}
+				    </select>
+				</div>
+				</li>
+				</ul>
+
+			</div>
+			<div class="panel panel-default">
+				<div class="panel-body">
+					List the pages <a href="{% url 'manuscripts_pagelist' collectionslug=object.slug %}" style="text-decoration:underline;">here</a>.
+				</div>
+			</div>
+			{% endif %}
+		</div>
+	</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block finaljavascript %}
+{% endblock %}

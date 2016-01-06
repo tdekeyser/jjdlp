@@ -1,0 +1,53 @@
+{% load thumbnail %}
+
+<div class="modal fade" id="infomodal" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document" style="width: 800px;">
+	    <div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Transcription information</h4>
+			</div>
+			<div class="modal-body">
+				<div class="media">
+					{% if object.frontcover %}
+				 	<div class="media-left">
+						{% thumbnail object.frontcover "67x100" crop="98% 0%" as thum %}
+						<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
+				    	{% endthumbnail %}
+				  	</div>
+				 	{% endif %}
+					<div class="media-body">
+						<h4 class="media-heading">Note on the {{ object.title }}</h4>
+							{{ object.note_on_transcriptions|safe }}
+							<!-- All transcriptions have been encoded in TEI-XML, <a href="http://www.tei-c.org/ns/1.0">namespace 1.0</a>, at University of Antwerp. -->
+							The XML files can be accessed by clicking the download button in the toolbar.
+					</div>
+				</div>
+				<div class="media">
+					{% if object.frontcover %}
+				 	<div class="media-left">
+						<img src="{{ STATIC_URL }}JJDLP/images/transcr_ex.jpg" width="67" height="100">
+				  	</div>
+				 	{% endif %}
+					<div class="media-body">
+						<h4 class="media-heading">Colour codes and symbols</h4>
+							<span class="referenced_transcription-content transcription">
+								<p>The following is an <add>addition</add> and a <del>deletion</del>.</p>
+								<p>Additions written on a <add place="facingleaf">facingleaf</add> and <add place="overleaf">overleaf</add> are coloured.</p>
+								<p>Notebook references belonging to the same notebook after clicking the <span class="glyphicon glyphicon-list-alt"></span> notebookreferences button have the same colour:
+								<ref n="B.01">B.01</ref>,
+								<ref n="B.02">B.02</ref>,
+								<ref n="B.03">B.03</ref>,
+								<ref n="B.06">B.06</ref>,
+								<ref n="B.10">B.10</ref>,
+								<ref n="B.11">B.11</ref>,
+								<ref n="B.16">B.16</ref>,
+								<ref n="B.25">B.25</ref>,
+								<ref n="B.29">B.29</ref>.</p>
+							</span>
+					</div>
+				</div>
+			</div>
+	    </div>
+	</div>
+</div>

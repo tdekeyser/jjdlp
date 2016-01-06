@@ -20,13 +20,14 @@
 	<div class="panel-heading">
 		Distribution of the database content
 	</div>
-	<div class="panel-body">
+	<div class="panel-body" style="text-align: center;">
 		<div class="chart-wrap">
 			<div id="distribution_pie"></div>
 		</div>
 		<div class="distribution-info">
 			Library items: {{ library_items }},
 			Notes: {{ notebooks_notes }},
+			Manuscript pages: {{ manuscript_pages }},
 			Novel pages: {{ novels_pages }}
 		</div>
 	</div>
@@ -37,7 +38,7 @@
 		Structure of the models
 	</div>
 	<div class="panel-body">
-		<img src="{{ STATIC_URL }}JJDLP/images/database_model.png" width="980px;">
+		<img src="{{ STATIC_URL }}JJDLP/images/jjdb_models.png" width="980px;">
 	</div>
 </div>
 
@@ -66,7 +67,7 @@
 				{
 					"label": "Library items",
 					"value": {{ library_items }},
-					"color": "#F15854",
+					"color": "#BC3228",
 				},
 				{
 					"label": "Notes",
@@ -74,9 +75,14 @@
 					"color": "#4D4D4D",
 				},
 				{
+					"label": "Manuscript pages",
+					"value": {{ manuscript_pages }},
+					"color": "#1F6893",
+				},
+				{
 					"label": "Novel pages",
 					"value": {{ novels_pages }},
-					"color": "#B2912F",
+					"color": "#24AF30",
 				}
 			]
 		},

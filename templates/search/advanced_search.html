@@ -20,34 +20,44 @@
 
             {% if query %}
                 {% include 'search/includes/top_paginator.html' %}
-                <table class="result_list">
-    				<thead></thead>
-    				<tbody>
-    					{% for result in page.object_list %}
+                <div class="panel panel-default">
+                <div class="panel-body">
+                    <table class="result_list">
+        				<tbody>
+        					{% for result in page.object_list %}
 
-                    {% with result.object.notepage as notepagenumber %}
-                    {% with result.object.slug as sourceslug %}
-                    {% with result.object.linenumber as line %}
+                        {% with result.object.notepage as notepagenumber %}
+                        {% with result.object.slug as sourceslug %}
+                        {% with result.object.page_number as manuscriptpagenumber %}
+                        {% with result.object.linenumber as line %}
 
-                        {% if notepagenumber %}
-                            {% include 'notebooks/includes/notebooks_searchresults.html' %}
+                            {% if notepagenumber %}
+                                {% include 'notebooks/includes/notebooks_searchresults.html' %}
+                            
+                            {% elif manuscriptpagenumber %}
+                                {% include 'manuscripts/includes/manuscripts_searchresults.html' %}
 
-                        {% elif sourceslug %}
-                            {% include 'library/includes/library_searchresults.html' %}
+                            {% elif sourceslug %}
+                                {% include 'library/includes/library_searchresults.html' %}
 
-                        {% elif line %}
-                            {% include 'novels/includes/novels_searchresults.html' %}
+                            {% elif line %}
+                                {% include 'novels/includes/novels_searchresults.html' %}
 
-                        {% endif %}
+                            {% endif %}
 
-                    {% endwith %}
-                    {% endwith %}
-                    {% endwith %}
+                        {% endwith %}
+                        {% endwith %}
+                        {% endwith %}
+                        {% endwith %}
 
-    					{% endfor %}
-    				</tbody>
-    			</table>
-                {% include 'search/includes/bottom_paginator.html' %}
+        					{% endfor %}
+        				</tbody>
+        			</table>
+
+                    {% include 'search/includes/bottom_paginator.html' %}
+                </div>
+                </div>
+                
             {% else %}
                 <div class="fail">
                 Please enter a search query.</div>

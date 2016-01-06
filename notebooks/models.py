@@ -1,9 +1,11 @@
 from django.db import models
 from django.template.defaultfilters import slugify
 from model_utils.managers import PassThroughManager
+
 from JJDLP.managers import custom_managers
-from library.models import Source, SourcePage
-from novels.models import Page
+from library.models import Source, SourcePage, SourceExcerpt
+from manuscripts.models import ManuscriptExcerpt
+from novels.models import Line
 
 class Notebook(models.Model):
 	'''
@@ -35,7 +37,7 @@ class NotebookPage(models.Model):
 			get_contentimages(), get_frontcover(), get_backcover()
 	'''
 
-	notebook_ref = models.ForeignKey(Notebook, max_length=50, related_name='notebook_page')
+	notebook = models.ForeignKey(Notebook, max_length=50, related_name='notebook_page')
 	page_number = models.CharField(max_length=15, primary_key=True)
 	image = models.ImageField(upload_to=upload_to_file, blank=True)
 	image_caption = models.CharField(max_length=200, blank=True)
@@ -44,7 +46,10 @@ class NotebookPage(models.Model):
 		return u'%s' % (self.page_number)
 
 	'''Manager'''
-	objects = PassThroughManager.for_queryset_class(custom_managers.PageQuerySet)()
+	objects = PassThroughManager.for_queryset_class(custom_managers.NotebookPageQuerySet)()
+
+	class Meta:
+		ordering = ['notebook']
 
 class Note(models.Model):
 	'''
@@ -54,28 +59,26 @@ class Note(models.Model):
 		has coordinates of its reference on SourcePage
 	'''
 
+	# references within notebooks
 	notepage = models.ForeignKey(NotebookPage, max_length=50, related_name='note_of_page', blank=True)
 	noteb = models.ForeignKey(Notebook, max_length=80, related_name='note_of_book', blank=True, null=True)
 	
+	# note content
 	notejj = models.CharField(max_length=250)
 	msinfo = models.TextField(max_length=500, blank=True)
 	annotation = models.TextField(max_length=2000, blank=True)
 	ctransfer = models.CharField(max_length=30, blank=True)
+	source_info = models.TextField(blank=True)
 
-	# novel reference fields
-	novelpage = models.CharField(max_length=50, blank=True, null=True)
-	novelpage_ref = models.ForeignKey(Page, max_length=15, related_name='note_of_novel', blank=True, null=True)
-
-	# sourcetext reference fields
-	source = models.ForeignKey(Source, related_name='source_of_note', blank=True, null=True)
-	source_info = models.TextField(max_length=2000, blank=True)
-
-	source_page_ref = models.ForeignKey(SourcePage, related_name='note_on_sourcepage', blank=True, null=True)
-	# coordinates for sourcepage reference
-	x_on_sourcepage = models.PositiveSmallIntegerField(blank=True, null=True)
-	y_on_sourcepage = models.PositiveSmallIntegerField(blank=True, null=True)
-	width_on_sourcepage = models.PositiveSmallIntegerField(blank=True, null=True)
-	height_on_sourcepage = models.PositiveSmallIntegerField(blank=True, null=True)
+	# sourcetext reference field
+	sourcepageexcerpt = models.ManyToManyField(SourceExcerpt, related_name='note_set', blank=True)
+	# manuscript reference field; Joyce did not use a note twice --> ForeignKey
+	manuscriptexcerpt = models.ForeignKey(ManuscriptExcerpt, related_name='note_set', blank=True, null=True)
+	# novel reference field
+	novelline = models.ForeignKey(Line, max_length=15, related_name='note_set', blank=True, null=True)
 
 	def __unicode__(self):
-		return u'%s' % (self.notejj)
+		return u'{0} {1}'.format(self.notepage, self.notejj)
+
+	def short(self):
+		return u'{0}{1}'.format(self.notepage, self.notejj[:3])

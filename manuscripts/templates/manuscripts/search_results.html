@@ -1,4 +1,4 @@
-{% extends 'novels/novels_dummy_base.html' %}
+{% extends 'manuscripts/manuscripts_dummy_base.html' %}
 {% load staticfiles %}
 {% load highlight %}
 
@@ -19,10 +19,10 @@
 		{% with result_list=page.object_list %}
 		{% if result_list %}
 			{% for result in result_list %}
-			{% with result.object as line %}
+			{% with result.object as manuscriptpage %}
 
-			{% if line %}
-				{% include 'novels/includes/novels_searchresults.html' %}
+			{% if manuscriptpage %}
+				{% include 'manuscripts/includes/manuscripts_searchresults.html' %}
 			{% endif %}
 			
 			{% endwith %}
@@ -36,9 +36,9 @@
 	</table>
 	</div>
 	</div>
-		{% include 'search/includes/bottom_paginator.html' %}
+			{% include 'search/includes/bottom_paginator.html' %}
 	{% else %}
-	<div class="pagination" id="pag_info">No search query found</div>
+	<div class="pagination" style="text-align:center;">No search query found</div>
 	{% endif %}
 </div>
 {% endblock %}

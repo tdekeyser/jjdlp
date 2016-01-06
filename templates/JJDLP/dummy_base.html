@@ -21,7 +21,7 @@
 			<ul class="nav navbar-nav">
 				<li class=""><a href="{% url 'library_home' %}">Library</a></li>
 				<li class=""><a href="{% url 'notebooks_home' %}">Notebooks</a></li>
-				<li class=""><a href="manuscripts">Manuscripts</a></li>
+				<li class=""><a href="{% url 'manuscripts_home' %}">Manuscripts</a></li>
 				<li class=""><a href="{% url 'novels_home' %}">Novels</a></li>
 				<li><a style="cursor: default;">|</a></li>
 				<li><a title="Advanced Search" href="{% url 'haystack_search' %}"><span class="glyphicon glyphicon-search"></span></a></li>
@@ -39,6 +39,7 @@
 						<li><a href="{% url 'about' %}"><span class="glyphicon glyphicon-question-sign"></span> About</a></li>
 						<li><a href="develop"><span class="glyphicon glyphicon-edit"></span> Notify</a></li>
 						<li><a href="{% url 'home' %}admin"><span class="glyphicon glyphicon-wrench"></span> Admin</a></li>
+						<li><a href="{% url 'docs' %}"><span class="glyphicon glyphicon-info-sign"></span> Docs</a></li>
 					</ul>
 				</li>
 			</ul>

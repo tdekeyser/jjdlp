@@ -1,0 +1,82 @@
+{% extends 'manuscripts/manuscripts_dummy_base.html' %}
+{% load thumbnail %}
+{% load xml_operations %}
+
+{% block heads %}
+{% endblock %}
+
+{% block source_pages %}
+{% endblock %}
+
+{% block content %}
+<div class="panel panel-default">
+	<div class="panel-body">
+		<div class="media">
+			<div class="media-body">
+			    <h4 class="media-heading">{{ object.title }} - list</h4>
+			    <div class="gallery_toolbar">
+					<div class="btn-group" data-toggle="buttons">
+						<a id="references_button" class="btn btn-default notred neverred" href="#referenced_transcription-content"><span class="glyphicon glyphicon-list-alt"></span></a>
+						<a class="btn btn-default notred neverred" href="#" data-toggle="modal" data-target="#infomodal"><span class="glyphicon glyphicon-question-sign"></span></a>						
+					</div>
+				</div>
+		    </div>
+		</div>
+	</div>
+</div>
+
+{% include 'manuscripts/includes/infomodal.html' %}
+
+<div class="panel panel-default">
+	<div class="panel-body">
+
+	{% include 'search/includes/bottom_paginator.html' %}
+
+	{% for page in manuscript_pages %}
+		<div class="media">
+		 	<div class="media-left">
+				{% thumbnail page.image "150" as thum %}
+				<a href="{% url 'manuscriptpage_detail' collectionslug=object.slug manuscriptpage=page.slug %}">
+					<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
+				</a>
+		    	{% endthumbnail %}
+		  	</div>
+			<div class="media-body">
+			    <h4 class="media-heading">{{ page }}</h4>
+			    <div class="transcription">
+					<div class="transcription-content">
+						{{ page.transcription|safe }}
+					</div>
+					<div class="referenced_transcription-content" style="display: none;">
+						{% show_ref_tag page.transcription %}
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endfor %}
+	{% include 'search/includes/bottom_paginator.html' %}
+
+	</div>
+</div>
+
+{% endblock %}
+
+{% block finaljavascript %}
+<script>
+var button = $('#references_button');
+var referencesActive = false;
+
+button.on('click', function() {
+	referencesActive = !referencesActive;
+
+	if (referencesActive) {
+		$('.transcription-content').hide();
+		$('.referenced_transcription-content').show();
+	} else {
+		$('.referenced_transcription-content').hide();
+		$('.transcription-content').show();
+	}
+});
+
+</script>
+{% endblock %}

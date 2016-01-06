@@ -5,16 +5,18 @@
     	<span class="glyphicon glyphicon-certificate"></span>
     </td>
     <td class="bib_info">
-        {% with result.object.novel_ref.slug as slug %}
-        <a class="notred" href="{% url 'novelpage_detail' novelslug=slug novelpage=result.object.page_ref.pagenumber %}">
+        {% with result.object.novel.slug as slug %}
+        <a class="notred" href="{% url 'novelpage_detail' novelslug=slug novelpage=result.object.page.pagenumber %}">
 	        {% ifequal slug 'finnegans-wake' %}
 	        FW
 	        {% endifequal %}
 	        {{ result.object.linenumber }}	
 	    {% endwith %}
-        {% with result.object.content|safe as content %}
-    	&emsp;{% highlight content with query max_length 100000000 %}
-        {% endwith %}
         </a>
+    </td>
+    <td class="second_bib_info">
+        {% with result.object.content|safe as content %}
+        {% highlight content with query max_length 100000000 %}
+        {% endwith %}
     </td>
 </tr>

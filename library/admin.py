@@ -1,5 +1,8 @@
 from django.contrib import admin
-from library.models import Source, Author, Publisher, Usage, SourcePage
+from library.models import Source, SourceCollection, Author, Publisher, SourcePage, SourceExcerpt
+
+class SourcePageInline(admin.TabularInline):
+    model = SourcePage
 
 class AuthorAdmin(admin.ModelAdmin):
 	list_display = ('__unicode__',)
@@ -7,39 +10,61 @@ class AuthorAdmin(admin.ModelAdmin):
 class PublisherAdmin(admin.ModelAdmin):
 	list_display = ('__unicode__',)
 
+class SourceCollectionAdmin(admin.ModelAdmin):
+	list_display = ('__unicode__',)
+	search_fields = ('title',)
+	fields = (
+		'title',
+		'collection_type',
+		'info',
+		'publication_period',
+		'image',
+		)
+
 class SourceAdmin(admin.ModelAdmin):
-	list_display = ('__unicode__', 'get_usage')
+	list_display = ('__unicode__',)
 	search_fields = (
 		'source_type',
+		'collection__title',
 		'title',
 		'publication_date',
 		'author__last_name',
 		'publisher__city',
 		'publisher__publisher_name',
-		'usage__used_book',
-		'usage__used_book_chapter',
 		'lib_type',
 		)
 	filter_horizontal = ('author', 'usage')
-
-	def get_usage(self, obj):
-		return "\n&\n".join([u'%s %s' % (u.used_book, u.used_book_chapter) for u in obj.usage.all()])
+	inlines = [
+		SourcePageInline,
+		]
 
 class SourcePageAdmin(admin.ModelAdmin):
-	list_display = ('source_ref', 'page_number', 'image')
-	search_fields = ('source_ref__title',)
-	fields = ('source_ref', 'page_number', 'image')
-	raw_id_fields = ('source_ref',)
+	list_display = ('page_number', 'source', 'image')
+	search_fields = ('source__title',)
+	fields = ('source', 'page_number', 'actual_pagenumber', 'image')
+	raw_id_fields = ('source',)
 
-# class SourcePageInline(admin.TabularInline):
-#     model = SourcePage
-
-# class SourceAdmin(admin.ModelAdmin):
-#     inlines = [
-#         SourcePageInline,
-#     ]
+class SourceExcerptAdmin(admin.ModelAdmin):
+	list_display = (
+		'content',
+		'source',
+		'sourcepage',
+		)
+	search_fields = ('content',)
+	fields = (
+		'content',
+		'source',
+		'sourcepage',
+		'place',
+		'x',
+		'y',
+		'w',
+		'h',
+		)
 
 admin.site.register(Author, AuthorAdmin)
 admin.site.register(Publisher, PublisherAdmin)
 admin.site.register(Source, SourceAdmin)
+admin.site.register(SourceCollection, SourceCollectionAdmin)
 admin.site.register(SourcePage, SourcePageAdmin)
+admin.site.register(SourceExcerpt, SourceExcerptAdmin)

@@ -53,8 +53,15 @@ div#body a {
 div#body a.notred {
   color: black;
 }
+div#body a.nohover:hover {
+  background-color: white;
+  border-color: #ccc;
+}
 div#body a.neverred:hover {
   color: black;
+  text-decoration: none;
+}
+div#body a.notunderline:hover {
   text-decoration: none;
 }
 div#body a:hover {
@@ -74,6 +81,14 @@ div#body a.taba {
 }
 div#body .active a.taba {
   color: #555;
+}
+.pagination>.active>a {
+  background-color: #EBAA9C !important;
+  border-color: #EBAA9C !important;
+}
+.djpagination {
+  margin-bottom: 1em;
+  text-align: center;
 }
 .blocklist {
   display:block !important;
@@ -182,16 +197,32 @@ div.footer .footerimages{
   width: 720px;
   margin-left: 30px;
 }
+div.thum_caption {
+  text-align: center;
+  padding: 0 !important;
+  color: #555 !important;
+}
+div.modal_titleHeading {
+  color: #e0dcdc;
+  position: absolute;
+  top: 0px;
+  font-size: medium;
+  padding: 1em;
+  background: transparent;
+  background-image: url("http://www.tn3gallery.com/skins/tn3/bg.png");
+  display: none;
+}
+img.thum {
+  border-radius: 3px;
+}
+
 /* HEADER */
 .head_nav {
   text-align: left;
   display: block;
   width: 1000px;  /*fixed width*/ 
   margin: 0 auto; /* centers content */
-/*  list-style: none;
-  font-variant: small-caps;
-  font-size: 130%;
-*/}
+}
 
 #title-wrap {
   padding: .5em;
@@ -220,6 +251,7 @@ div#specified_info p {
 }
 table#cover {
   border: 1px solid #ddd;
+  border-radius: 5px;
 }
 ul.page_grid {
   background-image: url('roughblack.jpg');
@@ -242,7 +274,7 @@ ul.page_grid {
 }
 
 /* search and sort LIST */
-.djpagination, .fail, #searched_for {
+.fail, #searched_for {
   text-align: center;
   margin: 40px;
 }
@@ -252,7 +284,10 @@ ul.page_grid {
 }
 table.result_list td.bib_info {
   width: 800px;
-  padding-left: 10px;
+}
+.second_bib_info {
+  margin: 5px;
+  margin-left: 50px;
 }
 table.result_list td.pub_text {
   text-align: right;
@@ -261,8 +296,8 @@ table.result_list td.pub_text {
 }
 
 table.result_list tr {
-  border-bottom: 1px solid #e7e7e7;
   display:block;
+  padding-top: 5px;
 }
 
 table.result_list td {
@@ -302,7 +337,9 @@ span.column:nth-child(3) {
 #detail.detailcover, #detail.column650 {
   display: inline;
 }
-
+.titleinfo {
+  color: #555;
+}
 .source_info {
   padding-left: 10px;
   display: inline;
@@ -327,6 +364,53 @@ ul#tabs li {
 }
 
 /* source PAGEDETAIL */
+.detail_page {
+  position:relative;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  text-align: center;
+}
+.frame {
+  position: absolute;
+  float: left;
+  top: 15px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.framelight {
+  border:3px solid #A83B22;
+  box-shadow: 0 0 20px #c34528;
+  border-radius: 5px;
+}
+.frame-top-single {
+  visibility: hidden;
+}
+.frame-bottom-single {
+  visibility: hidden;
+}
+.frame-top-left {
+  visibility: hidden;
+}
+.frame-bottom-left {
+  visibility: hidden;
+}
+.frame-top-right {
+  visibility: hidden;
+}
+.frame-bottom-right {
+  visibility: hidden;
+}
+.excerptPopover {
+  position: absolute;
+  display: inline;
+  text-align: left;
+  max-width: 70%;
+  top:0;
+}
+.notelist {
+  padding-left: 20px;
+}
+
 .gallery-wrap {
   border-top: 1px solid rgba(0,0,0,.10);
   border-bottom: 1px solid rgba(0,0,0,.10);
@@ -337,11 +421,6 @@ ul#tabs li {
 .page-gallery {
   width: 1000px;
   margin: 0 auto;
-}
-.page-gallery div.detail_page {
-  padding-top: 15px;
-  padding-bottom: 15px;
-  text-align: center;
 }
 .page-gallery img.active{
   border: 1px solid #c34528;
@@ -356,7 +435,76 @@ ul#tabs li {
 img#source_page {
   box-shadow: 0 8px 16px rgba(0,0,0,.45);
 }
-
+div.transcription {
+  margin-right: 0;
+  display:inline-block;
+  text-align:left;
+}
+.singletranscription {
+  width: 48%;
+}
+div#transcription-view .page1 {
+  box-shadow: 0 8px 16px rgba(0,0,0,.45);
+}
+.transcription REF {
+  color: black;
+}
+.transcription REF REF {
+  color: black;
+}
+.transcription ADD {
+  font-size: 14px;
+}
+.transcription ADD::before {
+  content:"^+";
+}
+.transcription ADD::after {
+  content:"+^";
+}
+.transcription ADD[place^="facingleaf"] {
+  color: #295FC3;
+}
+.transcription ADD[place^="overleaf"] {
+  color: #1F8893;
+}
+ .transcription DIV[type="page"]::before {
+  content: "*p. "attr(n)"*";
+}
+.transcription a.ref {
+  font-size: 14px;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+.referenced_transcription-content REF[n='B.01'], .referenced_transcription-content a[n='B.01'] {
+  color: orange !important;
+} 
+.referenced_transcription-content REF[n='B.02'], .referenced_transcription-content a[n='B.02'] {
+  color: #C38A29 !important;
+} 
+.referenced_transcription-content REF[n='B.03'], .referenced_transcription-content a[n='B.03'] {
+  color: #E5DA41 !important;
+} 
+.referenced_transcription-content REF[n='B.06'], .referenced_transcription-content a[n='B.06'] {
+  color: #9029C3 !important;
+} 
+.referenced_transcription-content REF[n='B.10'], .referenced_transcription-content a[n='B.10'] {
+  color: #c34528 !important;
+} 
+.referenced_transcription-content REF[n='B.11'], .referenced_transcription-content a[n='B.11'] {
+  color: purple !important;
+} 
+.referenced_transcription-content REF[n='B.16'], .referenced_transcription-content a[n='B.16'] {
+  color: #C329AE !important;
+} 
+.referenced_transcription-content REF[n='B.25'], .referenced_transcription-content a[n='B.25'] {
+  color: blue !important;
+} 
+.referenced_transcription-content REF[n='B.26'], .referenced_transcription-content a[n='B.26'] {
+  color: #29C3A7 !important;
+} 
+.referenced_transcription-content REF[n='B.29'], .referenced_transcription-content a[n='B.29'] {
+  color: #29C32E !important;
+} 
 /* notebookpage detail */
 .noteclick {
   cursor: pointer;
@@ -367,13 +515,6 @@ div.page1 {
   margin-right: 10px;
   float: left;
 }
-div#transcription {
-  margin-left:10px;
-  margin-right: 0;
-  display:inline-block;
-  width:48%;
-  text-align:left;
-}
 .clear {
   padding-top: 15px;
   clear:both;
@@ -381,26 +522,4 @@ div#transcription {
 
 .gallery_toolbar {
   text-align: center;
-}
-
-/* JQuery dialog widget */
-.ui-widget {
-}
-
-.ui-dialog-title {
-  font-size: 90%;
-}
-
-.ui-dialog .ui-dialog-content {
-  margin:.5em;
-  font-size: 90%;
-}
-
-.ui-widget-header {
-  background-image: url('blackpaper.jpg');
-  border: 1px solid #2E2D2D;
-}
-
-.ui-corner-all {
-  border-radius:0 !important;
 }

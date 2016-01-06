@@ -6,12 +6,15 @@ class NoTruncateNorEscapeHighlighter(Highlighter):
 	def highlight(self, text_block):
 		
 		# no strip_tags()
-		self.text_block = text_block
+		if len(text_block) > 200:
+			self.text_block = strip_tags(text_block)
+		else:
+			self.text_block = text_block
 
 		highlight_locations = self.find_highlightable_words()
 		start_offset, end_offset = self.find_window(highlight_locations)
 
 		# no truncate at beginning
-		start_offset = 0
+		if len(text_block) < 200: start_offset = 0
 
 		return self.render_html(highlight_locations, start_offset, end_offset)

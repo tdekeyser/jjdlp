@@ -28,7 +28,7 @@ class NotebookHomeView(TemplateView):
 		context['counted_notes'] = Note.objects.all().count()
 
 		# notebook images
-		context['b1frontcover'] = NotebookPage.objects.get(page_number__exact='B.1.a_frco')
+		context['b1frontcover'] = NotebookPage.objects.filter(page_number__contains='frontcover').order_by('?').first()
 		context['c_example'] = None
 		context['d_example'] = None
 		
@@ -59,16 +59,14 @@ class NotebookView(ListView):
 
 		try:
 			context['cover'] = requested_notebook.notebook_page.get_frontcover()
-			context['coverinfo'] = 'Front cover'
-		except:
+		except ObjectDoesNotExist:
 			try:
 				context['cover'] = requested_notebook.notebook_page.get_backcover()
-				context['coverinfo'] = 'Back cover'
-			except:
+			except ObjectDoesNotExist:
 				pass
 			
 		context['object'] = requested_notebook
-		context['object_pages'] = requested_notebook.notebook_page.get_contentimages()
+		context['object_pages'] = requested_notebook.notebook_page.get_all_images_but_frontcover()
 		context['counted_pages'] = requested_notebook.notebook_page.all().count()
 		context['counted_notes'] = requested_notebook.note_of_book.all().count()
 		context['page'] = context['page_obj']
@@ -76,7 +74,8 @@ class NotebookView(ListView):
 		return context
 
 	def get_queryset(self, **kwargs):
-		return Notebook.objects.get(name=self.kwargs['noteb']).notebook_page.all()
+		notebook_name = re.sub(r'[.][0]', '.', self.kwargs['noteb'])
+		return Notebook.objects.get(name=notebook_name).notebook_page.all()
 
 	def get_template_names(self):
 		return 'notebooks/notebook_detail.html'
@@ -94,8 +93,7 @@ class NotebookPageDetail(DetailView):
 	pk_url_kwarg = 'notebpage'
 
 	def get_queryset(self, **kwargs):
-		notebook_name = re.findall(r'^([A-Z].\d+)', self.kwargs['notebpage'])
-		queryset = NotebookPage.objects.filter(notebook_ref=notebook_name[0])
+		queryset = NotebookPage.objects.filter(notebook=self.kwargs['noteb'])
 		return queryset
 
 	def get_template_names(self, **kwargs):
@@ -104,7 +102,7 @@ class NotebookPageDetail(DetailView):
 	def get_context_data(self, **kwargs):
 		context = super(NotebookPageDetail, self).get_context_data(**kwargs)
 
-		notebook_obj = self.object.notebook_ref
+		notebook_obj = self.object.notebook
 		surrounding_images = notebook_obj.notebook_page.order_by('page_number').get_two_surroundingimages(self.kwargs['notebpage'])
 
 		try:
@@ -120,16 +118,18 @@ class NotebookPageDetail(DetailView):
 		context['object'] = notebook_obj
 		context['previous_page'] = surrounding_images['previous_image']
 		context['next_page'] = surrounding_images['next_image']
-		context['c_pages'] = notebook_obj.notebook_page.get_contentimages()
+		context['c_pages'] = notebook_obj.notebook_page.get_detailimages()
 
 		notes = self.object.note_of_page.all()
 		if notes:
 			context['notes'] = notes
 
 			traced_objects = notebook_obj.notebook_page.get_traced_objects_list(self.object)
-			context['set_of_sources'] = traced_objects['sources']
-			context['sources_count'] = traced_objects['sources_count']
-			context['set_of_novelpages'] = traced_objects['novelpages']
-			context['novelpages_count'] = traced_objects['novelpages_count']
+			context['traced_sources'] = traced_objects['traced_sources']
+			context['traced_sources_count'] = traced_objects['traced_sources_count']
+			context['traced_manuscripts'] = traced_objects['traced_manuscripts']
+			context['traced_manuscripts_count'] = traced_objects['traced_manuscripts_count']
+			context['traced_novellines'] = traced_objects['traced_novellines']
+			context['traced_novellines_count'] = traced_objects['traced_novellines_count']
 		
 		return context

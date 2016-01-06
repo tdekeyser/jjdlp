@@ -1,0 +1,15 @@
+{% extends "JJDLP/dummy_base.html" %}
+{% load markdown_filter %}
+
+{% block title %}Docs | Joyce Web Archive{% endblock %}
+
+{% block heads %}
+{% endblock %}
+
+{% block body_title %}{% endblock %}
+
+{% block body %}
+<div class="md">
+	{{ docs|markdownify|safe }}
+</div>
+{% endblock %}

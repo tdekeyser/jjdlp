@@ -50,23 +50,26 @@
 
 	<div role="tabpanel" class="tab-pane active" id="item">
 		<div class="panel panel-default">
-			<div class="panel-heading"><strong>{{ object.name }}</strong></div>
+			<div class="panel-heading"><strong>Notebook {{ object.name }}</strong></div>
 			<div class="panel-body">
-				{{ object.info }}
+				{{ object.info|safe }}
 				{% block source_info_cover %}{% endblock %}
 				{% block extra_sourceinfo %}{% endblock %}
+				<div class="timeline-wrap detail-timeline detailtimeline">
+					<div id='timeline-embed' style="width: 100%; height: 170px;"></div>
+				</div>	
 			</div>
 		</div>
-		<div class="panel panel-default">
+		<!-- <div class="panel panel-default">
 			<div class="panel-heading">
-			<h3 class="panel-title">Specific background</h3>
+			<h3 class="panel-title">Compilation timeline</h3>
 			</div>
 			<div class="panel-body">
 				<div class="timeline-wrap detail-timeline detailtimeline">
 					<div id='timeline-embed' style="width: 100%; height: 170px;"></div>
 				</div>				
 			</div>
-		</div>
+		</div> -->
 
 	</div>
 	<div role="tabpanel" class="tab-pane" id="rnotes">
@@ -96,7 +99,6 @@
 			{% endif %}
 		{% endblock %}
 		{% block pagegallery_paginator %}
-		    {% include 'search/includes/bottom_paginator.html' %}
 			<div class="paginator_select" style="text-align:center;">
 			    <select class="selector" onchange="location = this.options[this.selectedIndex].value;">
 			    	{% for page in object_pages %}

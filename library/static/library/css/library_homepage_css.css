@@ -90,6 +90,7 @@ div#lib_pic {
 	width: 1000px;
 	overflow: hidden;
 	position: relative;
+	border-radius: 3px;
 }
 
 img#library_picture {

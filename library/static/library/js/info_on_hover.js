@@ -1,9 +1,0 @@
-$(document).ready(function(){
-	$(".box").hover(function(){
-		$(this).find(".info_on_hover").fadeIn();
-	}
-					,function(){
-						$(this).find(".info_on_hover").fadeOut();
-					}
-	);
-});

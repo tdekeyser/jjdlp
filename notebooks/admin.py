@@ -1,5 +1,11 @@
 from django.contrib import admin
-from notebooks.models import *
+from notebooks.models import Notebook, NotebookPage, Note
+
+class NotebookPageInline(admin.TabularInline):
+    model = NotebookPage
+
+class NoteInline(admin.TabularInline):
+	model = Note
 
 class NotebookAdmin(admin.ModelAdmin):
 	list_display = ('__unicode__',)
@@ -11,33 +17,43 @@ class NotebookAdmin(admin.ModelAdmin):
 		)
 	raw_id_fields = ('used_source',)
 	fields = ('name', 'info', 'further_usage')
-
-class NotebookPageAdmin(admin.ModelAdmin):
-	list_display = ('notebook_ref', 'page_number', 'image')
-	search_fields = ('notebook_ref__title',)
-	fields = ('notebook_ref', 'page_number', 'image')
-
-class NoteAdmin(admin.ModelAdmin):
-	list_display = ('notepage', 'notejj', 'source', 'source_info', 'source_page_ref', 'annotation', 'ctransfer', 'msinfo', 'novelpage')
-	search_fields = ('notejj',)
-	fields = ('noteb', 'notepage', 'notejj', 'source', 'source_info', 'source_page_ref', 'annotation', 'msinfo', 'ctransfer', 'novelpage', 'novelpage_ref')
-
-class NotebookPageInline(admin.TabularInline):
-    model = NotebookPage
-
-class NoteInline(admin.TabularInline):
-	model = Note
-
-class NotebookAdmin(admin.ModelAdmin):
-    inlines = [
+	inlines = [
         NotebookPageInline,
     ]
 
 class NotebookPageAdmin(admin.ModelAdmin):
+	list_display = ('page_number', 'image')
+	search_fields = ('page_number',)
+	fields = ('notebook', 'page_number', 'image')
 	inlines = [
 		NoteInline,
 	]
 
+class NoteAdmin(admin.ModelAdmin):
+	list_display = (
+		'notepage',
+		'notejj',
+		'annotation',
+		'ctransfer',
+		'msinfo',
+		'source_info',
+		'novelline'
+		)
+	search_fields = ('notejj',)
+	fields = (
+		'noteb',
+		'notepage',
+		'notejj',
+		'annotation',
+		'msinfo',
+		'ctransfer',
+		'source_info',
+		'novelline',
+		'manuscriptexcerpt',
+		'sourcepageexcerpt'
+		)
+	filter_horizontal = ('sourcepageexcerpt',)
+	raw_id_fields = ('notepage', 'novelline',)
 
 admin.site.register(Notebook, NotebookAdmin)
 admin.site.register(NotebookPage, NotebookPageAdmin)

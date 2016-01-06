@@ -11,23 +11,36 @@
 <div class="books_list">
 	{% with result_list=page.object_list %}
 	{% if result_list %}
-		<div class="pagination" id="pag_info">Sorting options "<strong>{{ source_field }}</strong>" and "<strong>{{ first_letter }}</strong>" match <strong>{{ page.paginator.count }} library item{{ page|pluralize }}</strong>
+		{% include 'search/includes/bottom_paginator.html' %}
+		<div class="well-sm" style="text-align:center;">Sorting options "<strong>{{ source_field }}</strong>" and "<strong>{{ first_letter }}</strong>" match <strong>{{ page.paginator.count }} library item{{ page|pluralize }}</strong>
 	    	{% if is_paginated %}
 	    	, showing {{ page.start_index }} to {{ page.end_index }}.</div>
 			{% else %}
 			</div>
     		{% endif %}
+    	<div class="panel panel-default">
+		<div class="panel-body">
 		<table class="result_list">
 			{% for result in result_list %}
 				<tr>
 					<td class="list_pages">
 						<span class="glyphicon glyphicon-book"></span>
 					</td>
-					<td class="bib_info"><a href="{% url 'source_detail' slug=result.slug %}">{{ result.verbose_source_name }}</a></td>
-					<td class="bib_info" style="margin: 5px; margin-left: 50px;"><a href="{% url 'novel_detail' novelslug=result.get_usage|slugify %}">{{ result.get_usage }}</a></td>
+					<td class="bib_info"><a class="notred" href="{% url 'source_detail' slug=result.slug %}">{{ result.verbose_source_name }}</a></td>
+					{% with result.usage.all as usages %}
+					{% if usages %}
+					<td class="bib_info second_bib_info">
+						{% for usage in usages %}
+						<a href="{% url 'novel_detail' novelslug=usage.slug %}">{{ usage }}</a>
+						{% endfor %}
+					</td>
+					{% endif %}
+					{% endwith %}
 				</tr>
 			{% endfor %}
 		</table>
+		</div>
+		</div>
         {% include 'search/includes/bottom_paginator.html' %}
 	{% else %}
 		<div class="fail">Sorting options <strong>"{{ source_field }}"</strong> and <strong>"{{ first_letter }}"</strong> have returned no items.</div>

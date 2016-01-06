@@ -1,17 +1,11 @@
 {% extends "library/library_dummy_base.html" %}
 {% load humanize %}
 {% load thumbnail %}
-{% load resolve_certainty %}
 
 {% block heads %}
 <script src="{{ STATIC_URL }}JJDLP/js/jquery-1.11.2.js"></script>
 <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-<script type="text/javascript" src="{{ STATIC_URL }}library/js/unfold.js"></script>
-
-<!-- carousel -->
-<link href="http://cdnjs.cloudflare.com/ajax/libs/fotorama/4.6.3/fotorama.css" rel="stylesheet">
-<script src="http://cdnjs.cloudflare.com/ajax/libs/fotorama/4.6.3/fotorama.js"></script>
+<!-- <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css"> -->
 {% endblock %}
 
 {% block body_title %}{% endblock %}
@@ -19,20 +13,13 @@
 
 {% block content %}
 <div class="detail">
-	{% block source_pages %}
 	<div id="detailcover">
-		{% if coverimages %}
-			<table id="cover" style="border:none !important;">
-			<tr><td>
-			<div id="cover_fotorama" class="fotorama">
-			{% for cover in coverimages %}
-				{% thumbnail cover.image "360x550" crop="96% 40%" as im %}
-					<img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" style="position:absolute;top:0px;left:-550px;cursor:move;">
-				{% endthumbnail %}
-			{% endfor %}
-			</div>
-			</td></tr>
-			</table>
+		{% if frontcover %}
+			{% thumbnail frontcover "360" crop="90% 0%" as im %}
+			<a href="#" data-toggle="modal" data-target="#detailModal">
+				<img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+			</a>
+			{% endthumbnail %}
 		{% else %}
 			<table id="cover" height="550" width="360" style="text-align:center;">
 				<tr>
@@ -46,15 +33,25 @@
 			</table>
 		{% endif %}
 	</div>
-	{% endblock %}
-
+	
+{% if frontcover and fromSource %}
+<div class="modal fade" id="detailModal" role="dialog">
+	<div class="modal-dialog">
+		{% thumbnail frontcover "x900" as im %}
+			<div class="modal_titleHeading" style="width: {{ im.width }}px;">{{ object.verbose_source_name }}</div>
+			<img class="modal_image" src="{{ im.url }}">
+		{% endthumbnail %}
+	</div>
+</div>
+{% endif %}
 
 <div class="tabnav column650">
 	<div class="tabs">
 		<ul class="nav nav-tabs" role="tablist">
-			<li role="presentation" class="active"><a href="#item" aria-controls="home" role="tab" data-toggle="tab" class="taba"><span class="glyphicon glyphicon-book"></span> Item</a></li>
-			<li role="presentation"><a href="#rnotes" aria-controls="profile" role="tab" data-toggle="tab" class="taba"><span class="glyphicon glyphicon-list-alt"></span> Reading notes 
-			{% if tracedimages %}<span class="badge">{{ counted_tracedimages }}</span>{% endif %}</a></li>
+			<li role="presentation" class="active"><a href="#item" aria-controls="home" role="tab" data-toggle="tab" class="taba"><span class="glyphicon glyphicon-book"></span> {% if fromSource %}Item{% elif fromCollection %}Collection{% endif %}</a></li>
+			<li role="presentation">
+				<a href="#rnotes" aria-controls="profile" role="tab" data-toggle="tab" class="taba"><span class="glyphicon glyphicon-list-alt"></span> {% if fromSource %}Pages &amp; notes{% elif fromCollection %}Items{% endif %} <span class="badge">{{ counted_items }}</span></a>
+			</li>
 		</ul>
 	</div>
 
@@ -64,63 +61,101 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<strong>{{ object.title }}</strong>
+				{% if fromSource %}
 				<br/>
-				{{ object.get_authors }}
+				<span class="titleinfo">{{ object.get_authors }}</span>
 				<br/>
-				{{ object.publisher }}, {{ object.publication_date }}
+				<span class="titleinfo">{{ object.publisher }}, {{ object.publication_date }}</span>
+				{% elif fromCollection %}
+				<br/>
+				<span class="titleinfo">{{ object.publication_period }}</span>
+				{% endif %}
 			</div>
 			<div class="panel-body">
-				{{ object.info }}
+				{{ object.info|safe }}
 			</div>
-		</div>
-				
-					{% block extra_sourceinfo %}{% endblock %}
-
+		</div>		
 	</div>
-		{% block related_noteinfo %}{% endblock %}
-		{% block page_gallery %}
+
+	{% block page_gallery %}
 	<div role="tabpanel" class="tab-pane" id="rnotes">
-		{% if coverimages %}
-			{% if tracedimages %}
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					<h3 class="panel-title">{{ counted_tracedimages|apnumber|title }} page{{ counted_tracedimages|pluralize }} with reading notes available</h3>
-				</div>
+
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<strong>{{ counted_items|apnumber|title }} {% if fromSource %}page{% elif fromCollection %}item{% endif %}{{ counted_items|pluralize }} available</strong>
+			</div>
+
+		{% if fromSource %}
+			{% if object.source_link %}
 				<div class="panel-body">
+					The complete book can be found <a href="{{ object.source_link }}" target="_blank" style="text-decoration:underline;">here</a>.
+				</div>
+			
+		{% endif %}
+			<ul class="list-group">
+			{% if coverimages %}
+				<li class="list-group-item" style="background-color: #f8f8f8;">Cover pages</li>
+				<li class="list-group-item">
 					<div class="row">
-						{% for trace in tracedimages %}
+						{% for cover in coverimages %}
 							<div class="col-xs-6 col-md-3">
-							{% thumbnail trace.image "x100" as thum %}
-								<a href="{% url 'librarypage_detail' itemslug=object.slug req_page=trace.actual_pagenumber %}" title="{{ trace.actual_pagenumber }}" class="thumbnail">
+							{% thumbnail cover.image "x100" as thum %}
+								<a href="{% url 'librarypage_detail' itemslug=object.slug req_page=cover.actual_pagenumber %}" title="{{ cover.actual_pagenumber }}" class="thumbnail">
 									<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
+									<div class="caption thum_caption">{{ cover.actual_pagenumber }}</div>
 								</a>
 							{% endthumbnail %}
 							</div>
 						{% endfor %}
 					</div>
-				</div>
-			</div>
-				{% if object.source_link %}
-				<div class="panel panel-default">
-					<div class="panel-body">
-						The complete book can be found <a href="{{ object.source_link }}" target="_blank" style="text-decoration:underline;">here</a>.
-					</div>
-				</div>
-				{% endif %}
-			{% else %}
-					{% if object.source_link %}
-						Bibliographical information can be studied here. For the complete book, please be referred <a href="{{ object.source_link }}" target="_blank" style="text-decoration:underline;">elsewhere</a>.
-					{% endif %}
+				</li>
 			{% endif %}
+			{% if images_with_notes %}
+				<li class="list-group-item" style="background-color: #f8f8f8;">{{ counted_images_with_notes|apnumber|title }} page{{ counted_images_with_notes|pluralize }} with reading notes</li>
+				<li class="list-group-item">
+					<div class="row">
+						{% for trace in images_with_notes %}
+							<div class="col-xs-6 col-md-3">
+							{% thumbnail trace.image "x100" as thum %}
+								<a href="{% url 'librarypage_detail' itemslug=object.slug req_page=trace.actual_pagenumber %}" title="{{ trace.actual_pagenumber }}" class="thumbnail">
+									<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
+									<div class="caption thum_caption">{{ trace.actual_pagenumber }}</div>
+								</a>
+							{% endthumbnail %}
+							</div>
+						{% endfor %}
+					</div>
+				</li>
+			{% endif %}
+			</ul>
+		</div>
+
+	{% elif fromCollection %}
+
+		{% if collectionItems %}
+			<div class="panel-body">
+			{% for item in collectionItems %}
+				<a href="{% url 'source_detail' slug=item.slug %}">{{ item.title }}</a><br/>
+			{% endfor %}
+			</div>
 		{% endif %}
+		</div>
+
+	{% endif %}
+
 	</div>
 	{% endblock %}
 	</div>
-	{% block detailed_content %}
-	{% endblock %}
 </div>
 </div>
 {% endblock %}
 
 {% block finaljavascript %}
+<script type="text/javascript">
+
+$('.modal_image').hover(function() {
+	$('.modal_titleHeading').slideToggle('fast');
+});
+
+</script>
 {% endblock %}

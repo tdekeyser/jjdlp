@@ -9,6 +9,7 @@ from haystack.forms import HighlightedModelSearchForm, ModelSearchForm
 
 from notebooks.models import Note
 from library.models import Source
+from manuscripts.models import ManuscriptPage
 from novels.models import Page
 
 class AdvancedSearchView(SearchView):
@@ -24,6 +25,20 @@ class StatsView(TemplateView):
 
 		context['library_items'] = Source.objects.all().count()
 		context['notebooks_notes'] = Note.objects.all().count()
+		context['manuscript_pages'] = ManuscriptPage.objects.all().count()
 		context['novels_pages'] = Page.objects.all().count()
+
+		return context
+
+class DocsView(TemplateView):
+	template_name = 'JJDLP/JJDLP_docs.html'
+
+	def get_context_data(self, **kwargs):
+		context = super(DocsView, self).get_context_data(**kwargs)
+
+		f = open('CODING_DIRECTIONS.txt', 'r')
+		text = f.read()
+
+		context['docs'] = text
 
 		return context

@@ -24,8 +24,10 @@
 		  	</div>
 		 	{% endif %}
 			<div class="media-body">
-			    <h4 class="media-heading">{{ object.name }}</h4>
+			    <h4 class="media-heading">Notebook {{ object.name }}</h4>
 			    	{{ page_obj.page_number }}
+			    	<br/>
+			    	Information gathered from <i>The "Finnegans Wake" Notebooks at Buffalo, VI.B.6</i>.
 			    	<br/>
 			    	{% if notes %}
 			    	<div class="media">
@@ -33,9 +35,20 @@
 			  				<span class="glyphicon glyphicon-book"></span>
 			  			</div>
 			  			<div class="media-body">
-			    			<h4 class="media-heading">Sources traced <span class="badge">{{ sources_count }}</span></h4>
-					    	{% for source in set_of_sources %}
-					    		<a href="{% url 'source_detail' slug=source.slug %}">{{ source }}</a><br/>
+			    			<h4 class="media-heading">Sources traced</h4>
+					    	{% for source in traced_sources %}
+					    		<a class="notunderline" href="{% url 'source_detail' slug=source.slug %}">{{ source }}</a><br/>
+					    	{% endfor %}
+					    </div>
+					</div>
+					<div class="media">
+			  			<div class="media-left">
+			  				<span class="glyphicon glyphicon-duplicate"></span>
+			  			</div>
+			  			<div class="media-body">
+			    			<h4 class="media-heading">Manuscripts traced</h4>
+					    	{% for manuscriptpage in traced_manuscripts %}
+					    		<a class="notunderline" href="{% url 'manuscriptpage_detail' collectionslug=manuscriptpage.manuscript.slug manuscriptpage=manuscriptpage.slug %}">{{ manuscriptpage }}</a><br/>
 					    	{% endfor %}
 					    </div>
 					</div>
@@ -44,9 +57,12 @@
 			  				<span class="glyphicon glyphicon-certificate"></span>
 			  			</div>
 			  			<div class="media-body">
-			    			<h4 class="media-heading">Novel references <span class="badge">{{ novelpages_count }}</span></h4>
-					    	{% for novelpage in set_of_novelpages %}
-					    		<a href="{% url 'novelpage_detail' novelslug=novelpage.novel_ref.slug novelpage=novelpage.pagenumber %}">{{ novelpage.novel_ref }} {{ novelpage }}</a><br/>
+			    			<h4 class="media-heading">Novel references</h4>
+					    	{% for novelline in traced_novellines %}
+					    		<a class="notunderline" href="{% url 'novelpage_detail' novelslug=novelline.novel.slug novelpage=novelline.page.pagenumber %}">
+					    			{% if novelline.novel.slug == 'finnegans-wake' %}FW{% elif novelline.novel.slug == 'ulysses' %}U{% else %}{{ novelline.novel }}{% endif %} {{ novelline.linenumber }}
+					    		</a>
+					    		<br/>
 					    	{% endfor %}
 					    </div>
 					</div>
@@ -79,7 +95,7 @@
 			{% thumbnail page_obj.image "500" as im %}
 				<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" style="border:1px solid black">
 			</div>
-			<div id="transcription" class="panel paneldefault">
+			<div class="transcription singletranscription panel paneldefault">
 			<div height="{{ im.height }}px;">
 			{% endthumbnail %}
 				<div class="panel-body">
@@ -88,26 +104,37 @@
 					<div class="media">
 					  <div class="media-body">
 					    <h4 class="media-heading notejj noteclick">{{ note|safe }}</h4>
-					    	{% with note.source_info as sourceinfo %}
-							{% if sourceinfo %}
+					    	{% with note.sourcepageexcerpt.all as sourcepageexcerpts %}
+					    	{% if sourcepageexcerpts %}
 								<div class="media sourceinfo noteinfo">
 								  <div class="media-left">
-								      <span class="glyphicon glyphicon-book"></span>
+								      <span style="color: #c34528;" class="glyphicon glyphicon-book"></span>
 								  </div>
 								  <div class="media-body">
-								  	{% if note.source_page_ref %}
-									{% with note.source_page_ref.page_number|splitoncomma as pagenumber %}
-									    <a href="{% url 'librarypage_detail' itemslug=note.source.slug req_page=pagenumber %}">
-											<div>{{ sourceinfo }}</div>
+									{% for excerpt in sourcepageexcerpts %}
+									    <a class="notred notunderline" href="{% url 'librarypage_detail' itemslug=excerpt.source.slug req_page=excerpt.sourcepage.actual_pagenumber %}">
+											<div>{{ excerpt.source }}: "{{ excerpt.content|safe }}"</div>
 										</a>
-									{% endwith %}
-									{% else %}
-										{{ sourceinfo }}
-									{% endif %}
+									{% endfor %}
 								  </div>
 								</div>
+							{% else %}
+								{% with note.source_info as source_info %}
+						    	{% if source_info %}
+									<div class="media sourceinfo noteinfo">
+									  <div class="media-left">
+									      <span class="glyphicon glyphicon-book"></span>
+									  </div>
+									  <div class="media-body">
+										{{ source_info }}
+									  </div>
+									</div>
+								{% endif %}
+								{% endwith %}
 							{% endif %}
 							{% endwith %}
+
+							
 
 							{% with note.annotation as annotation %}
 							{% if annotation %}
@@ -129,24 +156,42 @@
 							{% endif %}
 							{% endwith %}
 
-							{% with note.msinfo as msinfo %}
-							{% if msinfo %}
-								<div class="media msinfo noteinfo">
+							{% with note.manuscriptexcerpt as manuscriptexcerpt %}
+					    	{% if manuscriptexcerpt %}
+				    			<div class="media msinfo noteinfo">
+								  <div class="media-left">
+										<span style="color: #c34528;" class="glyphicon glyphicon-duplicate"></span>
+								  </div>
 								  <div class="media-body">
-								  	{{ msinfo }}
+								  	 <a class="notred notunderline" href="{% url 'manuscriptpage_detail' collectionslug=manuscriptexcerpt.manuscript.slug manuscriptpage=manuscriptexcerpt.manuscriptpage.slug %}">
+										<div>{{ manuscriptexcerpt.manuscript }}: "{{ manuscriptexcerpt.content|safe }}"</div>
+									 </a>
 								  </div>
 								</div>
+					    	{% else %}
+								{% with note.msinfo as msinfo %}
+								{% if msinfo %}
+									<div class="media msinfo noteinfo">
+									  <div class="media-left">
+											<span class="glyphicon glyphicon-duplicate"></span>
+									  </div>
+									  <div class="media-body">
+									  	{{ msinfo }}
+									  </div>
+									</div>
+								{% endif %}
+								{% endwith %}
 							{% endif %}
 							{% endwith %}
 
-							{% with note.novelpage as novelpage %}
-							{% if novelpage %}
+							{% with note.novelline as novelline %}
+							{% if novelline %}
 								<div class="media novelpage noteinfo">
 								  <div class="media-left">
-								      <span class="glyphicon glyphicon-certificate"></span>
+								      <span style="color: #c34528;" class="glyphicon glyphicon-certificate"></span>
 								  </div>
 								  <div class="media-body">
-								  	<a href="{% url 'novelpage_detail' novelslug=note.novelpage_ref.novel_ref.slug novelpage=novelpage|novelpagesplitter %}">{{ novelpage }}</a>
+								  	<a class="notred notunderline" href="{% url 'novelpage_detail' novelslug=novelline.novel.slug novelpage=novelline.page.pagenumber %}">{{ novelline.novel }} {{ novelline.linenumber }}</a>
 								  </div>
 								</div>
 							{% endif %}

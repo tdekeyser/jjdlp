@@ -1,2 +1,1 @@
 {{ object.notejj }}
-{{ object.source_info }}

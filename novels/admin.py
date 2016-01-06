@@ -5,10 +5,10 @@ class NovelAdmin(admin.ModelAdmin):
 	list_display = ('__unicode__',)
 
 class BookSectionAdmin(admin.ModelAdmin):
-	list_display = ('novel_ref', '__unicode__')
+	list_display = ('novel', '__unicode__')
 
 class ChapterAdmin(admin.ModelAdmin):
-	list_display = ('novel_ref', 'booksection_ref', '__unicode__',)
+	list_display = ('novel', 'booksection', '__unicode__',)
 
 class PageAdmin(admin.ModelAdmin):
 	list_display = ('__unicode__',)
