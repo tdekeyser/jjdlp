@@ -77,7 +77,11 @@
 				<div class="sorter">
 					<ul class="list-group">
 						{% for manuscript in manuscripts %}
-						<li class="list-group-item blocklist"><a class="notred neverred" href="{% url 'manuscripts_detail' collectionslug=manuscript.slug %}">{{ manuscript.title }}; {{ manuscript.manuscript_page.all.count }} pages</a></li>
+						<li class="list-group-item blocklist">
+							<a class="notred neverred" href="{% url 'manuscripts_detail' collectionslug=manuscript.slug %}">
+								{{ manuscript.title }}; {{ manuscript.page_set.count }} page{{ manuscript.page_set.count|pluralize }}
+							</a>
+						</li>
 						{% endfor %}
 					</ul>
 				</div>
@@ -102,8 +106,6 @@
 		  <div class="media-body">
 		    <h4 class="media-heading"><a class="notred" href="{% url 'manuscripts_detail' collectionslug=manuscript.slug %}">{{ manuscript.title }}</a></h4>
 		    {{ manuscript.homepage_info|safe }}
-		    <!-- This red-backed notebook, also called the "guiltless" copybook, is the result of one of the most intensive creative periods in Joyce's writing of <i>Finnegans Wake</i>. According to Dirk Van Hulle's research of the notebook, "it contains first and second drafts of parts of Chapter 1.2, I.3, I.4, I.5, I.6, I.7 and I.8, as well as three drafts of ALP's letter and an early version of its delivery-which eventually became Book III. All of these passages were composed in a period of five months. Unlike most of Joyce's <i>Finnegans Wake</i> notebooks, the red-backed notebook is a 'cahier' rather than a 'carnet', since it does not contain loose paradigmatic excerpts and notes, but syntagmatic textual entities" (1999, 125-126).
-		    Research on the red-backed notebook, or the so-called "guiltless" copybook, has been done by Dirk Van Hulle and Geert Lernout (cf. Van Hulle 1999 and 2004). This platform was inspired on the digitisation of Van Hulle's work by Vincent Neyt. Images are scanned from <i>JJA</i>. -->
 		  </div>
 		</div>
 		{% endfor %}

@@ -1,39 +1,27 @@
 {% extends 'JJDLP/dummy_base.html' %}
-{% load stringoperations %}
 {% load thumbnail %}
+{% load staticfiles %}
 
 {% block heads %}
-<script src="{{ STATIC_URL }}JJDLP/js/jquery-1.11.2.js"></script>
-<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}library/css/library_homepage_css.css" />
-<link rel="stylesheet" href="{{ STATIC_URL }}notebooks/css/timeline.css">
+<link rel="stylesheet" href="{% static 'notebooks/css/timeline.css' %}">
 <link title="timeline-styles" rel="stylesheet" href="//cdn.knightlab.com/libs/timeline3/latest/css/fonts/font.pt.css">
 {% endblock %}
 
 {% block title %}Notebooks - James Joyce Database{% endblock %}
 
 {% block body_title %}
-<div id="toolbar">
-	<div class="url_navigator">
-		{% include 'library/includes/breadcrumb.html' %}
-	</div>
-</div>
-
 <table id="head_banner">
 	<tr>
-
 		<script src="//cdn.knightlab.com/libs/timeline3/latest/js/timeline.js"></script>
 		<div class="timeline-wrap">
 			<div id='timeline-embed' style="width: 100%; height: 280px"></div>
 		</div>
-
 	</tr>
 </table>
 {% endblock %}
 
 {% block body %}
-<div id="lib_count"><strong>{{ counted_notebooks }}</strong> notebooks and <strong>{{ counted_notes }}</strong> notes in the notebook database</div>
-
 <div class="double-paneldisplay">
 <div class="leftpanel">
 	<div class="panel panel-default well" style="min-height: 170px;">
@@ -64,6 +52,10 @@
 </div>
 </div>
 
+<div class="module" id="database-count-module">
+	<strong>{{ counted_notebooks }}</strong> notebooks and <strong>{{ counted_notes }}</strong> notes in the notebook database
+</div>
+
 <div class="modal fade" id="browsemodal" tabindex="-1" role="dialog">
 	<div class="modal-dialog" role="document">
 	    <div class="modal-content">
@@ -75,7 +67,7 @@
 				<div class="sorter">
 					<ul class="list-group">
 						{% for notebook in notebooks %}
-						<li class="list-group-item blocklist"><a class="notred neverred" href="{% url 'notebook_detail' noteb=notebook.name %}#event-{{ notebook.name|slugify }}">{{ notebook.name }}; {{ notebook.note_of_book.count }} notes</a></li>
+						<li class="list-group-item blocklist"><a class="notred neverred" href="{% url 'notebooks_item' noteb=notebook %}#event-{{ notebook|slugify }}">{{ notebook.name }}; {{ notebook.note_set.count }} notes</a></li>
 						{% endfor %}
 					</ul>
 				</div>
@@ -105,7 +97,7 @@
 		</div>
 		<div class="media">
 		  <div class="media-left">
-		      <img class="media-object" src="..." alt="...">
+		      <img class="media-object" src="" alt="...">
 		  </div>
 		  <div class="media-body">
 		    <h4 class="media-heading">The C-notebooks (VI.C.01-VI.C.18)</h4>
@@ -114,7 +106,7 @@
 		</div>
 		<div class="media">
 		  <div class="media-left">
-		      <img class="media-object" src="..." alt="...">
+		      <img class="media-object" src="" alt="...">
 		  </div>
 		  <div class="media-body">
 		    <h4 class="media-heading">The D-notebooks</h4>

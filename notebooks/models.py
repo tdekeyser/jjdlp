@@ -1,84 +1,94 @@
 from django.db import models
-from django.template.defaultfilters import slugify
 from model_utils.managers import PassThroughManager
+from django.template.defaultfilters import slugify
 
 from JJDLP.managers import custom_managers
-from library.models import Source, SourcePage, SourceExcerpt
+from library.models import LibraryExcerpt, LibraryItem
 from manuscripts.models import ManuscriptExcerpt
 from novels.models import Line
 
-class Notebook(models.Model):
-	'''
-	Basic Notebook model
-	'''
-
-	name = models.CharField(max_length=80, primary_key=True)
-	info = models.TextField(max_length=1000, blank=True)
-	further_usage = models.CharField(max_length=100, blank=True)
-	used_source = models.ManyToManyField(Source, blank=True)
-
-	def __unicode__(self):
-		return u'%s' % (self.name)
-
-	def get_usedsources(self):
-		return ', '.join([u'%s' % x for x in self.used_source.all()])
 
 def upload_to_file(instance, filename):
-	'''Defines where newly uploaded notebook images should be saved.'''
-	url = 'notebooks/images/%s/%s' % (instance.notebook_ref.name, filename)
-	return url
+    '''Defines where newly uploaded notebook images should be saved.'''
+    url = 'notebooks/images/{0}/{1}'.format(instance.notebook.name, filename)
+    return url
+
+
+class Notebook(models.Model):
+    '''
+    Basic Notebook model
+    '''
+    name = models.CharField(max_length=80, primary_key=True, verbose_name='title')
+    info = models.TextField(max_length=1000, blank=True)
+    item_type = models.CharField(max_length=100, blank=True)
+    link = models.CharField(max_length=255, blank=True)
+    draft_period = models.CharField(max_length=255, blank=True)
+    libraryitem = models.ManyToManyField(LibraryItem, related_name='notebook_set', blank=True)
+
+    slug = models.SlugField(unique=True, max_length=255, blank=True)
+
+    # override save() to make slug on save
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super(Notebook, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return u'{}'.format(self.name)
+
 
 class NotebookPage(models.Model):
-	'''
-	NotebookPage model,
-		linked to Notebook with ForeignKey,
-		saves uploaded image to notebooks media folder,
-		depends on PageQuerySet, a custom manager that provides specific page querysets like
-			get_contentimages(), get_frontcover(), get_backcover()
-	'''
+    '''
+    NotebookPage model,
+        linked to Notebook with ForeignKey,
+        saves uploaded image to notebooks media folder,
+        depends on PageQuerySet, a custom manager that provides specific page querysets like
+            get_contentimages(), get_frontcover(), get_backcover()
+    '''
+    notebook = models.ForeignKey(Notebook, max_length=50, related_name='page_set')
+    page_number = models.CharField(max_length=255, primary_key=True)
+    image = models.ImageField(upload_to=upload_to_file, blank=True)
 
-	notebook = models.ForeignKey(Notebook, max_length=50, related_name='notebook_page')
-	page_number = models.CharField(max_length=15, primary_key=True)
-	image = models.ImageField(upload_to=upload_to_file, blank=True)
-	image_caption = models.CharField(max_length=200, blank=True)
+    def __unicode__(self):
+        return u'{}'.format(self.page_number)
 
-	def __unicode__(self):
-		return u'%s' % (self.page_number)
+    # manager
+    objects = PassThroughManager.for_queryset_class(custom_managers.NotebookPageQuerySet)()
 
-	'''Manager'''
-	objects = PassThroughManager.for_queryset_class(custom_managers.NotebookPageQuerySet)()
+    class Meta:
+        ordering = ['notebook']
 
-	class Meta:
-		ordering = ['notebook']
 
 class Note(models.Model):
-	'''
-	Note model,
-		connects to NotebookPage and Notebook with ForeignKey,
-		links to Source and SourcePage with ForeignKey,
-		has coordinates of its reference on SourcePage
-	'''
+    '''
+    Note model,
+        connects to NotebookPage and Notebook with ForeignKey,
+        links to Source and SourcePage with ForeignKey,
+        has coordinates of its reference on SourcePage
+    '''
+    # references within notebooks
+    page = models.ForeignKey(NotebookPage, max_length=100, verbose_name='page', related_name='note_set', blank=True)
+    noteb = models.ForeignKey(Notebook, max_length=80, related_name='note_set', blank=True, null=True)
 
-	# references within notebooks
-	notepage = models.ForeignKey(NotebookPage, max_length=50, related_name='note_of_page', blank=True)
-	noteb = models.ForeignKey(Notebook, max_length=80, related_name='note_of_book', blank=True, null=True)
-	
-	# note content
-	notejj = models.CharField(max_length=250)
-	msinfo = models.TextField(max_length=500, blank=True)
-	annotation = models.TextField(max_length=2000, blank=True)
-	ctransfer = models.CharField(max_length=30, blank=True)
-	source_info = models.TextField(blank=True)
+    # note content
+    notejj = models.CharField(max_length=250)
+    msinfo = models.TextField(max_length=500, blank=True)
+    annotation = models.TextField(max_length=2000, blank=True)
+    ctransfer = models.CharField(max_length=30, blank=True)
+    source = models.TextField(blank=True)
 
-	# sourcetext reference field
-	sourcepageexcerpt = models.ManyToManyField(SourceExcerpt, related_name='note_set', blank=True)
-	# manuscript reference field; Joyce did not use a note twice --> ForeignKey
-	manuscriptexcerpt = models.ForeignKey(ManuscriptExcerpt, related_name='note_set', blank=True, null=True)
-	# novel reference field
-	novelline = models.ForeignKey(Line, max_length=15, related_name='note_set', blank=True, null=True)
+    # library reference field
+    libraryexcerpt = models.ManyToManyField(LibraryExcerpt, related_name='note_set', blank=True)
+    # manuscript reference field; Joyce did not use a note twice --> ForeignKey
+    manuscriptexcerpt = models.ForeignKey(ManuscriptExcerpt, related_name='note_set', blank=True, null=True)
+    # novel reference field
+    novelline = models.ForeignKey(Line, max_length=255, related_name='note_set', blank=True, null=True)
 
-	def __unicode__(self):
-		return u'{0} {1}'.format(self.notepage, self.notejj)
+    def __unicode__(self):
+        return u'{0}{1}'.format(self.page, self.notejj[:3])
 
-	def short(self):
-		return u'{0}{1}'.format(self.notepage, self.notejj[:3])
+    def short(self):
+        return u'{}'.format(self.notejj)
+
+    class Meta:
+        ordering = ['notejj']

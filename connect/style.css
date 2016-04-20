@@ -1,0 +1,9 @@
+.node {
+	width: 250px;
+}
+
+.note, .notebook {
+	padding-right: 0 auto;
+	padding-left: 0 auto;
+}
+

@@ -1,0 +1,135 @@
+{% extends 'generic/catalogue.html' %}
+{% load humanize %}
+{% load thumbnail %}
+
+{% block heads %}
+<link rel="stylesheet" href="{{ STATIC_URL }}notebooks/css/timeline.css">
+<link title="timeline-styles" rel="stylesheet" href="//cdn.knightlab.com/libs/timeline3/latest/css/fonts/font.pt.css">
+{% endblock %}
+
+
+{% block ghost_frontcover %}{{ MEDIA_URL }}JJDLP/images/generic_frontcover.jpg{% endblock %}
+
+
+{% block description %}
+	{{ item.item_type }}
+	{% if item.draft_period %}
+		<br/>
+		{{ item.draft_period }}
+	{% endif %}
+{% endblock %}
+
+
+{% block frontmodal %}
+	{% if frontcover %}
+	<div class="modal fade" id="detailModal" role="dialog">
+		<div class="modal-dialog">
+			{% thumbnail frontcover "x900" as im %}
+				<div class="modal_titleHeading" style="width: {{ im.width }}px;">{{ item }}</div>
+				<img class="modal_image" src="{{ im.url }}">
+			{% endthumbnail %}
+		</div>
+	</div>
+	{% endif %}
+{% endblock %}
+
+
+{% block info %}{{ item.info|safe }}{% endblock %}
+
+
+{% block extra_info %}
+	<div class="timeline-wrap detail-timeline detailtimeline">
+		<div id='timeline-embed' style="width: 100%; height: 170px;"></div>
+	</div>
+	{% if item.link %}
+		For more information, please be referred <a href="{{ item.link }}" target="_blank">elsewhere</a>.
+	{% endif %}
+
+	{% if view.all_lib_items %}
+	<hr>
+	<div>
+		Library items consulted for this {{ item.item_type }}:
+		<ul style="margin:1em;">
+			{% for item in view.all_lib_items %}
+			<li>
+				<a href="{% url 'library_item' slug=item.slug %}">
+					{{ item.biblio|safe }}
+				</a>
+			</li>
+			{% endfor %}
+		</ul>	
+	</div>
+	{% endif %}
+{% endblock %}
+
+
+{% block cover_display %}
+	<div class="row">
+		{% for cover in covers %}
+			<div class="col-sm-2 col-md-3" style="margin-bottom: 1em;">
+			{% thumbnail cover.image "x85" as thum %}
+				<a class="thumbnail" href="{% url 'notebooks_page' noteb=item notebpage=cover.page_number %}" title="{{ cover.page_number }}">
+					<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
+					<div class="caption thum_caption">{{ cover.page_number }}</div>
+				</a>
+			{% endthumbnail %}
+			</div>
+		{% endfor %}
+	</div>
+{% endblock %}
+
+
+{% block list_display %}
+	<hr>
+	Content: {{ detail_count|apnumber|title }} page{{ detail_count|pluralize }}
+	<hr>
+	<div class="row">
+		{% for element in collection_list %}
+			<div class="col-sm-2 col-md-3" style="margin-bottom: 1em;">
+			{% thumbnail element.image "x85" as thum %}
+				<a class="thumbnail" href="{% url 'notebooks_page' noteb=item notebpage=element.page_number %}" title="{{ element.page_number }}">
+					<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
+					<div class="caption thum_caption">{{ element.page_number }}</div>
+				</a>
+			{% endthumbnail %}
+			</div>
+		{% endfor %}
+	</div>
+
+	<div class="paginator_select" style="text-align:center;">
+	    <select class="selector" onchange="location = this.options[this.selectedIndex].value;">
+	    	{% for element in view.all_pages %}
+	    	<option value="{% url 'notebooks_page' noteb=item.name notebpage=element.page_number %}">{{ element.page_number }}</option>
+	    	{% endfor %}
+	    </select>
+	</div>
+{% endblock %}
+
+
+{% block finaljavascript %}
+<script src="//cdn.knightlab.com/libs/timeline3/latest/js/timeline.js"></script>
+<script type="text/javascript">
+      // The TL.Timeline constructor takes at least two arguments:
+      // the id of the Timeline container (no '#'), and
+      // the URL to your JSON data file or Google spreadsheet.
+      // the id must refer to an element "above" this code,
+      // and the element must have CSS styling to give it width and height
+      // optionally, a third argument with configuration options can be passed.
+      var options = {
+      	hash_bookmark: true,
+      	initial_zoom: 5,
+      }
+
+      var timeline = new TL.Timeline('timeline-embed',
+        'https://docs.google.com/spreadsheets/d/1KGk2ZgJjLbS_INGUqV4eTCNDHsIKTRXNgjIT1hIl6-0/edit#gid=0',
+        options);
+
+</script>
+<script type="text/javascript">
+
+$('.modal_image').hover(function() {
+	$('.modal_titleHeading').slideToggle('fast');
+});
+
+</script>
+{% endblock %}

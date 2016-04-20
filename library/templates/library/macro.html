@@ -1,0 +1,27 @@
+{% extends 'library/dummy_base.html' %}
+
+{% block content %}
+<h1>Library macro view</h1>
+<hr>
+Chart of reading notes per library item:
+<div id="bar-chart" style="margin-top: 2em;"></div>
+{% endblock %}
+
+{% block finaljavascript %}
+{% include 'library/includes/bar_chart_with_tooltips.html' %}
+<script>
+var y = d3.scale.linear().domain([0, {{ max_data }}/3]).range([{{max_data}}, 0]);
+
+var yAxisLeft = d3.svg.axis().scale(y)
+    .orient("left").ticks(2);
+
+d3.select("svg").append("g")
+		.attr("class", "axis")
+    	.style("font-size", "10px")
+		.style("fill", "none")
+   		.style("stroke","black")
+    	.style("shape-rendering", "crispEdges")
+        .call(yAxisLeft);
+
+</script>
+{% endblock %}

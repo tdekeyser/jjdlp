@@ -53,7 +53,7 @@ class Migration(migrations.Migration):
             name='SourcePage',
             fields=[
                 ('page_number', models.CharField(max_length=20, serialize=False, primary_key=True)),
-                ('image', models.ImageField(upload_to=library.models.upload_to_file, blank=True)),
+                ('image', models.ImageField(upload_to=library.models.upload_to_item, blank=True)),
                 ('image_caption', models.CharField(max_length=200)),
                 ('actual_pagenumber', models.CharField(max_length=10, blank=True)),
                 ('source_ref', models.ForeignKey(related_name='page_of_source', blank=True, to='library.Source', max_length=255, null=True)),

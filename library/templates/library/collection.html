@@ -1,0 +1,26 @@
+{% extends "generic/catalogue.html" %}
+{% load humanize %}
+{% load thumbnail %}
+
+{% block heads %}
+{% endblock %}
+
+{% block ghost_frontcover %}{{ MEDIA_URL }}JJDLP/images/generic_frontcover.jpg{% endblock %}
+
+{% block description %}
+	<span class="titleinfo">{{ item.publication_period }}</span>
+{% endblock %}
+
+
+{% block extra_info %}
+	<hr>
+{% endblock %}
+
+
+{% block list_display %}
+	{% for item in collection_list %}
+		<a href="{% url 'library_item' slug=item.slug %}">{{ item }}</a><br/>
+	{% endfor %}
+	<br/>
+	{% include 'generic/includes/nums_paginator.html' %}
+{% endblock %}

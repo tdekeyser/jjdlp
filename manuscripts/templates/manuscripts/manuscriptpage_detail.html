@@ -12,18 +12,18 @@
 <div class="panel panel-default">
 	<div class="panel-body">
 		<div class="media">
-			{% if page_obj.manuscript.frontcover %}
+			{% if object.manuscript.frontcover %}
 		 	<div class="media-left">
-				{% thumbnail page_obj.manuscript.frontcover "67x100" crop="98% 0%" as thum %}
+				{% thumbnail object.manuscript.frontcover "67x100" crop="98% 0%" as thum %}
 				<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
 		    	{% endthumbnail %}
 		  	</div>
 		 	{% endif %}
 			<div class="media-body">
-			    <h4 class="media-heading">{{ object.title }}</h4>
-			    	{{ page_obj }} {% if page_obj.jja %}; JJA {{ page_obj.jja }}{% endif %}
+			    <h4 class="media-heading">{{ item.title }}</h4>
+			    	{{ object }} {% if object.jja %}; JJA {{ object.jja }}{% endif %}
 			    	<br/>
-			    	{{ page_obj.specific_pageinfo }}
+			    	{{ object.specific_pageinfo }}
 			    	{% if found_notes %}
 			    	<div class="media">
 			  			<div class="media-left">
@@ -58,34 +58,34 @@
 			</div>
 		</div>
 
-		{% with page_obj.manuscript as object %}
+		{% with object.manuscript as item %}
 		{% include 'manuscripts/includes/infomodal.html' %}
 		{% endwith %}
 
 		<div class="tab-content detail_page">
 			<div id="page-view" role="tabpanel" class="tab-pane active">
-			{% if page_obj.image|is_portrait %}
-				{% thumbnail page_obj.image "x700" as im %}
-					<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" data-zoom-image="{{ MEDIA_URL }}{{ page_obj.image }}">
+			{% if object.image|is_portrait %}
+				{% thumbnail object.image "x700" as im %}
+					<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" data-zoom-image="{{ MEDIA_URL }}{{ object.image }}">
 				{% endthumbnail %}
 			{% else %}
-				{% thumbnail page_obj.image "1000" as im %}
-					<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" data-zoom-image="{{ MEDIA_URL }}{{ page_obj.image }}">
+				{% thumbnail object.image "1000" as im %}
+					<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" data-zoom-image="{{ MEDIA_URL }}{{ object.image }}">
 				{% endthumbnail %}
 			{% endif %}
 			</div>
 			<div id="transcription-view" role="tabpanel" class="tab-pane">
 				<div class="page1" style="width:500px; overflow: auto;direction:rtl;">
-			{% if page_obj.image|is_portrait %}
-				{% thumbnail page_obj.image "500" as im %}
-					<img id="transcription_page" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" data-zoom-image="{{ MEDIA_URL }}{{ page_obj.image }}">
+			{% if object.image|is_portrait %}
+				{% thumbnail object.image "500" as im %}
+					<img id="transcription_page" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" data-zoom-image="{{ MEDIA_URL }}{{ object.image }}">
 				</div>
 				<div id="transcription" class="panel paneldefault">
 				<div style="min-height:{{ im.height }}px;">
 				{% endthumbnail %}
 			{% else %}
-				{% thumbnail page_obj.image "1000" as im %}
-					<img id="transcription_page" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" data-zoom-image="{{ MEDIA_URL }}{{ page_obj.image }}">
+				{% thumbnail object.image "1000" as im %}
+					<img id="transcription_page" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" data-zoom-image="{{ MEDIA_URL }}{{ object.image }}">
 				</div>
 				<div class="transcription singletranscription panel paneldefault">
 				<div style="min-height:{{ im.height }}px;">
@@ -93,10 +93,10 @@
 			{% endif %}
 					<div class="panel-body">
 						<div class="transcription-content">
-							{{ page_obj.transcription|safe }}
+							{{ object.transcription|safe }}
 						</div>
 						<div class="referenced_transcription-content" style="display: none;">
-							{% show_ref_tag page_obj.transcription %}
+							{% show_ref_tag object.transcription %}
 						</div>
 					</div>
 				</div>
@@ -104,24 +104,24 @@
 			</div>
 		</div>
 		<div class="page-row-well well well-sm">
-			{% if previous_page %}
+			{% if previous_image %}
 				<div class="page-row">
-				{% thumbnail previous_page.image "x100" as previous_thum %}
-					<a href="{% url 'manuscriptpage_detail' collectionslug=object.slug manuscriptpage=previous_page.page_number|slugify %}" title="{{ previous_page.page_number }}">
+				{% thumbnail previous_image.image "x100" as previous_thum %}
+					<a href="{% url 'manuscriptpage_detail' collectionslug=item.slug manuscriptpage=previous_image.page_number|slugify %}" title="{{ previous_image.page_number }}">
 						<img class="thumbnail" src="{{ previous_thum.url }}" width="{{ previous_thum.width }}" height="{{ previous_thum.height }}">
 					</a>
 				{% endthumbnail %}
 				</div>
 			{% endif %}
 				<div class="page-row">
-				{% thumbnail page_obj.image "x100" as actual_thum %}
+				{% thumbnail object.image "x100" as actual_thum %}
 					<img class="thumbnail active" src="{{ actual_thum.url }}" width="{{ actual_thum.width }}" height="{{ actual_thum.height }}">
 				{% endthumbnail %}
 				</div>
-			{% if next_page %}
+			{% if next_image %}
 				<div class="page-row">
-				{% thumbnail next_page.image "x100" as next_thum %}
-					<a href="{% url 'manuscriptpage_detail' collectionslug=object.slug manuscriptpage=next_page.page_number|slugify %}" title="{{ next_page.page_number }}" >
+				{% thumbnail next_image.image "x100" as next_thum %}
+					<a href="{% url 'manuscriptpage_detail' collectionslug=item.slug manuscriptpage=next_image.page_number|slugify %}" title="{{ next_image.page_number }}" >
 						<img class="thumbnail" src="{{ next_thum.url }}" width="{{ next_thum.width }}" height="{{ next_thum.height }}">
 					</a>
 				{% endthumbnail %}

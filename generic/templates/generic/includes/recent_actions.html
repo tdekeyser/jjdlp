@@ -1,0 +1,19 @@
+{% load get_action_url %}
+
+<div class="module" id="recent-actions-module">
+	<h2>Recent database actions</h2>
+	<ul>
+	{% for action in recent_actions %}
+		<li class="{% if action.action_flag == 1 %}addLink{% elif action.action_flag == 2 %}changeLink{% elif action.action_flag == 3 %}deleteLink{% endif %}">
+			<span class="icon glyphicon glyphicon-{% if action.action_flag == 1 %}plus{% elif action.action_flag == 2 %}pencil{% elif action.action_flag == 3 %}minus{% endif %}"></span>
+				{{ action.object_repr }}
+			<br>
+			<span class="mini quiet">{{ action.content_type|capfirst }}
+			<br>
+			{{ action.action_time }}
+			<br>
+			{{ action.user }}</span>
+		</li>
+	{% endfor %}
+	</ul>
+</div>

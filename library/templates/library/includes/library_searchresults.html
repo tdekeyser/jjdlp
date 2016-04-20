@@ -4,14 +4,9 @@
 	<td class="list_pages">
 		<span class="glyphicon glyphicon-book"></span>
 	</td>
-	<td class="bib_info"><a class="notred" href="{% url 'source_detail' slug=result.object.slug %}">{% highlight result.object.verbose_source_name with query max_length 100000000 %}</a></td>
-	{% with result.object.usage.all as usages %}
-	{% if usages %}
-	<td class="bib_info second_bib_info">
-		{% for usage in usages %}
-		<a href="{% url 'novel_detail' novelslug=usage.slug %}">{{ usage }}</a>
-		{% endfor %}
+	<td class="bib_info">
+		<a class="notred" href="{% url 'library_item' slug=result.object.slug %}">
+			{% highlight result.object.biblio with query max_length 100000000 %}
+		</a>
 	</td>
-	{% endif %}
-	{% endwith %}
 </tr>

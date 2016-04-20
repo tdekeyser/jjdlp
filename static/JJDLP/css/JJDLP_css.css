@@ -41,7 +41,7 @@ div {
 
 div#body {
   text-align: left;
-  min-height:100%;
+  min-height:80%;
   height:auto;
   padding-bottom: 50px;
 /*  border-top: 2px solid #F7F7F7;
@@ -50,7 +50,7 @@ div#body {
 div#body a {
   color: #c34528;
 }
-div#body a.notred {
+div#body a.notred{
   color: black;
 }
 div#body a.nohover:hover {
@@ -253,6 +253,9 @@ table#cover {
   border: 1px solid #ddd;
   border-radius: 5px;
 }
+.blank_row {
+  height:15px;
+}
 ul.page_grid {
   background-image: url('roughblack.jpg');
   text-align: center;
@@ -350,6 +353,12 @@ span.column:nth-child(3) {
   padding-right: 10px;
   width:37%;
 }
+
+img.frontcover {
+  border-radius: 3px;
+  box-shadow: 1px 1px 2px gray;
+}
+
 .tabs {
   margin-bottom: 20px;
 }
@@ -364,6 +373,9 @@ ul#tabs li {
 }
 
 /* source PAGEDETAIL */
+table#item_info td {
+  padding-right: 1em;
+}
 .detail_page {
   position:relative;
   padding-top: 15px;
@@ -401,10 +413,9 @@ ul#tabs li {
   visibility: hidden;
 }
 .excerptPopover {
-  position: absolute;
-  display: inline;
+  margin-top: 1em;
+  position: relative;
   text-align: left;
-  max-width: 70%;
   top:0;
 }
 .notelist {
@@ -425,12 +436,20 @@ ul#tabs li {
 .page-gallery img.active{
   border: 1px solid #c34528;
 }
-.page-gallery div.page-row-well {
+.page-gallery .page-row-well {
   text-align: center;
 }
-.page-gallery div.page-row-well div {
+.page-gallery .page-row-well div {
   display: inline-block;
-  margin-top: 20px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.page-gallery .page-row-well .page-row {
+  min-width: 100px;
+}
+.page-gallery .page-row-well .thumbnail {
+  margin-left: auto;
+  margin-right: auto;
 }
 img#source_page {
   box-shadow: 0 8px 16px rgba(0,0,0,.45);
@@ -516,10 +535,61 @@ div.page1 {
   float: left;
 }
 .clear {
-  padding-top: 15px;
+  padding-top: 2em;
   clear:both;
 }
 
 .gallery_toolbar {
   text-align: center;
+}
+.md {
+  border-left: 1px solid #eee;
+  padding-left: 30px;
+}
+/* recent_actions */
+.module#database-count-module{
+  padding: 2em;
+  text-align: center;
+  font-size: 150%;
+}
+.module#info-module {
+  width: 680px;
+  position: absolute;
+}
+.module#action-module {
+  width: 300px;
+  margin-right: 0;
+  margin-left: auto;
+}
+.module#recent-actions-module li {
+  list-style-type: none;
+  margin-left: 20px;
+}
+.module#recent-actions-module .icon {
+  margin-left: -20px;
+}
+.module#recent-actions-module h2 {
+  margin-top: 0;
+  font-size: 18px;
+}
+.module#recent-actions-module .mini {
+  font-size: 90%;
+}
+.module#recent-actions-module .quiet {
+  color: #888;
+}
+/* notebook */
+hi[rend='sup italic'] {
+  vertical-align: super;
+  font-size: 90%;
+  font-style: italic;
+}
+hi[rend='super'] {
+  vertical-align: super;
+  font-size: 90%;
+  font-style: italic;
+}
+hi[rend='italic'] {
+  margin-right: 10px;
+  margin-left: 10px;
 }

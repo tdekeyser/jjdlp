@@ -1,0 +1,130 @@
+{% extends "JJDLP/dummy_base.html" %}
+
+{% block title %}Stats - James Joyce Database{% endblock %}
+
+{% block heads %}
+{% endblock %}
+
+{% block body_title %}{% endblock %}
+
+{% block body %}
+<h1>Statistics</h1>
+Information on the progress and setup of the project.
+<hr>
+
+<div id="content" style="width:240px; position: absolute;">
+	<h2>Contents</h2>
+	<ol style="margin-left: 15px;">
+		<li><a href="#1-distribution-of-content">Distribution of content</a></li>
+		<li><a href="#2-database-model">Database model structure</a></li>
+	</ol>
+</div>
+
+<div class="md" style="width:750px; margin-left: 240px; margin-top: 3em;">
+
+	<h2 id="1-distribution-of-content">1. Distribution of content</h2>
+	<div class="panel-body" style="text-align: center;">
+		<div class="chart-wrap">
+			<div id="distribution_pie"></div>
+		</div>
+		<div class="distribution-info" style="text-align:left;">
+			<strong>{{ library_items }}</strong> library items; <strong>{{ library_traces }}</strong> library reading traces,<br/>
+			<strong>{{ notebooks }}</strong> notebooks; <strong>{{ notebooks_notes }}</strong> notes, <br/>
+			<strong>{{ manuscript_collections }}</strong> manuscript collections; <strong>{{ manuscript_pages }}</strong> manuscript pages,<br/>
+			<strong>{{ novels }}</strong> novels; <strong>{{ novels_pages }}</strong> novel pages.
+		</div>
+	</div>
+
+	<h2 id="2-database-model">2. Database model structure</h2>
+	<div class="panel-body">
+		<img src="{{ STATIC_URL }}JJDLP/images/jjdb_models.png" width="750px;">
+	</div>
+</div>
+
+{% endblock %}
+
+{% block finaljavascript %}
+<!-- d3pie -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.4/d3.min.js"></script>
+<script src="{{ STATIC_URL }}library/js/d3pie.min.js"></script>
+
+<script>
+
+	var pie = new d3pie("distribution_pie", {
+		"header": {
+			"title": {
+				"text": ""
+			}
+		},
+		"size": {
+			"canvasWidth": 590,
+			"pieOuterRadius": "80%"
+		},
+		"data": {
+			
+			"content": [
+				{
+					"label": "Library items",
+					"value": {{ library_items }},
+					"color": "#BC3228",
+				},
+				{
+					"label": "Library traces",
+					"value": {{ library_traces }},
+					"color": "#F15854",
+				},
+				{
+					"label": "Notebooks",
+					"value": {{ notebooks }},
+					"color": "#F2DF2D",
+				},
+				{
+					"label": "Notes",
+					"value": {{ notebooks_notes }},
+					"color": "#DECF3F",
+				},
+				{
+					"label": "Manuscript collections",
+					"value": {{ manuscript_collections }},
+					"color": "#1F6893",
+				},
+				{
+					"label": "Manuscript pages",
+					"value": {{ manuscript_pages }},
+					"color": "#5DA5DA",
+				},
+				{
+					"label": "Novels",
+					"value": {{ novels }},
+					"color": "#24AF30",
+				},
+				{
+					"label": "Novel pages",
+					"value": {{ novels_pages }},
+					"color": "#60BD68",
+				}
+			]
+		},
+		"labels": {
+			"outer": {
+				"pieDistance": 32
+			},
+			"inner": {
+				"format": "percentage",
+				"hideWhenLessThanPercentage": 3
+			},
+			"mainLabel": {
+				"fontSize": 11
+			},
+			"lines": {
+				"enabled": true
+			},
+			"truncation": {
+				"enabled": true
+			}
+		},
+	});
+
+</script>
+
+{% endblock %}

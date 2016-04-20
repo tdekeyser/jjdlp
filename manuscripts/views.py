@@ -1,87 +1,77 @@
-from django.shortcuts import render
-from django.utils.text import slugify
-from django.core.exceptions import ObjectDoesNotExist
-from django.views.generic import TemplateView, ListView, DetailView
-
-from manuscripts.models import ManuscriptCollection, ManuscriptPage
+from django.views.generic import TemplateView
 
 from haystack.views import SearchView
 from haystack.forms import HighlightedModelSearchForm
 
+from manuscripts.models import ManuscriptCollection
+from generic.views.item import ItemView
+from generic.views.page import PageView
+
+
 class ManuscriptsHomeView(TemplateView):
-	'''
-	MANUSCRIPTS_HOME presents:
-		- information about collections ('home_info' field)
-		- list of available collections
-		- amount of collections etc.
-	'''
-	
-	template_name = 'manuscripts/manuscripts_base.html'
+    '''
+    MANUSCRIPTS_HOME presents:
+    - information about collections ('home_info' field)
+    - list of available collections
+    - amount of collections etc.
+    '''
+    def get_context_data(self, **kwargs):
+        context = super(ManuscriptsHomeView, self).get_context_data(**kwargs)
+        context['manuscripts'] = ManuscriptCollection.objects.all()
+        context['counted_manuscripts'] = ManuscriptCollection.objects.all().count()
 
-	def get_context_data(self, **kwargs):
-		context = super(ManuscriptsHomeView, self).get_context_data(**kwargs)
-		context['manuscripts'] = ManuscriptCollection.objects.all()
-		context['counted_manuscripts'] = ManuscriptCollection.objects.all().count()
+        return context
 
-		# manuscript images
-		# context['red-backed_notebookcover'] = ManuscriptCollection.objects.get()
-		
-		return context
+    def get_template_names(self, **kwargs):
+        return 'manuscripts/manuscripts_base.html'
+
 
 class ManuscriptsSearchView(SearchView):
-	form = HighlightedModelSearchForm
-	template = 'manuscripts/search_results.html'
+    form = HighlightedModelSearchForm
+    template = 'manuscripts/search_results.html'
 
-	def extra_context(self, **kwargs):
-		return {'specific_model': 'models=manuscripts.manuscriptpage'}
+    def extra_context(self, **kwargs):
+        return {'specific_model': 'models=manuscripts.manuscriptpage'}
 
-class ManuscriptCollectionView(ListView):
-	context_object_name = 'manuscript_pages'
 
-	def get_queryset(self, **kwargs):
-		return ManuscriptCollection.objects.get(slug=self.kwargs['collectionslug']).manuscript_page.all()
+class ManuscriptCollectionView(ItemView):
+    model = ManuscriptCollection
+    slug_name = 'collectionslug'
 
-	def get_context_data(self, **kwargs):
-		context = super(ManuscriptCollectionView, self).get_context_data(**kwargs)
+    target = ''
+    template = ''
 
-		collection = ManuscriptCollection.objects.get(slug=self.kwargs['collectionslug'])
-		context['object'] = collection
+    def __init__(self, **kwargs):
+        # override
+        if kwargs['target'] == 'detail':
+            self.paginate_by = 8
+            self.template = 'manuscripts/manuscripts_detail.html'
+        elif kwargs['target'] == 'pagelist':
+            self.paginate_by = 10
+            self.template = 'manuscripts/manuscripts_pagelist.html'
 
-		man_pages = collection.manuscript_page.all()
-		context['counted_pages'] = man_pages.count()
+    def get_context_data(self, **kwargs):
+        # override
+        context = super(ManuscriptCollectionView, self).get_context_data(**kwargs)
+        # change page_obj to page for paginator html
+        context['page'] = context['page_obj']
+        del context['page_obj']
+        return context
 
-		context['page'] = context['page_obj']
-		del context['page_obj']
+    def get_template_names(self, **kwargs):
+        # override
+        return self.template
 
-		try:
-			context['frontcover'] = collection.frontcover
-		except ObjectDoesNotExist:
-			pass
 
-		return context
+class ManuscriptPageView(PageView):
+    parent_model = ManuscriptCollection
+    itemslug = 'collectionslug'
+    pageslug = 'manuscriptpage'
 
-class ManuscriptPageView(DetailView):
-	model = ManuscriptCollection
-	collection = None
+    def get_template_names(self, **kwargs):
+        # override
+        return 'manuscripts/manuscriptpage_detail.html'
 
-	def get_template_names(self, **kwargs):
-		return 'manuscripts/manuscriptpage_detail.html'
-
-	def get_object(self, **kwargs):
-		self.collection = self.model.objects.get(slug=self.kwargs['collectionslug'])
-		page = self.collection.manuscript_page.get(slug=slugify(self.kwargs['manuscriptpage']))
-		return page
-
-	def get_context_data(self, **kwargs):
-		context = super(ManuscriptPageView, self).get_context_data(**kwargs)
-
-		context['page_obj'] = context['object']
-		del context['object']
-		context['object'] = self.collection
-		context['collectionslug'] = self.collection.slug
-
-		surrounding_images = self.collection.manuscript_page.order_by('numerical_order').get_two_surroundingimages(self.object.numerical_order)
-		context['previous_page'] = surrounding_images['previous_image']
-		context['next_page'] = surrounding_images['next_image']
-
-		return context
+    def get_pagenumber(self):
+        # override
+        return self.page.numerical_order

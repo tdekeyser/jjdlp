@@ -1,0 +1,125 @@
+{% extends "generic/catalogue.html" %}
+{% load markdown_filter %}
+{% load thumbnail %}
+{% load staticfiles %}
+
+
+{% block heads %}
+{% endblock %}
+
+
+{% block ghost_frontcover %}{{ MEDIA_URL }}JJDLP/images/generic_frontcover.jpg{% endblock %}
+
+
+{% block frontmodal %}
+	{% if frontcover %}
+	<div class="modal fade" id="detailModal" role="dialog">
+		<div class="modal-dialog">
+			{% thumbnail frontcover "x900" as im %}
+				<div class="modal_titleHeading" style="width: {{ im.width }}px;">{{ item.biblio }}</div>
+				<img class="modal_image" src="{{ im.url }}">
+			{% endthumbnail %}
+		</div>
+	</div>
+	{% endif %}
+{% endblock %}
+
+
+{% block description %}
+	<table id="item_info">
+		{% if item.get_authors %}<tr><td><span class="glyphicon glyphicon-option-vertical"></span></td><td>{{ item.get_authors }}</td></tr>{% endif %}
+		{% if item.date %}<tr><td><span class="glyphicon glyphicon-option-vertical"></td><td>{{ item.date }}</td></tr>{% endif %}
+		{% if item.publisher %}<tr><td><span class="glyphicon glyphicon-option-vertical"></span></td><td>{{ item.publisher }}</td></tr>{% endif %}
+	</table>
+{% endblock %}
+
+
+{% block info %}{{ item.info|markdownify|safe }}{% endblock %}
+
+
+{% block extra_info %}
+	{% if collection_list %}
+		Reading traces can be displayed page per page via the Page tab or as a list via the <a href="{% url 'library_list' slug=item.slug %}">Traces</a> tab.
+	{% endif %}
+	{% if view.all_notebooks %}
+	<hr>
+	<div>
+		Evidence for the appearance of this {{ item.item_type }} in the {{ item.collection }} collection can be found in:
+		<ul style="margin:1em;">
+			{% for nb in view.all_notebooks %}
+			<li>
+				<a href="{% url 'notebooks_item' noteb=nb %}">
+					{{ nb.item_type }} {{ nb }}
+				</a>
+			</li>
+			{% endfor %}
+		</ul>	
+	</div>
+	{% endif %}
+{% endblock %}
+
+
+{% block extra_tab %}
+	{% if collection_list %}
+		<li role="presentation">
+			<a href="{% url 'library_list' slug=item.slug %}" class="taba">
+				<span class="glyphicon glyphicon-list"></span>
+				Traces
+			</a>
+		</li>
+	{% endif %}
+{% endblock %}
+
+
+{% block itempanel_head %}
+	{% if item.source_link %}
+		<div class="panel-body">
+			Only a few pages have been reproduced here. For more pages, visit the webpage of the <a href="{{ item.source_link }}" target="_blank">complete book</a>.
+		</div>
+	{% endif %}
+{% endblock %}
+
+
+{% block cover_display %}
+	Covers
+	<hr>
+	<div class="row">
+		{% for cover in covers %}
+			<div class="col-sm-2 col-md-3" style="margin-bottom: 1em;">
+			{% thumbnail cover.image "x85" as thum %}
+				<a class="thumbnail" href="{% url 'library_page' itemslug=item.slug req_page=cover.actual_pagenumber %}" title="{{ cover.actual_pagenumber }}">
+					<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
+					<div class="caption thum_caption">{{ cover.actual_pagenumber }}</div>
+				</a>
+			{% endthumbnail %}
+			</div>
+		{% endfor %}
+	</div>
+{% endblock %}
+
+
+{% block list_display %}
+	<hr>
+	Content: {{ detail_count }} page{{ detail_count|pluralize }}
+	<hr>
+	<div class="row">
+		{% for element in collection_list %}
+		<div class="col-xs-6 col-md-3" style="margin-bottom: 5px;">
+			<a href="{% url 'library_page' itemslug=item.slug req_page=element.actual_pagenumber %}" title="{{ element.actual_pagenumber }}">
+				{{ element.actual_pagenumber }}
+			</a>
+		</div>
+		{% endfor %}
+	</div>
+{% endblock %}
+
+
+{% block finaljavascript %}
+<script type="text/javascript">
+
+$('.modal_image').hover(function() {
+	$('.modal_titleHeading').slideToggle('fast');
+});
+
+</script>
+{% endblock %}

@@ -18,12 +18,6 @@ div#info {
 	color: #737373;
 }
 
-#lib_count {
-	padding: 2em;
-	text-align: center;
-	font-size: 150%;
-}
-
 div#fast_sort, div#fast_search {
 	display: inline-block;
 }

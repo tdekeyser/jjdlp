@@ -1,22 +1,15 @@
 {% extends 'JJDLP/dummy_base.html' %}
-{% load resolve_hits %}
 {% load thumbnail %}
+{% load markdown_filter %}
+{% load staticfiles %}
 
 {% block heads %}
-<script src="{{ STATIC_URL }}JJDLP/js/jquery-1.11.2.js"></script>
-<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}library/css/library_homepage_css.css" />
+<link rel="stylesheet" type="text/css" href="{% static 'library/css/library_homepage_css.css' %}" />
 {% endblock %}
 
 {% block title %}Library - James Joyce Database{% endblock %}
 
 {% block body_title %}
-<div id="toolbar">
-	<div class="url_navigator">
-		{% include 'library/includes/breadcrumb.html' %}
-	</div>
-</div>
-
 <table id="head_banner">
 	<tr>
 		<section id="title">Library</section>
@@ -28,22 +21,20 @@
 	</tr>
 	<tr>
 		<div id="lib_pic">
-			<img id="library_picture" src="{{ STATIC_URL }}JJDLP/images/half_lib.jpg">
+			<img id="library_picture" src="{% static 'JJDLP/images/half_lib.jpg' %}">
 		</div>
 	</tr>
 </table>
 {% endblock %}
 
 {% block body %}
-<div id="lib_count"><strong>{{ source_amount }}</strong> items in the library database</div>
-
 <div class="double-paneldisplay">
 <div class="leftpanel">
 	<div class="panel panel-default well" style="min-height: 170px;">
 		<div class="panel-body">
 			<h3 style="display:inline;padding-right: 40px;"><span class="glyphicon glyphicon-search"></span> Search</h3>
 				<div id="search_box">
-					<form action="{% url 'library_fast_search' %}" method="get">
+					<form action="{% url 'library_search' %}" method="get">
 						<input style="width: 120%;" class="form-control" id="searchquery" type="text" name='q' placeholder="Search library...">
 						<input type="hidden" name="models" value="library.source" /> 
 					</form>
@@ -58,9 +49,9 @@
 <div class="rightpanel" data-toggle="modal" data-target="#sortfieldsmodal">
 	<div class="panel panel-default well" style="min-height: 170px;">
 		<div class="panel-body">
-			<h3 style="display: inline;"><span class="glyphicon glyphicon-sort-by-alphabet"></span> Sort</h3>
+			<h3 style="display: inline;"><span class="glyphicon glyphicon glyphicon-th"></span> Browse</h3>
 			<div class="timeline-wrap detail-timeline detailtimeline">
-				Click to sort library items based on a field and first letter.
+				Click to get a list of all collections.
 			</div>				
 		</div>
 	</div>
@@ -72,52 +63,55 @@
 	    <div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title" id="myModalLabel">Edit sort filter</h4>
+				<h4 class="modal-title" id="myModalLabel">Browse collections</h4>
 			</div>
 			<div class="modal-body">
 				<div class="sorter">
-					<div class="row">
-						<button class="btn btn-default">{% block order_author_letter %}<a href="{% url 'order_all' source_field='author' first_letter='A' %}">{% endblock %}Author</a></button>
-						<button class="btn btn-default">{% block order_title_letter %}<a href="{% url 'order_all' source_field='title' first_letter='A' %}">{% endblock %}Title</a></button>
-						<!-- publisher is not included, only city! -->
-						<button class="btn btn-default">{% block order_city_letter %}<a href="{% url 'order_all' source_field='city' first_letter='A' %}">{% endblock %}City</a></button>
-						<!-- Date does not work yet! -->
-						<button class="btn btn-default">Date</button>
-					</div>
-					<div class="row">
-						{% for letter in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' %}
-						<button class="btn btn-default">{% block order_field_field %}<a href="{% url 'order_all' source_field='author' first_letter=letter %}">{% endblock %}({{ letter }}: <span id="hits">{% block order_field2_field %}{% resolve_hits source_field='author' first_letter=letter %}{% endblock %})</span></a></button>
+					<ul class="list-group">
+						{% for collection in collections %}
+						<li class="list-group-item blocklist">
+							<a class="notred neverred" href="{% url 'library_collection' slug=collection.slug %}">
+								{{ collection.title }}; {{ collection.item_set.count }} item{{ collection.item_set.count|pluralize }}
+							</a>
+						</li>
 						{% endfor %}
-					</div>
+					</ul>
 				</div>
 			</div>
 	    </div>
 	</div>
 </div>
 
-<div class="panel panel-default">
+<div class="module" id="database-count-module">
+	<strong>{{ source_amount }}</strong> items and <strong>{{ page_amount }}</strong> pages in the library database <span style="font-size: 60%;" class="glyphicon glyphicon-question-sign" data-toggle="tooltip" data-placement="top" title="The bar chart represents the amount of reading traces that have been identified per item. Hover over the bars and the title of the item will appear."></span>
+</div>
+
+<div id="bar-chart"></div>
+
+<div class="panel panel-default module" id="info-module">
 	<div class="panel-body">
+	<h4 class="media-heading">Components</h4>
 		<div class="media">
 		  <div class="media-left">
 		  	{% thumbnail vl_example.image "100x150" crop="98% 0%" as vl_example %}
-		      <img class="media-object thum" src="{{ vl_example.url }}" alt="" width="{{ vl_example.width }}" height="{{ vl_example.height }}">
+		      <img class="media-object thum frontcover" src="{{ vl_example.url }}" alt="" width="{{ vl_example.width }}" height="{{ vl_example.height }}">
 		    {% endthumbnail %}
 		  </div>
 		  <div class="media-body">
 		    <h4 class="media-heading">{{ virtual_library.title }}</h4>
-		    {{ virtual_library.info|safe }}  
+		    {{ virtual_library.info|markdownify|safe }}  
 		  </div>
 		</div>
 	{% if newspapercollections %}
 		<div class="media">
 		  <div class="media-left">
-		  	<img class="media-object thum" src="{{ STATIC_URL }}/JJDLP/images/freeman,a_frco.jpg" alt="" width="100" height="150">
+		  	<img class="media-object thum frontcover" src="{% static 'JJDLP/images/freeman,a_frco.jpg' %}" alt="" width="100" height="150">
 		  </div>
 		  <div class="media-body">
 		    <h4 class="media-heading">Newspapers</h4>
 		    	<ul>
 		    	{% for collection in newspapercollections %}
-		    		<li><a href="{% url 'sourcecollection_detail' slug=collection.slug %}">{{ collection.title }}</a></li>
+		    		<li><a href="{% url 'library_collection' slug=collection.slug %}">{{ collection.title }}</a></li>
 		    	{% endfor %}
 		    	</ul>
 		  </div>
@@ -125,7 +119,21 @@
 	{% endif %}
 	</div>
 </div>
+
+<div class="panel panel-default module" id="action-module">
+	<div class="panel-body">
+	{% include 'generic/includes/recent_actions.html' %}
+	</div>
 </div>
 
+</div>
+{% endblock %}
 
+{% block finaljavascript %}
+{% include 'library/includes/bar_chart_with_tooltips.html' %}
+<script>
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})
+</script>
 {% endblock %}

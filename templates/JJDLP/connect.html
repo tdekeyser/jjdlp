@@ -1,0 +1,352 @@
+{% extends "JJDLP/dummy_base.html" %}
+{% load staticfiles %}
+
+{% block title %}connect{% endblock %}
+
+{% block heads %}
+<link rel="stylesheet" type="text/css" href="{% static 'JJDLP/css/connect-style.css' %}" />
+{% endblock %}
+
+{% block body_title %}
+<h1>Connection tool</h1>
+Visualisation of 	the components of the James Joyce database.
+<hr>
+{% endblock %}
+
+{% block body %}
+<div class="connect-form">
+	<button type="button" class="btn btn-default" onclick='loadTree()'>Load tree</button>
+	<input id="rootInput" type="text" />
+	<input id="modelInput" type="text" />
+</div>
+
+<div id="connect-frame" class="frame">
+	<div id="connect-content" class="connect">
+		<span class="small abs">Tree</span>
+		<div class="ui-widget" style="float: right; margin: 5px;">
+		   <input id="search">
+		    <button type="button" class="btn btn-default btn-xs" onclick="searchNode()">Search</button>
+		</div>
+		<div id="connect-tree"></div>
+	</div>
+</div>
+
+<div id="pathway-frame" class="frame">
+	<span class="small abs">Pathway</span>
+	<div id="connect-pathway"></div>
+
+    <div id="branch"></div>
+    <button id="reloader" type="button" class="btn btn-default btn-xs" onclick="loadPathwayContent()" style="float: right; margin: 5px;">Reload</button>
+</div>
+{% endblock %}
+
+
+{% block finaljavascript %}
+<script src="//d3js.org/d3.v3.min.js"></script>
+<script type='text/javascript' src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<script>
+$(document).on("click", ".node", togglePathway);
+
+function getTreeInput() {
+	var root = escape(document.getElementById("rootInput").value);
+	var model = escape(document.getElementById("modelInput").value);
+	return [root, model];
+}
+function set_color(node) {
+	// custom coloring according to model
+	if (node.referent == "libraryexcerpt") {
+		return "#F15854";
+	} else if (node.referent == "libraryitem") {
+		return "#BC3228";
+	} else if (node.referent == 'notebook') {
+		return "#F2DF2D";
+	} else if (node.referent == 'note') {
+		return "#DECF3F";
+	}
+}
+
+// load the tree SVG
+function loadTree() {
+	$("svg").remove();
+
+	var treeInput = getTreeInput();
+	var url = "get-tree/?rootid=" + treeInput[0] + "&modelid=" + treeInput[1];
+
+	// create force graph;
+	// inspired after the Force-Directed Tree 
+	var width = 1000,
+	    height = 600;
+
+	var color = d3.scale.category20();
+
+	var svg = d3.select("#connect-tree").append("svg")
+	    .attr("width", width)
+	    .attr("height", height);
+
+	var force = d3.layout.force()
+		.gravity(.1)
+	    .linkDistance(100)
+	    .linkStrength(1)
+
+	//Set up tooltip
+	var tip = d3.tip()
+	    .attr('class', 'd3-tip')
+	    .offset([-10, 0])
+	    .html(function (d) {
+	    return  d.name + "";
+	})
+	svg.call(tip);
+
+	d3.json(url, function(error, graph) {
+	  if (error) throw error;
+
+	  // get root of tree
+	  var nodeAmount = graph.nodes.length;
+	  function getRoot() {
+		for (i=0; i<nodeAmount-1; i++) {
+			if (graph.nodes[i].layer == '0') {
+				return graph.nodes[i];
+			}
+		}
+	  }
+	  var root = getRoot();	
+	  root.fixed = true;
+  	  root.x = width/2;
+  	  root.y = 10;	
+
+	  // add search functionality
+	  var optArray = [];
+		for (var i = 0; i < nodeAmount - 1; i++) {
+		    optArray.push(graph.nodes[i].name);
+		}
+		optArray = optArray.sort();
+		$(function () {
+		    $("#search").autocomplete({
+		        source: optArray
+		    });
+		});
+
+	  // configure force
+	  force
+	      .nodes(graph.nodes)
+	      .links(graph.edges)
+	      .size([width, height])
+	      .start();
+
+	  var link = svg.selectAll(".line")
+	      .data(graph.edges)
+	    .enter()
+	      .insert("svg:line")
+	      .attr("class", "link")
+
+	  var node = svg.selectAll("circle.node")
+	      .data(graph.nodes)
+	    .enter()
+	      .append("svg:circle")
+	      .attr("class", "node")
+	      .attr("r", 5)
+	      .style("fill", function(d) { return set_color(d); })
+	      .call(force.drag)
+			  .on("mousedown", function(d) { d.fixed = true; })
+			  .on('mouseover', tip.show)
+			.on('mouseout', tip.hide);
+
+	  node.append("referent")
+	  	  .text(function(d) { return d.referent; });
+
+	  node.append("text")
+	    .attr("x", 12)
+	    .attr("dy", ".35em")
+	    .text(function(d) { return d.name; });
+
+	  force.on("tick", function(e) {
+	  	var ky = 1.2 * e.alpha;
+	    graph.edges.forEach(function(d, i) {
+	      d.target.y += (d.target.layer * 120 - d.target.y) * ky;
+	    });
+	    node
+	  		.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+	    link.attr("x1", function(d) { return d.source.x; })
+	        .attr("y1", function(d) { return d.source.y; })
+	        .attr("x2", function(d) { return d.target.x; })
+	        .attr("y2", function(d) { return d.target.y; }); 
+		});
+	});
+}
+
+
+function searchNode() {
+    //find the node
+    var selectedVal = document.getElementById('search').value;
+    var svg = d3.select("svg");
+    var node = svg.selectAll(".node");
+    if (selectedVal == "none") {
+        node.style("stroke", "white").style("stroke-width", "1");
+    } else {
+        var selected = node.filter(function (d, i) {
+            return d.name != selectedVal;
+        });
+        selected.style("opacity", "0");
+        var link = svg.selectAll(".link")
+        link.style("opacity", "0");
+        d3.selectAll(".node, .link").transition()
+            .duration(5000)
+            .style("opacity", 1);
+    }
+}
+
+// load Pathway content
+function loadPathway() {
+	// reset previous graphs
+	$("#connect-pathway").children("svg").remove();
+	$("#branch").children().remove();
+
+	// compile url for ajax call
+	var treeInput = getTreeInput();
+	var nodeName = escape(arguments[0]);
+	var url = "get-path/?rootid=" + treeInput[0] + "&modelid=" + treeInput[1] + "&nodename=" + nodeName;
+
+	// compile graph
+	var width = 1000,
+	    height = 250;
+
+	var color = d3.scale.category20();
+
+	var force = d3.layout.force()
+	    .charge(-120)
+	    .linkDistance(100)
+	    .size([width, height]);
+
+	var svg = d3.select("#connect-pathway").append("svg")
+	    .attr("width", width)
+	    .attr("height", height);
+
+	d3.json(url, function(error, graph) {
+	  if (error) throw error;
+
+	  force
+	      .nodes(graph.nodes)
+	      .links(graph.edges)
+	      .start();
+
+	  var link = svg.selectAll(".line")
+	      .data(graph.edges)
+	    .enter().insert("svg:line")
+	      .attr("class", "link")
+
+	  var node = svg.selectAll(".pathwaynode")
+	      .data(graph.nodes)
+	    .enter().append("g")
+	      .attr("class", "pathwaynode")
+	      .attr("r", 5)
+	      .style("fill", function(d) { return set_color(d); })
+	      .on("mousedown", function(d) { d.fixed = true; })
+	      .call(force.drag);
+
+	  node.append("circle")
+	      .attr("r", 5);
+	  node.append("referent")
+	  	  .text(function(d) { return d.referent; });
+	  node.append("pk")
+	  	  .text(function(d) { return d.pk; });
+	  node.append("text")
+		  .attr("dx", 12)
+	      .attr("dy", ".35em")
+	      .text(function(d) { return d.name; });
+
+	  force.on("tick", function() {
+
+	  	node
+      		.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+	    link.attr("x1", function(d) { return d.source.x; })
+	        .attr("y1", function(d) { return d.source.y; })
+	        .attr("x2", function(d) { return d.target.x; })
+	        .attr("y2", function(d) { return d.target.y; });
+
+      	});
+	
+	});
+
+}
+
+function togglePathway() {
+	var pathName = $(this).children("text").text();
+	// call pathway json
+	loadPathway(pathName);
+	// give the graph some time to load
+	// then call node json
+	window.setTimeout(loadPathwayContent, 2000);
+	$("#reloader").show();
+}
+
+function loadPathwayContent() {
+
+	var pathway = document.getElementById("connect-pathway");
+	var svg = pathway.getElementsByTagName("svg")[0];
+	var circles = svg.getElementsByTagName("g");
+
+	for (var i=0; i < circles.length; i++) {
+		var circle = circles[i];
+		var ref = circle.getElementsByTagName("referent")[0].textContent;
+		var pk = circle.getElementsByTagName("pk")[0].textContent;
+
+		callContent(ref, pk);
+	}
+}
+
+function callContent() {
+	$("#branch").children().remove();
+	// ajax request for pathway node content
+	var model = arguments[0];
+	var pk = arguments[1];
+    var data_file = "get-from-database/?model=" + model + "&pk=" + pk;
+    var http_request = new XMLHttpRequest();
+    http_request = new XMLHttpRequest();
+
+    http_request.onreadystatechange = function(){
+       if (http_request.readyState == 4){
+          // parse JSON data and add it to DOM
+          var jsonObj = JSON.parse(http_request.responseText);
+
+          // insert new panel
+	  	  var twigs = document.createElement("div");
+	  	      twigs.setAttribute("class", "twig panel panel-default");
+	  	      twigs.innerHTML = document.getElementById("pathway-components").innerHTML;
+		  document.getElementById("branch").appendChild(twigs);
+
+          jQuery.each(jsonObj.items[0], function(i, val) {
+
+			  if (val) {
+				// insert data into panel and visualise
+			  	var element = $(".pathway-component").last();
+			  	$(".referent").last().html(model);
+			  	element.children("div").children("." + i).html(val);
+			  	element.parent().css("display", "inline-block");
+			  }
+		  });
+       }
+    }
+	
+    http_request.open("GET", data_file, true);
+    http_request.send();
+
+}
+</script>
+<script id="pathway-components" language="text">
+<div class="panel-heading"><span class="referent"></span></div>
+<div class="pathway-component panel-body">
+	<div>id: <span class="id small"></span></div>
+	<div><span class="item_type"></span></div>
+	<div><span class="title"></span></div>
+	<div><span class="name"></span></div>
+	<div><span class="page_id"></span></div>
+	<div><span class="date"></span></div>
+	<div><span class="content"></span></div>
+	<div><span class="notejj"></span></div>
+</div>
+</script>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% if paginator.num_pages > 1 %}
+<div class="djpagination">
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+        <li>
+            <a href="?page={{ page_obj.previous_page_number }}"><span>Previous</span></a>
+        </li>
+        {% else %}
+        <li class="disabled">
+            <a style="color: #777">Previous</a>
+            {{paginator.has_next}}
+        </li>
+        {% endif %}
+
+    {% if 10 > paginator.num_pages %}
+        {% for p in paginator.page_range %}
+        <li {% if p == page_obj.number %}class="active"{% endif %}>
+            <a href="?page={{ p }}" class="taba"><span>{{ p }}</span></a>
+        </li>
+        {% endfor %}
+    {% else %}
+        {% if page_obj.has_previous %}
+        <li><a>...</a></li>
+        <li>
+            <a href="?page={{ page_obj.previous_page_number }}" class="taba"><span>{{ page_obj.previous_page_number }}</span></a>
+        </li>
+        {% endif %}
+        <li class="active">
+            <a href="?page={{ paginator.num_pages }}" class="taba"><span>{{ page_obj.number }}</span></a>
+        </li>
+        {% if page_obj.has_next %}
+        <li {% if paginator.num_pages == page_obj.number %}class="active"{% endif %}>
+            <a href="?page={{ page_obj.next_page_number }}" class="taba"><span>{{ page_obj.next_page_number }}</span></a>
+        </li>
+        <li><a>...</a></li>
+        {% endif %}
+    {% endif %}
+
+        {% if page_obj.has_next %}
+        <li>
+            <a href="?page={{ page_obj.next_page_number }}">Next</a>
+        </li>
+        {% else %}
+        <li class="disabled">
+            <a style="color:#777">Next</a>
+        </li>
+        {% endif %}
+    </ul>
+</div>
+{% endif %}

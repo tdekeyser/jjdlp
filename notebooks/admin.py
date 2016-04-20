@@ -1,59 +1,55 @@
 from django.contrib import admin
 from notebooks.models import Notebook, NotebookPage, Note
 
-class NotebookPageInline(admin.TabularInline):
-    model = NotebookPage
-
-class NoteInline(admin.TabularInline):
-	model = Note
 
 class NotebookAdmin(admin.ModelAdmin):
-	list_display = ('__unicode__',)
-	search_fields = (
-		'name',
-		'info',
-		'further_usage',
-		'used_source__verbose_source_name',
-		)
-	raw_id_fields = ('used_source',)
-	fields = ('name', 'info', 'further_usage')
-	inlines = [
-        NotebookPageInline,
-    ]
+    list_display = ('__unicode__',)
+    search_fields = (
+        'name',
+        'item_type',
+        )
+    fields = (
+        'name',
+        'info',
+        'item_type',
+        'draft_period',
+        'link',
+        'libraryitem'
+        )
+    filter_horizontal = ('libraryitem',)
+
 
 class NotebookPageAdmin(admin.ModelAdmin):
-	list_display = ('page_number', 'image')
-	search_fields = ('page_number',)
-	fields = ('notebook', 'page_number', 'image')
-	inlines = [
-		NoteInline,
-	]
+    list_display = ('page_number', 'image')
+    search_fields = ('page_number',)
+    fields = ('notebook', 'page_number', 'image')
+
 
 class NoteAdmin(admin.ModelAdmin):
-	list_display = (
-		'notepage',
-		'notejj',
-		'annotation',
-		'ctransfer',
-		'msinfo',
-		'source_info',
-		'novelline'
-		)
-	search_fields = ('notejj',)
-	fields = (
-		'noteb',
-		'notepage',
-		'notejj',
-		'annotation',
-		'msinfo',
-		'ctransfer',
-		'source_info',
-		'novelline',
-		'manuscriptexcerpt',
-		'sourcepageexcerpt'
-		)
-	filter_horizontal = ('sourcepageexcerpt',)
-	raw_id_fields = ('notepage', 'novelline',)
+    list_display = (
+        'page',
+        'notejj',
+        'annotation',
+        'ctransfer',
+        'msinfo',
+        'source',
+        'novelline'
+        )
+    search_fields = ('notejj', 'page__page_number', 'source')
+    fields = (
+        'noteb',
+        'page',
+        'notejj',
+        'annotation',
+        'msinfo',
+        'ctransfer',
+        'source',
+        'novelline',
+        'manuscriptexcerpt',
+        'libraryexcerpt'
+        )
+    filter_horizontal = ('libraryexcerpt',)
+    raw_id_fields = ('page', 'novelline',)
 
 admin.site.register(Notebook, NotebookAdmin)
 admin.site.register(NotebookPage, NotebookPageAdmin)

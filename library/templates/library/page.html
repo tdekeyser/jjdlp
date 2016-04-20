@@ -1,0 +1,130 @@
+{% extends 'generic/desk.html' %}
+{% load thumbnail %}
+{% load operations %}
+
+
+{% block title_display %}
+	<h4 class="media-heading">
+		<a class="notred" href="{% url 'library_item' slug=item.slug %}">
+			{{ item.title }}
+		</a>
+	</h4>
+	<table id="item_info">
+		<tr>
+			{% if item.get_authors %}<td><span class="glyphicon glyphicon-option-vertical"></span></td><td>{{ item.get_authors }}</td>{% endif %}
+			{% if item.date %}<td><span class="glyphicon glyphicon-option-vertical"></td><td>{{ item.date }}</td>{% endif %}
+			{% if item.publisher %}<td><span class="glyphicon glyphicon-option-vertical"></span></td><td>{{ item.publisher }}</td>{% endif %}
+		</tr>
+		<tr class="blank_row"></tr>
+		{% if item.collection %}<tr><td><span class="glyphicon glyphicon-tasks"></td><td><a href="{% url 'library_collection' slug=item.collection.slug %}">{{ item.collection }}</a></td></tr>{% endif %}
+		<tr><td><span class="glyphicon glyphicon-list-alt"></td><td>Page <strong>{{ chosen_image.actual_pagenumber }}</strong></td></tr>
+	</table>
+{% endblock %}
+
+{% block desk_content %}
+	<div id="detail_page" class="detail_page">
+		{% if chosen_image.image|is_portrait %}
+			{% thumbnail chosen_image.image "800x1000" upscale=False quality=100 as im %}
+				<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+				
+				<table class="frame" width="{{ im.width }}" style="margin-left:{{ im.width|absSubtract:"1000"|divide:"2" }}px">
+					<tr class="frame-top" height="{{ im.height|divide:"2" }}"><td id="frame-top-single" class="framelight frame-top-single">&nbsp;</td></tr>
+					<tr class="frame-bottom" height="{{ im.height|divide:"2" }}"><td id="frame-bottom-single" class="framelight frame-bottom-single">&nbsp;</td></tr>
+				</table>
+			{% endthumbnail %}
+		{% else %}
+			{% thumbnail chosen_image.image "1000x900" upscale=False quality=100 as im %}
+				<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+				<table class="frame" width="{{ im.width }}" style="margin-left:{{ im.width|absSubtract:"1000"|divide:"2" }}px">
+					<tr class="frame-top" height="{{ im.height|divide:"2" }}"><td id="frame-top-left" class="framelight frame-top-left">&nbsp;</td><td id="frame-top-right" class="framelight frame-top-right">&nbsp;</td></tr>
+					<tr class="frame-bottom" height="{{ im.height|divide:"2" }}"><td id="frame-bottom-left" class="framelight frame-bottom-left">&nbsp;</td><td id="frame-bottom-right" class="framelight frame-bottom-right">&nbsp;</td></tr>
+				</table>
+			{% endthumbnail %}
+		{% endif %}
+		{% for sourceexcerpt in found_excerpts %}
+			<div class="excerptPopover excerpt {{ sourceexcerpt.place }}">
+				<div class="panel panel-default">
+					<div class="arrow"></div>
+					<div class="panel-heading">Reading trace</div>
+					<div class="panel-body">
+						{{ sourceexcerpt.content }}
+					</div>	
+					{% if sourceexcerpt.note_set %}
+					<ul class="list-group">
+			    		{% for note in sourceexcerpt.note_set.all %}
+			    			<li class="list-group-item"><a class="notunderline" href="{% url 'notebooks_page' noteb=note.noteb notebpage=note.page %}">{{ note|safe }}</a></li>
+			    		{% endfor %}
+			    	</ul>
+			    	{% endif %}
+	    		</div>
+	    	</div>
+		{% endfor %}
+	</div>
+{% endblock %}
+
+{% block desk_paginator %}
+	<div class="page-row-well well well-sm">
+
+		{% if coverimages %}
+			{% for cover in coverimages %}
+
+				<div class="page-row">
+				{% thumbnail cover.image "x100" as cover_thum %}
+					<a href="{% url 'library_page' itemslug=item.slug req_page=cover.page_number %}" title="{{ cover.actual_pagenumber }}">
+						<img class="thumbnail" src="{{ cover_thum.url }}" width="{{ cover_thum.width }}" height="{{ cover_thum.height }}">
+					</a>
+				{% endthumbnail %}
+				</div>
+
+			{% endfor %}
+		{% endif %}
+
+		{% if previous_image %}
+			
+				<div class="page-row">
+				{% thumbnail previous_image.image "x100" as previous_thum %}
+					<a href="{% url 'library_page' itemslug=item.slug req_page=previous_image.actual_pagenumber %}">
+						<img class="thumbnail" style="margin-bottom:0;" src="{{ previous_thum.url }}" width="{{ previous_thum.width }}" height="{{ previous_thum.height }}">
+						<div class="caption thum_caption" >{{ previous_image.actual_pagenumber }}</div>
+					</a>
+				{% endthumbnail %}
+				</div>
+		{% endif %}
+				<div class="page-row">
+				{% thumbnail chosen_image.image "x100" as actual_thum %}
+					<img class="thumbnail active" style="margin-bottom:0;" src="{{ actual_thum.url }}" width="{{ actual_thum.width }}" height="{{ actual_thum.height }}">
+					<div class="caption thum_caption">{{ chosen_image.actual_pagenumber }}</div>
+				{% endthumbnail %}
+				</div>
+		{% if next_image %}
+				<div class="page-row">
+				{% thumbnail next_image.image "x100" as next_thum %}
+					<a href="{% url 'library_page' itemslug=item.slug req_page=next_image.actual_pagenumber %}">
+						<img class="thumbnail" style="margin-bottom:0;" src="{{ next_thum.url }}" width="{{ next_thum.width }}" height="{{ next_thum.height }}">
+						<div class="caption thum_caption">{{ next_image.actual_pagenumber }}</div>
+					</a>
+				{% endthumbnail %}
+				</div>
+			
+		{% endif %}
+	</div>
+{% endblock %}
+
+{% block finaljavascript %}
+	{% if found_excerpts %}
+		<script type="text/javascript">
+				$('[data-toggle="popover"]').popover({ html: true });
+		</script>
+		<script type="text/javascript">
+			var framePosition;
+			$(".excerpt").on("mouseover", function() {
+				framePosition = $(this)[0].className.split(' ')[1];
+				
+				$(".frame-"+framePosition).css("visibility", "visible");
+				
+			}).on("mouseout", function() {
+				$(".frame-"+framePosition).css("visibility", "hidden");
+			});
+		</script>
+	{% endif %}
+ {% endblock %}

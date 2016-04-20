@@ -1,0 +1,211 @@
+	* * *
+	! DANGER !
+
+	The transcription of the notes and manuscript pages (which admins will be able to add and change) are not escaped. They are marked as "safe", meaning that <html> tags will not be removed.	This is a very important issue, because these XMLs may include <script> tags that will not be deleted. Malicious people could thereby crash the website.
+
+	Solution: perhaps use django-bleach to ensure absence of <script> tags via whitelists?
+
+
+***
+
+## 1. The database
+### 1.1. Adding collections and items
+***
+#### 1.1.1. Libraryitems and collections
+
+Although it may sound self evident, a careful explanation of the distinction between a `collection` and an `item` is useful here. Collections contain items. They can be whole libraries, but also newspapers collections or encyclopedias. `Items` can be books, articles, issues, lemmas, etc. In order to avoid unexpected behaviour of the website, it is important to be aware of the way an object is recognized and visualised by the database.
+
+The latter issue is not trivial, as some objects may be suitable both as a collection and an item. For instance, the [Encyclopaedia Britannica]() could be classified as a collection containing entries, or as an item within the extant or virtual library collection. In this case, we have chosen to classify it as a collection, because the focus will not be on the [Encyclopaedia]() in itself, but rather to its lemmas. The distinction between lemmas has shown to be of great importance in Joyce's note taking, as a lemma title is sometimes enough for Joyce to make a note. [The Decline and Fall of the Roman Empire](), on the other hand, which exists of 6 volumes, is classified as an item of the virtual library. Another reason for this decision is the content of the objects. While [The Decline and Fall]() only incorporates about 50 relevant pages, the amount of pages is much larger for the Encycopaedia.
+
+A new `collection` can be made by clicking on the `Library Collections` section and choosing `add new collection`. Empty fields are available to connect relevant information to the collection. When finished, save the collection by clicking the `save` button.
+
+A new `item` can be added to the database in the same way, but, in this case, it allows the addition of more specialised bibliographical information such as author(s), a publisher, a publication date, etc. An extra field for external links can be used to refer to a complete digitisation elsewhere.
+
+#### 1.1.2. Notebooks
+
+`Notebooks` can be added by clicking on the `add new notebook` button in the `Notebook` section of the admin area. The notebook title **must** have a name according to [the James Joyce Catalog of the University of Buffalo](http://library.buffalo.edu/pl/collections/jamesjoyce/catalog/index.php). Put differently, a notebook title must start according to the following classification code:
+
+> COLLECTION_IDENTIFIER(dot)NOTEBOOK_IDENTIFIER(dot)NOTEBOOK_NUMBER
+
+For example:
+	
+	VI.B.1.
+	V.A.3.
+	V.A.1.b.i
+
+The database will not accept names that do not have these identifiers. (Alternatively, it *may* accept them and crash.)
+
+#### 1.1.X. A note on [Markdown](https://daringfireball.net/projects/markdown/)
+
+A lot of database objects provide an `info` field, which includes an explanation of the current collection or item. These fields are automatically converted from [Markdown](https://daringfireball.net/projects/markdown/) for simplicity and safety, meaning that all HTML tags will be escaped. Fortunately, Markdown is easy to use and has the simple advantage that no tags need to be used. (This document has also been created using Markdown; it is possible to inspect the raw file [here](raw-markdown).)
+
+
+### 1.2. Adding images
+***
+
+The database saves two kinds of names for the images: `page number` and `actual page number`. The first is the only required field to save a new page. Somewhat counterintuitively, this field is not considered an integer by the database, but by a string of characters. In that case, the database can distinguish between  However, the `page number` identifier has to be different from all the other images, so be sure that all images have **unique** names.
+
+A naming convention for `page number` is the following:
+
+> X-Y,Z-A
+	
+For `X` the capitalized three first letters of the last name of the author, `Y` the capitalized three first letters of the item, and `Z` the page number or page identifier. Use a hyphen to distinguish between identifiers (`A`).
+
+For example:
+
+	SUL-BOO,45-46.jpg
+	CAU-MON,5.png
+
+The following names are recognized as title pages, acknowledgement pages, figures, etc:
+
+> - frontcover,
+> - title-page,
+> - half-title,
+> - flyleaf,
+> - ex-libris,
+> - note,
+> - colophon,
+> - epigraph,
+> - table-of-contents,
+> - chart,
+> - acknowledgement,
+> - dedication,
+> - bibliography,
+> - index,
+> - backcover.
+
+In the case of multiple title pages or charts, use a hyphenated identifier. For example:
+
+	SUL-BOO,frontcover.jpg
+	HEN-FOU,title-page-v.jpg
+	GWY-HIS,chart-a.png
+
+Next to `page number`, each image also receives a so-called `actual page number`. This is a non-unique page number that ignores the unique `X-Y` identifier, and allows all pages to be numerically ordered. When a new image is saved, an `actual page number` is automatically created. (This is done by simply calling Python's `split(',')` function  on `page number`. That is why the naming convention is so important next to uniqueness!) 
+
+### 1.3. Adding notes
+***
+
+To avoid strange errors of the form `Illegal mix of collations (latin1_swedish_ci,IMPLICIT) and (utf8_general_ci,COERCIBLE) for operation '='`, see below.
+
+### 1.4. Linking items
+
+
+
+***
+
+##2. Coding info
+
+### Check ./manage.py commands:	
+
+	$ python manage.py
+
+### Create new app:
+
+	$ python manage.py startapp newapp
+
+### Migrations:
+
+In new app, do
+
+	$ python manage.py makemigrations newapp
+
+then
+
+	$ python manage.py migrate
+
+If this fails, try to adapt the database by hand and fake the migration by adding the `--fake` flag.
+
+	$ python manage.py migrate --fake
+
+This should rebuild the database.
+
+	$ python manage.py sqlmigrate
+
+returns the SQL code that should change db accordingly.
+
+### Renew search index ([Haystack](http://django-haystack.readthedocs.org/en/v2.4.0/)):
+
+Create the following files:
+'search_indexes.py' in app dir,
+'*targetmodel*_text.py' in project templates/search/indexes/app/ dir
+
+	$ python manage.py rebuild_index
+or	
+
+	$ python manage.py update_index
+
+to update or rebuild the search index. 
+
+### Clear cache ([Sorl-thumbnail](https://sorl-thumbnail.readthedocs.org/en/latest/)):
+
+First delete the /media/cache folder.
+Then,
+
+	$ python manage.py thumbnail cleanup
+
+According to Sorl's docs, "this cleans up the Key Value Store from stale cache. It removes
+references to images that do not exist and thumbnail references and their actual files for
+images that do not exist. It removes thumbnails for unknown images."
+
+Harsher,
+
+	$ python manage.py thumbnail clear_delete_all
+
+"Equivalent to to clear but afterwards it will delete all thumbnail files including any
+orphans	not in the Key Value Store. This can be thought of as a more aggressive version of
+clear_delete_referenced. Caution should be exercised with this command if multiple Django
+sites (as in SITE_ID) or projects are using the same MEDIA_ROOT since this will clear out
+absolutely everything in the thumbnail cache directory causing thumbnail regeneration for
+all sites and projects. When file system storage is used, it is equivalent to
+rm -rf MEDIA_ROOT + THUMBNAIL_PREFIX."
+
+
+### Create database visualisation ([django-extensions](http://django-extensions.readthedocs.org/en/latest/)):
+
+For app1 and app2,
+
+	$ python manage.py graph_models app1 app2 -g -o models.png
+
+For all apps,
+
+	$ python manage.py graph_models -a -g -o models.png
+
+
+### Change database by hand ([MySQL](https://www.digitalocean.com/community/tutorials/a-basic-mysql-tutorial)):
+
+Connect to the MySQL server with the following command:
+
+	$ mysql -u root -p
+
+Convenient commands:
+
+	>> SHOW DATABASES;
+	>> USE databasex;
+	>> SHOW tables;
+	>> DESCRIBE table;
+
+Force remove a table (even with a foreign key constraint):
+
+	>> SET foreign_key_check = 0;
+	>> DROP TABLE table;
+	>> SET foreign_key_check = 1;
+
+Change character set of MySQL to avoid strange unicode errors, according to [this thread](http://stackoverflow.com/questions/1008287/illegal-mix-of-collations-mysql-error):
+
+	>> SET collation_connection = 'utf8_general_ci'
+
+then for your databases
+
+	>> ALTER DATABASE db CHARACTER SET utf8 COLLATE utf8_general_ci
+
+	>> ALTER TABLE table CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci
+
+MySQL sneaks swedish in there sometimes for no sensible reason.
+
+##3. When something goes terribly wrong
+
+###3.1. Creating and importing MySQL dump
+
+Try to [export and import a MySQL dump file](https://dev.mysql.com/doc/refman/5.7/en/mysqldump-sql-format.html).
+
+###3.2. Rebuilding the database from scratch

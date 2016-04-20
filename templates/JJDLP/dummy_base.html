@@ -1,4 +1,4 @@
-{% extends 'JJDLP/JJDLP_base.html' %}
+{% extends 'JJDLP/base.html' %}
 {% load activeurl %}
 
 {% block navigation %}
@@ -6,11 +6,6 @@
 	<nav class="navbar navbar-default collapse navbar-collapse">
 
 	<div class="head_nav">
-<!-- 		<div id="title-wrap">
-			<div class="project_title"><a href="{% url 'home' %}">JOYCE WEB ARCHIVE</a></div>
-			<div class="cmg"><a id="cmg" href="https://www.uantwerpen.be/en/rg/centre-for-manuscript-genetics/"><img height="38" src="{{ STATIC_URL }}JJDLP/images/cmg.png"></a></div>
-		</div>
- -->
 		<div id="sec-wrap container-fluid">
 			<div class="navbar-header">
 				<a class="navbar-brand" href="{% url 'home' %}" style="padding-left: 10px;padding-right:10px;padding-top: 5px">
@@ -25,12 +20,26 @@
 				<li class=""><a href="{% url 'novels_home' %}">Novels</a></li>
 				<li><a style="cursor: default;">|</a></li>
 				<li><a title="Advanced Search" href="{% url 'haystack_search' %}"><span class="glyphicon glyphicon-search"></span></a></li>
+				<li><a title="Connect" href="{% url 'connect' %}"><span class="glyphicon glyphicon-tree-deciduous"></span></a></li>
 			</ul>
 			{% endactiveurl %}
 			{% activeurl %}
 			<ul class="nav navbar-nav navbar-right">
 				<li><a style="cursor: default;">|</a></li>
-				<li><a title="Login" href="login"><span class="glyphicon glyphicon-log-in"></span></a></li>
+				{% if user.is_authenticated %}
+				<li style="margin-left: -10px;margin-right: -10px">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Gratings, <strong>{{ user }}</strong>!</a>
+					<ul class="dropdown-menu">
+						<li><a title="Profile" href="{% url 'home' %}"><span class="glyphicon glyphicon-user"></span> Profile</a></li>				
+						<li><a title="Logout" href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+					</ul>
+				</li>
+				{% else %}
+				<li>
+					<a title="Login" href="{% url 'login' %}"><span class="glyphicon glyphicon-log-in"></span></a>
+				</li>
+				{% endif %}
+				</li>
 				<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-cog"></span> <span class="caret"></span></a>
 					<ul class="dropdown-menu">
@@ -51,4 +60,14 @@
 	</nav>
 
 </div>
+{% endblock %}
+
+{% block pre_body %}
+<div id="toolbar">
+	<div class="url_navigator">
+		{% include 'generic/includes/breadcrumb.html' %}
+	</div>
+	{% block extra_tools %}{% endblock %}
+</div>
+	{% block body_title %}{% endblock %}
 {% endblock %}

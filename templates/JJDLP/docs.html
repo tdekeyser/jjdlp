@@ -1,0 +1,42 @@
+{% extends "JJDLP/dummy_base.html" %}
+{% load markdown_filter %}
+
+{% block title %}Docs | Joyce Web Archive{% endblock %}
+
+{% block heads %}
+{% endblock %}
+
+{% block body_title %}{% endblock %}
+
+{% block body %}
+	<h1>Documentation</h1>
+	Specialised information about using the website and database.
+	<hr>
+
+	{% if not view.raw %}
+
+		<div id="content" style="width:240px; position: absolute;">
+			<h2>Contents</h2>
+			<ol style="margin-left: 15px;">
+				<li><a href="#1-the-database">The database (admin)</a>
+					<ul>
+						<li>&emsp;<a href="#11-adding-collections-and-items">Adding collections and items</a></li>
+						<li>&emsp;<a href="#12-adding-images">Adding images to the database</a></li>
+						<li>&emsp;<a href="#13-adding-notes">Adding notes</a></li>
+					</ul>
+				</li>
+				<li><a href="#2-coding-info">Coding info</a></li>
+			</ol>
+		</div>
+
+		<div class="md" style="width:750px; margin-left: 240px; margin-top: 3em;">
+			{{ view.docs|markdownify|safe }}		
+		</div>
+
+	{% else %}
+		<div style="font-family: Courier;">
+			{{ view.docs|linebreaks }}
+		</div>
+	{% endif %}
+
+{% endblock %}

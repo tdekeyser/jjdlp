@@ -1,141 +1,148 @@
-from django.shortcuts import render
-from django.views.generic import ListView, DetailView, TemplateView
-from django.template import RequestContext
-from django.core.exceptions import ObjectDoesNotExist
+from django.views.generic import TemplateView
+from django.contrib.admin.models import LogEntry
 
-from haystack.forms import ModelSearchForm
 from haystack.views import SearchView
 from haystack.forms import HighlightedModelSearchForm
 
-from library.models import Source, SourceCollection, SourcePage
+from library.models import LibraryItem, LibraryCollection
+from library.models import LibraryPage, LibraryExcerpt
+
+from generic.views.item import ItemView
+from generic.views.page import PageView
+from generic.views.collection import CollectionView
+
+import operator
+import json
+from cache_utils.decorators import cached
+
+library_dummy_base = 'library/dummy_base.html'
+
+
+@cached(60)
+# use make_data.invalidate() to reset
+def make_data():
+    '''
+    Set up item dataset for visualisation.
+    EXPENSIVE calculation; needs to be cached.
+    '''
+    count = []
+    names = []
+    for p in LibraryItem.objects.all():
+        count.append(p.page_set.count())
+        names.append(p.slug)
+    return count, json.dumps(names)
+
 
 class LibraryHomeView(TemplateView):
-	template_name='library/library_base.html'
+    template_name = 'library/base.html'
 
-	def get_context_data(self, **kwargs):
-		context = super(LibraryHomeView, self).get_context_data(**kwargs)
+    def get_recent_actions(self):
+        return LogEntry.objects.all()[:5]
 
-		context['virtual_library'] = SourceCollection.objects.get(slug='virtual-library')
-		context['newspapercollections'] = SourceCollection.objects.filter(collection_type='newspaper')
-		context['source_amount'] = Source.objects.count()
-		context['vl_example'] = SourcePage.objects.filter(page_number__contains='frontcover').order_by('?').first() # random frontcover example (db small enough for this query)
+    def get_context_data(self, **kwargs):
+        context = super(LibraryHomeView, self).get_context_data(**kwargs)
 
-		return context
+        context['collections'] = LibraryCollection.objects.all()
+        context['virtual_library'] = LibraryCollection.objects.get(slug='virtual-library')
+        context['newspapercollections'] = LibraryCollection.objects.filter(collection_type='newspaper')
+        context['source_amount'] = LibraryItem.objects.count()
+        context['page_amount'] = LibraryPage.objects.count()
+        # random frontcover example (db still small enough for this query)
+        context['vl_example'] = LibraryPage.objects.filter(page_number__contains='frontcover').order_by('?').first()
+        # recent actions module
+        context['recent_actions'] = self.get_recent_actions()
+        countdata, namedata = make_data()
+        context['countdata'] = countdata
+        context['namedata'] = namedata
+        context['len_data'] = LibraryItem.objects.count()
+        context['max_data'] = max(countdata)
+        return context
+
+
+class LibraryMacroView(TemplateView):
+    template_name = 'library/macro.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(LibraryMacroView, self).get_context_data(**kwargs)
+        countdata, namedata = make_data()
+        countdata2 = [i*3 for i in countdata]
+        context['countdata'] = countdata2
+        context['namedata'] = namedata
+        context['len_data'] = LibraryItem.objects.count()
+        context['max_data'] = 350
+        return context
+
 
 class LibrarySearchView(SearchView):
-	form = HighlightedModelSearchForm
-	template = 'library/search_results.html'
+    form = HighlightedModelSearchForm
+    template = 'library/search_results.html'
 
-	def extra_context(self, **kwargs):
-		return {'specific_model': 'models=library.source'}
+    def extra_context(self, **kwargs):
+        return {'specific_model': 'models=library.source'}
 
-class SourceListLetter(ListView):
-	'''View for ordering library items per field + letter; name=order_all'''
-	context_object_name = 'sources'
-	paginate_by = 10
 
-	def get_context_data(self, **kwargs):
-		context = super(SourceListLetter, self).get_context_data(**kwargs)
+class LibraryCollectionView(CollectionView):
+    paginate_by = 25
 
-		context['first_letter'] = self.kwargs['first_letter']
-		context['source_field'] = self.kwargs['source_field']
+    model = LibraryCollection
+    slug_name = 'slug'
 
-		# context key 'page_obj' changed for pagination purposes
-		context['page'] = context['page_obj']
-		del context['page_obj']
-		return context
+    template = 'library/collection.html'
+    dummybase_template = library_dummy_base
 
-	def get_queryset(self, **kwargs):
-		source_field = self.kwargs['source_field']
-		letter = self.kwargs['first_letter']
 
-		# sort on field+letter via Source's manager function
-		return Source.objects.field_sort(letter, source_field)
+class LibraryItemView(ItemView):
+    paginate_by = 0
 
-	def get_template_names(self, **kwargs):
-		return 'library/source_list.html'
+    model = LibraryItem
+    slug_name = 'slug'
 
-class CollectionDetail(DetailView):
-	'''DetailView of library collections; name=sourcecollection_detail'''
-	model = SourceCollection
+    template = 'library/item.html'
+    dummybase_template = library_dummy_base
 
-	def get_object(self, **kwargs):
-		return self.model.objects.get(slug__exact=self.kwargs['slug'])
+    def get_queryset(self, **kwargs):
+        # override
+        query = super(LibraryItemView, self).get_queryset(**kwargs)
+        return self.pageQ.order_by_actualpagenumber(query)
 
-	def get_context_data(self, **kwargs):
-		context = super(CollectionDetail, self).get_context_data(**kwargs)
+    def all_notebooks(self):
+        return self.item.notebook_set.all()
 
-		items = self.object.item_of_collection.all()
 
-		context['fromCollection'] = True
-		context['collectionItems'] = items
-		context['counted_items'] = items.count()
-		context['frontcover'] = self.object.image
+class LibraryPageView(PageView):
+    parent_model = LibraryItem
+    itemslug = 'itemslug'
+    pageslug = 'req_page'
 
-		return context
+    template = 'library/page.html'
+    dummybase_template = library_dummy_base
 
-	def get_template_names(self, **kwargs):
-		return 'library/source_detail.html'
+    def get_page(self):
+        # override
+        return self.pageQ.get(actual_pagenumber=self.kwargs[self.pageslug])
 
-class SourceDetail(DetailView):
-	'''DetailView of library item; name=source_detail'''
-	model = Source
+    def get_context_data(self, **kwargs):
+        # override
+        context = super(LibraryPageView, self).get_context_data(**kwargs)
+        # note info
+        found_excerpts = self.object.excerpt_set.all()
+        if found_excerpts:
+            context['found_excerpts'] = found_excerpts
+            context['counted_excerpts'] = found_excerpts.count()
+        return context
 
-	def get_context_data(self, **kwargs):
-		'''Returns specific info as context for each page'''
-		context = super(SourceDetail, self).get_context_data(**kwargs)
 
-		context['fromSource'] = True
+class LibraryExcerptView(ItemView):
+    context_object_name = 'excerpts'
+    paginate_by = 10
 
-		images = self.object.page_of_source.get_all_images_but_frontcover() # all available images
-		context['counted_items'] = images.count()
-		context['coverimages'] = self.object.page_of_source.get_coverimages()
-		try:
-			context['frontcover'] = self.object.page_of_source.get_frontcover()
-		except ObjectDoesNotExist:
-			pass
+    model = LibraryItem
+    slug_name = 'slug'
 
-		images_with_notes = self.object.page_of_source.get_detailimages()
-		context['counted_images_with_notes'] = images_with_notes.count()
-		context['images_with_notes'] = self.object.page_of_source.order_by_actualpagenumber(images_with_notes)
+    template = 'library/list.html'
+    dummybase_template = library_dummy_base
 
-		return context
-
-	def get_template_names(self, **kwargs):
-		return 'library/source_detail.html'
-
-class SourcePageDetail(DetailView):
-	'''DetailView of item page; name=page_detail'''
-	model = SourcePage
-	sourceitem = None
-
-	def get_template_names(self, **kwargs):
-		return 'library/sourcepage_detail.html'
-
-	def get_object(self, **kwargs):
-		self.sourceitem = Source.objects.get(slug__exact=self.kwargs['itemslug'])
-		page = SourcePage.objects.get(source=self.sourceitem, page_number__contains=self.kwargs['req_page'])
-		return page
-
-	def get_context_data(self, **kwargs):
-		context = super(SourcePageDetail, self).get_context_data(**kwargs)
-
-		try:
-			context['frontcover'] = self.sourceitem.page_of_source.get_frontcover()
-		except ObjectDoesNotExist:
-			pass
-
-		images = self.sourceitem.page_of_source.get_two_surroundingimages(self.kwargs['req_page'], needReordering=True)
-		context['chosen_image'] = images['chosen_image']
-		context['previous_image'] = images['previous_image']
-		context['next_image'] = images['next_image']
-		context['sourceitem'] = self.sourceitem
-
-		# note info
-		found_excerpts = self.object.sourcepage_excerpt.all()
-		if found_excerpts:
-			context['found_excerpts'] = found_excerpts
-			context['counted_excerpts'] = found_excerpts.count()
-		
-		return context
-
+    def get_queryset(self, **kwargs):
+        # override
+        super(LibraryExcerptView, self).get_queryset(**kwargs)
+        return LibraryExcerpt.objects.filter(item=self.item)
