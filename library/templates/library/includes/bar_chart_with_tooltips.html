@@ -45,6 +45,7 @@ var graph = d3.select('#bar-chart').append('svg')
         dynamicColor = this.style.fill;
         d3.select(this)
             .style('stroke', '#c34528')
+            .style('fill', '#c34528')
     })
  
     .on('mouseout', function(data) {
@@ -52,5 +53,6 @@ var graph = d3.select('#bar-chart').append('svg')
     	.style('opacity', 0) // hide tooltip
         d3.select(this)
             .style('stroke', '#FBE4DC')
+            .style('fill', '#FBE4DC')
     });
 </script>

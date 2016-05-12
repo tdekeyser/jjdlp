@@ -71,7 +71,7 @@ class LibraryItem(models.Model):
     collection = models.ForeignKey(LibraryCollection, related_name='item_set', blank=True, null=True)
     author = models.ManyToManyField(Author, blank=True)
     publisher = models.ForeignKey(Publisher, default='', blank=True, null=True)
-    date = models.PositiveSmallIntegerField(blank=True, null=True)
+    date = models.PositiveIntegerField(blank=True, null=True)
     info = models.TextField(blank=True)
     # link to external site, i.e. UA library or archive.org
     link = models.CharField(max_length=255, blank=True)

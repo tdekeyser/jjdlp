@@ -9,6 +9,7 @@ scripts/
 static/JJDLP/bootstrap-3.3.5-dist/
 static/*
 
+
 CODING_DIRECTIONS.txt
 NOTE_ON_IMAGES.txt
 tests.py

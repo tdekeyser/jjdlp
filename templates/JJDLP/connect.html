@@ -37,6 +37,8 @@ Visualisation of 	the components of the James Joyce database.
 
     <div id="branch"></div>
     <button id="reloader" type="button" class="btn btn-default btn-xs" onclick="loadPathwayContent()" style="float: right; margin: 5px;">Reload</button>
+
+    <div class="ui-droppable" style="width:80px;height:90px;"></div>
 </div>
 {% endblock %}
 
@@ -314,7 +316,7 @@ function callContent() {
 
           // insert new panel
 	  	  var twigs = document.createElement("div");
-	  	      twigs.setAttribute("class", "twig panel panel-default");
+	  	      twigs.setAttribute("class", "twig panel panel-default ui-draggable");
 	  	      twigs.innerHTML = document.getElementById("pathway-components").innerHTML;
 		  document.getElementById("branch").appendChild(twigs);
 
@@ -340,6 +342,7 @@ function callContent() {
 <div class="panel-heading"><span class="referent"></span></div>
 <div class="pathway-component panel-body">
 	<div>id: <span class="id small"></span></div>
+	<div><span class="small slug"></span></div>
 	<div><span class="item_type"></span></div>
 	<div><span class="title"></span></div>
 	<div><span class="name"></span></div>

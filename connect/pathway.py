@@ -62,6 +62,7 @@ class PathwayBranch(Branch):
                         desc = desc | c
         return desc
 
+
 class PathwayTree(BranchedTree):
     '''
     @param: String root

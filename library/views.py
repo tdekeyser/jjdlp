@@ -15,10 +15,11 @@ import operator
 import json
 from cache_utils.decorators import cached
 
-library_dummy_base = 'library/dummy_base.html'
+
+LIBRARY_DUMMY_BASE = 'library/dummy_base.html'
 
 
-@cached(60)
+# @cached(60)
 # use make_data.invalidate() to reset
 def make_data():
     '''
@@ -27,9 +28,20 @@ def make_data():
     '''
     count = []
     names = []
-    for p in LibraryItem.objects.all():
-        count.append(p.page_set.count())
-        names.append(p.slug)
+    for c in LibraryCollection.objects.all():
+        if c.collection_type == 'newspaper':
+            newspapers = 0
+            for item in c.item_set.all():
+                newspapers += item.excerpt_set.count()
+            if newspapers != 0:
+                count.append(newspapers)
+                names.append(c.slug)
+        else:
+            for i in c.item_set.all():
+                icount = i.excerpt_set.count()
+                if icount != 0:
+                    count.append(icount)
+                    names.append(i.slug)
     return count, json.dumps(names)
 
 
@@ -51,10 +63,11 @@ class LibraryHomeView(TemplateView):
         context['vl_example'] = LibraryPage.objects.filter(page_number__contains='frontcover').order_by('?').first()
         # recent actions module
         context['recent_actions'] = self.get_recent_actions()
+        # get data for bar chart
         countdata, namedata = make_data()
         context['countdata'] = countdata
         context['namedata'] = namedata
-        context['len_data'] = LibraryItem.objects.count()
+        context['len_data'] = len(countdata)
         context['max_data'] = max(countdata)
         return context
 
@@ -68,7 +81,7 @@ class LibraryMacroView(TemplateView):
         countdata2 = [i*3 for i in countdata]
         context['countdata'] = countdata2
         context['namedata'] = namedata
-        context['len_data'] = LibraryItem.objects.count()
+        context['len_data'] = len(countdata)
         context['max_data'] = 350
         return context
 
@@ -88,7 +101,7 @@ class LibraryCollectionView(CollectionView):
     slug_name = 'slug'
 
     template = 'library/collection.html'
-    dummybase_template = library_dummy_base
+    dummybase_template = LIBRARY_DUMMY_BASE
 
 
 class LibraryItemView(ItemView):
@@ -98,7 +111,7 @@ class LibraryItemView(ItemView):
     slug_name = 'slug'
 
     template = 'library/item.html'
-    dummybase_template = library_dummy_base
+    dummybase_template = LIBRARY_DUMMY_BASE
 
     def get_queryset(self, **kwargs):
         # override
@@ -115,7 +128,7 @@ class LibraryPageView(PageView):
     pageslug = 'req_page'
 
     template = 'library/page.html'
-    dummybase_template = library_dummy_base
+    dummybase_template = LIBRARY_DUMMY_BASE
 
     def get_page(self):
         # override
@@ -140,7 +153,7 @@ class LibraryExcerptView(ItemView):
     slug_name = 'slug'
 
     template = 'library/list.html'
-    dummybase_template = library_dummy_base
+    dummybase_template = LIBRARY_DUMMY_BASE
 
     def get_queryset(self, **kwargs):
         # override

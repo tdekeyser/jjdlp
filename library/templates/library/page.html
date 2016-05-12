@@ -6,7 +6,7 @@
 {% block title_display %}
 	<h4 class="media-heading">
 		<a class="notred" href="{% url 'library_item' slug=item.slug %}">
-			{{ item.title }}
+			{{ item }}
 		</a>
 	</h4>
 	<table id="item_info">
@@ -24,12 +24,22 @@
 {% block desk_content %}
 	<div id="detail_page" class="detail_page">
 		{% if chosen_image.image|is_portrait %}
-			{% thumbnail chosen_image.image "800x1000" upscale=False quality=100 as im %}
+			{% thumbnail chosen_image.image "770" upscale=False quality=100 as im %}
 				<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
 				
 				<table class="frame" width="{{ im.width }}" style="margin-left:{{ im.width|absSubtract:"1000"|divide:"2" }}px">
-					<tr class="frame-top" height="{{ im.height|divide:"2" }}"><td id="frame-top-single" class="framelight frame-top-single">&nbsp;</td></tr>
-					<tr class="frame-bottom" height="{{ im.height|divide:"2" }}"><td id="frame-bottom-single" class="framelight frame-bottom-single">&nbsp;</td></tr>
+					<tr class="frame-top" height="{{ im.height|divide:"2" }}">
+						<td id="frame-top-single" class="framelight frame-top-single">
+							<div style="width: 50%;" id="frame-top-left" class="framelight frame-top-left">&nbsp;</div>
+							<div style="width: 50%;" id="frame-top-right" class="framelight frame-top-right">&nbsp;</div>
+						</td>
+					</tr>
+					<tr class="frame-bottom" height="{{ im.height|divide:"2" }}">
+						<td id="frame-bottom-single" style="width:100%;" class="framelight frame-bottom-single">
+							<div style="width: 50%; height: {{ im.height|divide:"2" }}px; float: left;" id="frame-bottom-left" class="framelight frame-bottom-left">&nbsp;</div>
+							<div style="width: 50%; height: {{ im.height|divide:"2" }}px; float: right;" id="frame-bottom-right" class="framelight frame-bottom-right">&nbsp;</div>
+						</td>
+					</tr>
 				</table>
 			{% endthumbnail %}
 		{% else %}
@@ -116,14 +126,15 @@
 				$('[data-toggle="popover"]').popover({ html: true });
 		</script>
 		<script type="text/javascript">
+			// options are: top/bottom-single/left/right
 			var framePosition;
 			$(".excerpt").on("mouseover", function() {
-				framePosition = $(this)[0].className.split(' ')[1];
+				framePosition = $(this)[0].className.split(' ')[2];
 				
-				$(".frame-"+framePosition).css("visibility", "visible");
+				$("#frame-"+framePosition).css("visibility", "visible");
 				
 			}).on("mouseout", function() {
-				$(".frame-"+framePosition).css("visibility", "hidden");
+				$("#frame-"+framePosition).css("visibility", "hidden");
 			});
 		</script>
 	{% endif %}

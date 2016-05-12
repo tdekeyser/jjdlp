@@ -41,7 +41,7 @@
 					{% for note in notes %}
 					<div class="media">
 					  <div class="media-body">
-					    <h4 class="media-heading notejj noteclick">{{ note|safe }}</h4>
+					    <h4 class="media-heading notejj noteclick">{{ note.notejj|safe }}</h4>
 					    	{% with note.libraryexcerpt.all as libraryexcerpts %}
 					    	{% if libraryexcerpts %}
 								<div class="media sourceinfo noteinfo">

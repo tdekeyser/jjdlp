@@ -53,7 +53,7 @@ class GraphLayout(Layout):
                 childIndex = self.get_index(i+1, node)
                 for parent in node.parent:
                     parentIndex = self.get_index(i, parent)
-                    e = {"source": parentIndex, "target": childIndex}
+                    e = {'source': parentIndex, 'target': childIndex}
                     edges.append(e)
         self.layout['edges'] = edges
 
