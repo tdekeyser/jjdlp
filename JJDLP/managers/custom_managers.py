@@ -1,18 +1,4 @@
-from django.db import models
-
 from generic.managers.queryset import PageQuerySet
-
-
-class SourceQuerySet(models.query.QuerySet):
-    '''Manager that generates customised querysets for sources'''
-    def get_frontcover(self):
-        pass
-
-    def get_coverimages(self):
-        pass
-
-    def get_detailimages(self):
-        pass
 
 
 class LibraryPageQuerySet(PageQuerySet):
@@ -34,43 +20,6 @@ class LibraryPageQuerySet(PageQuerySet):
         return queryset.extra(
             select={'library_librarypage_actual_pagenumber': "CONVERT(SUBSTRING_INDEX(actual_pagenumber,'-',1),UNSIGNED INTEGER)"}
             ).order_by('library_librarypage_actual_pagenumber')
-
-
-class NotebookPageQuerySet(PageQuerySet):
-    '''Notebook-specific queryset manager'''
-
-    def get_traced_objects_list(self, nbpageobject):
-        '''Returns all sources and novelpages on one novelpage'''
-        traced_sources = []
-        traced_manuscripts = []
-        traced_novellines = []
-
-        for note in nbpageobject.note_set.all():
-
-            # first check traced sourceexcerpt
-            if note.libraryexcerpt:
-                for libraryexcerpt in note.libraryexcerpt.all():
-                    if libraryexcerpt not in traced_sources:
-                        traced_sources.append(libraryexcerpt.item)
-
-            # check manuscripts
-            if note.manuscriptexcerpt and note.manuscriptexcerpt.manuscriptpage not in traced_manuscripts:
-                traced_manuscripts.append(note.manuscriptexcerpt.manuscriptpage)
-
-            # then check novellines
-            if note.novelline and note.novelline not in traced_novellines:
-                traced_novellines.append(note.novelline)
-
-        traced_objects = {
-                    'traced_sources': traced_sources,
-                    'traced_sources_count': len(traced_sources),
-                    'traced_manuscripts': traced_manuscripts,
-                    'traced_manuscripts_count': len(traced_manuscripts),
-                    'traced_novellines': traced_novellines,
-                    'traced_novellines_count': len(traced_novellines)
-                }
-
-        return traced_objects
 
 
 class ManuscriptPageQueryset(PageQuerySet):

@@ -1,46 +1,33 @@
 {% extends dummy_base %}
 {% load thumbnail %}
 
+
 {% block content %}
-<div class="panel panel-default">
-	<div class="panel-body">
-		<div class="media">
-		 	<div class="media-left">
-				{% if frontcover %}
-					{% thumbnail frontcover "67x100" crop="98% 0%" as thum %}
-					<img class="frontcover" src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
-			    	{% endthumbnail %}
-			    {% else %}
-			    	<img class="frontcover" src="{{ MEDIA_URL }}JJDLP/images/small_frontcover.jpg" width="67" height="100">
-			    {% endif %}
-		  	</div>
-			<div class="media-body">
-				{% block title_display %}
-		    	<h4 class="media-heading">
-		    		{{ item }}
-		    	</h4>
+	<div id="deskcover">
+		{% block cover %}
+		{% endblock %}
+		{% block pagination %}{% endblock %}
 
-		    	{% block extra_info %}{% endblock %}
+	</div>
 
-				{% endblock %}
-			</div>
+	{% block frontmodal %}
+	{% endblock %}
+
+	<div class="{% block content_division %}column550{% endblock %}">
+
+		<h2>{% block item_title %}{{ item }}{% endblock %}</h2>
+		{% block description %}{% endblock %}
+		{% block info %}{% endblock %}
+		<hr/>
+
+		<div class="desk-grid">
+
+			{% block grid %}{% endblock %}
 		</div>
-	</div>
-</div>
 
-</div>
-<!-- page wrap closed and open gallery wrap -->
-<div id="gallery" class="gallery-wrap">
-	<div class="page-gallery">
-
-	{% block desk_content %}
-	{% endblock %}
-
-	{% block desk_paginator %}
-	{% endblock %}
+		{% block extra %}{% endblock %}
 
 	</div>
-</div>
 {% endblock %}
 
 {% block finaljavascript %}

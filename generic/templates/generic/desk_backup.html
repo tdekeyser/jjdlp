@@ -1,0 +1,28 @@
+{% extends dummy_base %}
+{% load thumbnail %}
+
+
+{% block content %}
+<div class="desk">
+	<div class="header desk-header">
+		<h3>{% block item_title %}{{ item }}{% endblock %}</h3>
+
+		{% block description %}{% endblock %}
+		{% block info %}{% endblock %}
+	</div>
+	<hr/>
+
+	<div class="desk-content">
+
+	{% block desk_content %}
+	{% endblock %}
+
+	{% block desk_paginator %}
+	{% endblock %}
+
+	</div>
+</div>
+{% endblock %}
+
+{% block finaljavascript %}
+{% endblock %}

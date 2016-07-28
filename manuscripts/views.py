@@ -8,6 +8,9 @@ from generic.views.item import ItemView
 from generic.views.page import PageView
 
 
+MANUSCRIPTS_DUMMY_BASE = 'manuscripts/dummy_base.html'
+
+
 class ManuscriptsHomeView(TemplateView):
     '''
     MANUSCRIPTS_HOME presents:
@@ -23,7 +26,7 @@ class ManuscriptsHomeView(TemplateView):
         return context
 
     def get_template_names(self, **kwargs):
-        return 'manuscripts/manuscripts_base.html'
+        return 'manuscripts/base.html'
 
 
 class ManuscriptsSearchView(SearchView):
@@ -36,41 +39,32 @@ class ManuscriptsSearchView(SearchView):
 
 class ManuscriptCollectionView(ItemView):
     model = ManuscriptCollection
-    slug_name = 'collectionslug'
+    slug_name = 'slug'
 
     target = ''
     template = ''
+    dummybase_template = MANUSCRIPTS_DUMMY_BASE
 
     def __init__(self, **kwargs):
         # override
         if kwargs['target'] == 'detail':
             self.paginate_by = 8
-            self.template = 'manuscripts/manuscripts_detail.html'
+            self.template = 'manuscripts/item.html'
         elif kwargs['target'] == 'pagelist':
             self.paginate_by = 10
-            self.template = 'manuscripts/manuscripts_pagelist.html'
+            self.template = 'manuscripts/list.html'
 
-    def get_context_data(self, **kwargs):
-        # override
-        context = super(ManuscriptCollectionView, self).get_context_data(**kwargs)
-        # change page_obj to page for paginator html
-        context['page'] = context['page_obj']
-        del context['page_obj']
-        return context
-
-    def get_template_names(self, **kwargs):
-        # override
-        return self.template
+    def all_pages(self):
+        return self.pages().all()
 
 
 class ManuscriptPageView(PageView):
     parent_model = ManuscriptCollection
-    itemslug = 'collectionslug'
-    pageslug = 'manuscriptpage'
+    itemslug = 'slug'
+    pageslug = 'page'
 
-    def get_template_names(self, **kwargs):
-        # override
-        return 'manuscripts/manuscriptpage_detail.html'
+    template = 'manuscripts/page.html'
+    dummybase_template = MANUSCRIPTS_DUMMY_BASE
 
     def get_pagenumber(self):
         # override

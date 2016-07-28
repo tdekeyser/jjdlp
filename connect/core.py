@@ -74,7 +74,7 @@ class Node(object):
     def jsonify(self):
         # returns indentifiers for layout
         export = {}
-        export['name'] = self.name
+        export['name'] = str(self.name)
         return export
 
 
@@ -201,13 +201,12 @@ class Branch(object):
         '''
         layer, node = nodeTuple
         anc = set()
-        for i in range(layer-1, self.tree.length-1):
-            for n in self.tree.get_layer(i):
-                if n in node.parent:
-                    parent = (i, n)
-                    anc.add(parent)
-                    # merge with ancestors of parent
-                    anc = anc | self.find_ancestors(parent)
+        for n in self.tree.get_layer(layer-1):
+            if n in node.parent:
+                parent = (layer-1, n)
+                anc.add(parent)
+                # merge with ancestors of parent
+                anc = anc | self.find_ancestors(parent)
         return anc
 
     def find_descendants(self, nodeTuple):
@@ -217,13 +216,12 @@ class Branch(object):
         '''
         layer, node = nodeTuple
         desc = set()
-        for i in range(layer+1, self.tree.length+1):
-            for n in self.tree.get_layer(i):
-                if node in n.parent:
-                    child = (i, n)
-                    desc.add(child)
-                    # merge with descendants of child
-                    desc = desc | self.find_descendants(child)
+        for n in self.tree.get_layer(layer+1):
+            if node in n.parent:
+                child = (layer+1, n)
+                desc.add(child)
+                # merge with descendants of child
+                desc = desc | self.find_descendants(child)
         return desc
 
 

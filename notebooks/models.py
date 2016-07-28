@@ -5,7 +5,9 @@ from django.template.defaultfilters import slugify
 from JJDLP.managers import custom_managers
 from library.models import LibraryExcerpt, LibraryItem
 from manuscripts.models import ManuscriptExcerpt
-from novels.models import Line
+from texts.models import Line
+
+from generic.managers.queryset import PageQuerySet
 
 
 def upload_to_file(instance, filename):
@@ -48,12 +50,19 @@ class NotebookPage(models.Model):
     notebook = models.ForeignKey(Notebook, max_length=50, related_name='page_set')
     page_number = models.CharField(max_length=255, primary_key=True)
     image = models.ImageField(upload_to=upload_to_file, blank=True)
+    slug = models.SlugField(max_length=255, blank=True)
+
+    # override save() to make slug on save
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.page_number)
+        super(NotebookPage, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return u'{}'.format(self.page_number)
 
     # manager
-    objects = PassThroughManager.for_queryset_class(custom_managers.NotebookPageQuerySet)()
+    objects = PassThroughManager.for_queryset_class(PageQuerySet)()
 
     class Meta:
         ordering = ['notebook']
@@ -76,13 +85,14 @@ class Note(models.Model):
     annotation = models.TextField(max_length=2000, blank=True)
     ctransfer = models.CharField(max_length=30, blank=True)
     source = models.TextField(blank=True)
+    textref = models.CharField(max_length=50, blank=True)
 
     # library reference field
     libraryexcerpt = models.ManyToManyField(LibraryExcerpt, related_name='note_set', blank=True)
     # manuscript reference field; Joyce did not use a note twice --> ForeignKey
     manuscriptexcerpt = models.ForeignKey(ManuscriptExcerpt, related_name='note_set', blank=True, null=True)
     # novel reference field
-    novelline = models.ForeignKey(Line, max_length=255, related_name='note_set', blank=True, null=True)
+    textline = models.ForeignKey(Line, max_length=255, related_name='note_set', blank=True, null=True)
 
     def __unicode__(self):
         return u'{0}{1}'.format(self.page, self.notejj[:3])

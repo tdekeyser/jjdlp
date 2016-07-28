@@ -69,6 +69,8 @@ class PathwayTree(BranchedTree):
     @param: String rootModel
     '''
     dbquery = None
+    query_up = True
+    query_down = True
 
     def __init__(self, root, rootModel):
         super(PathwayTree, self).__init__(root)
@@ -81,6 +83,10 @@ class PathwayTree(BranchedTree):
         # override
         self.branch = PathwayBranch(self)
 
+    def set_query(self, up, down):
+        self.query_down = down
+        self.query_up = up
+
     def reset_root(self, rootNode, model=''):
         rootObj = self.dbquery.get(rootNode, model=model)
         baseNode = PathwayNode(rootObj, None)
@@ -92,9 +98,12 @@ class PathwayTree(BranchedTree):
 
     def get_model_children(self, parentNode):
         # get child query
-        ds = self.dbquery.query(parentNode, downstream=True)
-        us = self.dbquery.query(parentNode, upstream=True)
-        return ds+us
+        if self.query_down and self.query_up:
+            return self.dbquery.query(parentNode, downstream=True, upstream=True)
+        if self.query_down:
+            return self.dbquery.query(parentNode, downstream=True)
+        if self.query_up:
+            return self.dbquery.query(parentNode, upstream=True)
 
     def get_children(self, parentNode):
         # override

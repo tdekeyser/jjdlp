@@ -1,4 +1,5 @@
 {% extends "JJDLP/dummy_base.html" %}
+{% load staticfiles %}
 
 {% block title %}Stats - James Joyce Database{% endblock %}
 
@@ -20,7 +21,7 @@ Information on the progress and setup of the project.
 	</ol>
 </div>
 
-<div class="md" style="width:750px; margin-left: 240px; margin-top: 3em;">
+<div class="md" style="margin-left: 240px; margin-top: 3em;">
 
 	<h2 id="1-distribution-of-content">1. Distribution of content</h2>
 	<div class="panel-body" style="text-align: center;">
@@ -37,16 +38,16 @@ Information on the progress and setup of the project.
 
 	<h2 id="2-database-model">2. Database model structure</h2>
 	<div class="panel-body">
-		<img src="{{ STATIC_URL }}JJDLP/images/jjdb_models.png" width="750px;">
+		<img src="{% static 'JJDLP/images/jjdb_models.png' %}" width="750px;">
 	</div>
 </div>
 
 {% endblock %}
 
 {% block finaljavascript %}
-<!-- d3pie -->
-<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.4/d3.min.js"></script>
-<script src="{{ STATIC_URL }}library/js/d3pie.min.js"></script>
+<!-- d3pie; d3 version (at most) 3 needed to work properly -->
+<script src="https://d3js.org/d3.v3.min.js"></script>
+<script src="{% static 'JJDLP/js/d3pie.min.js' %}"></script>
 
 <script>
 

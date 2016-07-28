@@ -2,34 +2,31 @@
   margin: 0;
   padding: 0;
 }
-
 html {
   height: 100%;
   width: 100%;
 }
-
 html {
   font-size: 90%;
   position: relative;
   min-height: 100%;
-  min-width:960px;
+  min-width:1024px;
   font-size: 14px;
   text-align: center;
   font-family: 'Open Sans', Arial, 'Liberation Sans', Freesans, sans-serif;
 }
-
 h1, h2, h3, h4, h5, h6 {
   font-weight: normal;
   font-size: 30px;
   margin-bottom: 5px;
+  margin-top: 0px !important;
 }
-
 div {
   display: block;
 }
-
 .page-wrap {
-  width: 1000px;
+  max-width: 1280px;
+  min-width: 1024px;
   margin: 0 auto;
   display:block;
 }
@@ -39,9 +36,12 @@ div {
   display:block;
 }
 
+.medium {
+  font-size: px;
+}
+
 div#body {
   text-align: left;
-  min-height:80%;
   height:auto;
   padding-bottom: 50px;
 /*  border-top: 2px solid #F7F7F7;
@@ -101,7 +101,7 @@ div.footer-wrap {
   margin-top: 3rem;
   background-color: #f8f8f8;
   border-top: 1px solid #e7e7e7;
-  height:200px;
+  height:100px;
 }
 div.footer-wrap:after{
   clear:both;
@@ -160,7 +160,8 @@ div.footer-wrap:after{
 }
 div.footer {
   margin: 0 auto;
-  width: 1000px;
+  max-width: 1280px;
+  min-width: 1024px;
   color: #777;
   padding-top: 15px;
 }
@@ -190,12 +191,11 @@ div.footer .footerimages{
 }
 .novel_page {
   width: 800px;
-  margin-left: 100px;
-  margin-right: 100px;
+  margin: auto;
 }
 .novel_page table {
   width: 720px;
-  margin-left: 30px;
+  margin: 30px;
 }
 div.thum_caption {
   text-align: center;
@@ -220,7 +220,8 @@ img.thum {
 .head_nav {
   text-align: left;
   display: block;
-  width: 1000px;  /*fixed width*/ 
+  max-width: 1280px;  /*fixed width*/ 
+  min-width: 1024px;
   margin: 0 auto; /* centers content */
 }
 
@@ -244,10 +245,18 @@ div#specified_info p {
 }
 /* Floaters */
 .column650 {
-  width: 63%;
+  width: 76%;
   margin: 0;
   float: left;
-  padding-left: 10px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+.column550 {
+  width: 54%;
+  margin: 0;
+  float: left;
+  padding-left: 5px;
+  padding-right: 5px;
 }
 table#cover {
   border: 1px solid #ddd;
@@ -324,6 +333,10 @@ div.search_docs {
   border-radius: 10px;
 }
 
+.noteinfo {
+  display:none;
+}
+
 span.column {
   display: inline-block;
   min-width: 150px;
@@ -342,6 +355,7 @@ span.column:nth-child(3) {
 }
 .titleinfo {
   color: #555;
+  padding-bottom: 10px;
 }
 .source_info {
   padding-left: 10px;
@@ -349,9 +363,13 @@ span.column:nth-child(3) {
 }
 
 #detailcover {
-  float: left;
-  padding-right: 10px;
-  width:37%;
+  float: right;
+  width:23.5%;
+}
+#deskcover {
+  float: right;
+  width: 45%;
+  text-align: right;
 }
 
 img.frontcover {
@@ -417,6 +435,7 @@ table#item_info td {
   position: relative;
   text-align: left;
   top:0;
+  cursor: pointer;
 }
 .notelist {
   padding-left: 20px;
@@ -430,7 +449,8 @@ table#item_info td {
   background-color: #e7e7e7;
 }
 .page-gallery {
-  width: 1000px;
+  max-width: 1280px;
+  min-width: 1024px;
   margin: 0 auto;
 }
 .page-gallery img.active{
@@ -453,6 +473,7 @@ table#item_info td {
 }
 img#source_page {
   box-shadow: 0 8px 16px rgba(0,0,0,.45);
+  margin-right: 0;
 }
 div.transcription {
   margin-right: 0;
@@ -494,16 +515,16 @@ div#transcription-view .page1 {
   padding-left: 3px;
   padding-right: 3px;
 }
-.referenced_transcription-content REF[n='B.01'], .referenced_transcription-content a[n='B.01'] {
+.referenced_transcription-content REF[n='B.01'], .referenced_transcription-content a[n='B.1'] {
   color: orange !important;
 } 
-.referenced_transcription-content REF[n='B.02'], .referenced_transcription-content a[n='B.02'] {
+.referenced_transcription-content REF[n='B.02'], .referenced_transcription-content a[n='B.2'] {
   color: #C38A29 !important;
 } 
-.referenced_transcription-content REF[n='B.03'], .referenced_transcription-content a[n='B.03'] {
+.referenced_transcription-content REF[n='B.03'], .referenced_transcription-content a[n='B.3'] {
   color: #E5DA41 !important;
 } 
-.referenced_transcription-content REF[n='B.06'], .referenced_transcription-content a[n='B.06'] {
+.referenced_transcription-content REF[n='B.06'], .referenced_transcription-content a[n='B.6'] {
   color: #9029C3 !important;
 } 
 .referenced_transcription-content REF[n='B.10'], .referenced_transcription-content a[n='B.10'] {
@@ -592,4 +613,111 @@ hi[rend='super'] {
 hi[rend='italic'] {
   margin-right: 10px;
   margin-left: 10px;
+}
+
+
+.view-nav {
+  width: 20%;
+  margin-left: 0;
+  border: none;
+}
+.view-grid {
+  width: 79%;
+  float: right;
+  margin-left: 5px;
+}
+.view-grid h4 {
+  margin-left: 15px;
+}
+.grid-header {
+  text-align: center;
+  color: #777;
+  margin: 10px;
+}
+.view-nav, .view-grid {
+  display: inline-block;
+}
+.list-child {
+  padding-left: 33px !important;
+}
+.thum-info {
+  color: #333;
+  text-align: center;
+  border-top: 1px solid #999;
+  padding-top: 5px;
+}
+.preview-collections {
+  margin-left: 15px;
+}
+.preview-info {
+  margin-top: 5px;
+  margin-right: 15px;
+  margin-bottom: 5px;
+}
+.desk-pagination {
+  margin-top: 1em;
+}
+.desk-pagination .pagination-page {
+  width: 33%;
+}
+.panel-excerpt {
+  width: 78%;
+  float: right;
+}
+.panel-nav {
+  width: 22%;
+  margin-top: -1px;
+}
+.excerpt-panel .panel-heading {
+  border-bottom: 1px solid #ddd;
+}
+.excerpt-panel {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.excerpt-panel:after {
+  content: ' ';
+  display: block;
+  height: 0;
+  clear: both;
+}
+.database-id {
+  float:right;
+  margin-top: 3px;
+}
+
+.search-results {
+  margin-top: 20px;
+  color: #333;
+  width: 70%;
+  float: right;
+}
+.search-results:after {
+  content: ' ';
+  display: block;
+  height: 0;
+  clear: both;
+}
+.search-results .result-info {
+  color: #555;
+  margin-top: 5px;
+  margin-left: 20px;
+}
+.search-results .search-hr {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+.left-paginator {
+  width: 28%;
+  float:left;
+}
+.more-search {
+  margin-top: 20px;
+}
+.top-paginator {
+  font-size: 110%;
+}
+.pag-hr {
+  height: 2px;
+  background-color: #ddd;
 }

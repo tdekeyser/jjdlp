@@ -20,7 +20,7 @@ class NotebookAdmin(admin.ModelAdmin):
 
 
 class NotebookPageAdmin(admin.ModelAdmin):
-    list_display = ('page_number', 'image')
+    list_display = ('page_number', 'image', 'slug')
     search_fields = ('page_number',)
     fields = ('notebook', 'page_number', 'image')
 
@@ -33,7 +33,7 @@ class NoteAdmin(admin.ModelAdmin):
         'ctransfer',
         'msinfo',
         'source',
-        'novelline'
+        'textref'
         )
     search_fields = ('notejj', 'page__page_number', 'source')
     fields = (
@@ -44,12 +44,12 @@ class NoteAdmin(admin.ModelAdmin):
         'msinfo',
         'ctransfer',
         'source',
-        'novelline',
+        'textline',
         'manuscriptexcerpt',
         'libraryexcerpt'
         )
     filter_horizontal = ('libraryexcerpt',)
-    raw_id_fields = ('page', 'novelline',)
+    raw_id_fields = ('page', 'textline',)
 
 admin.site.register(Notebook, NotebookAdmin)
 admin.site.register(NotebookPage, NotebookPageAdmin)

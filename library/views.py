@@ -1,26 +1,24 @@
 from django.views.generic import TemplateView
-from django.contrib.admin.models import LogEntry
 
 from haystack.views import SearchView
 from haystack.forms import HighlightedModelSearchForm
-
-from library.models import LibraryItem, LibraryCollection
-from library.models import LibraryPage, LibraryExcerpt
 
 from generic.views.item import ItemView
 from generic.views.page import PageView
 from generic.views.collection import CollectionView
 
-import operator
+from library.models import LibraryItem, LibraryCollection, LibraryExcerpt
+
+# from cache_utils.decorators import cached
+
 import json
-from cache_utils.decorators import cached
 
 
 LIBRARY_DUMMY_BASE = 'library/dummy_base.html'
 
 
-# @cached(60)
 # use make_data.invalidate() to reset
+# @cached(60)
 def make_data():
     '''
     Set up item dataset for visualisation.
@@ -48,41 +46,15 @@ def make_data():
 class LibraryHomeView(TemplateView):
     template_name = 'library/base.html'
 
-    def get_recent_actions(self):
-        return LogEntry.objects.all()[:5]
-
     def get_context_data(self, **kwargs):
         context = super(LibraryHomeView, self).get_context_data(**kwargs)
 
-        context['collections'] = LibraryCollection.objects.all()
-        context['virtual_library'] = LibraryCollection.objects.get(slug='virtual-library')
-        context['newspapercollections'] = LibraryCollection.objects.filter(collection_type='newspaper')
-        context['source_amount'] = LibraryItem.objects.count()
-        context['page_amount'] = LibraryPage.objects.count()
-        # random frontcover example (db still small enough for this query)
-        context['vl_example'] = LibraryPage.objects.filter(page_number__contains='frontcover').order_by('?').first()
-        # recent actions module
-        context['recent_actions'] = self.get_recent_actions()
+        context['itemcount'] = LibraryItem.objects.count()
+        context['rtcount'] = LibraryExcerpt.objects.count()
         # get data for bar chart
         countdata, namedata = make_data()
         context['countdata'] = countdata
         context['namedata'] = namedata
-        context['len_data'] = len(countdata)
-        context['max_data'] = max(countdata)
-        return context
-
-
-class LibraryMacroView(TemplateView):
-    template_name = 'library/macro.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(LibraryMacroView, self).get_context_data(**kwargs)
-        countdata, namedata = make_data()
-        countdata2 = [i*3 for i in countdata]
-        context['countdata'] = countdata2
-        context['namedata'] = namedata
-        context['len_data'] = len(countdata)
-        context['max_data'] = 350
         return context
 
 
@@ -91,24 +63,36 @@ class LibrarySearchView(SearchView):
     template = 'library/search_results.html'
 
     def extra_context(self, **kwargs):
-        return {'specific_model': 'models=library.source'}
+        return {'specific_model': 'models=library.libraryitem'}
 
 
 class LibraryCollectionView(CollectionView):
-    paginate_by = 25
+    paginate_by = 12
 
     model = LibraryCollection
-    slug_name = 'slug'
+    slug_name = 'collection'
 
     template = 'library/collection.html'
     dummybase_template = LIBRARY_DUMMY_BASE
 
+    def get_context_data(self, **kwargs):
+        # override
+        context = super(LibraryCollectionView, self).get_context_data(**kwargs)
+        context['child_objects'] = []
+        for child in context['child_collections']:
+            # pass each child collection together with their subcollections
+            # and a sample of their items to template
+            collections = child.collection_set.all()
+            items = child.item_set.all()[:8]
+            context['child_objects'].append((child, collections, items))
+        return context
+
 
 class LibraryItemView(ItemView):
-    paginate_by = 0
+    paginate_by = 8
 
     model = LibraryItem
-    slug_name = 'slug'
+    slug_name = 'item'
 
     template = 'library/item.html'
     dummybase_template = LIBRARY_DUMMY_BASE
@@ -121,11 +105,14 @@ class LibraryItemView(ItemView):
     def all_notebooks(self):
         return self.item.notebook_set.all()
 
+    def all_reading_traces(self):
+        return self.item.excerpt_set.count()
+
 
 class LibraryPageView(PageView):
     parent_model = LibraryItem
-    itemslug = 'itemslug'
-    pageslug = 'req_page'
+    itemslug = 'item'
+    pageslug = 'page'
 
     template = 'library/page.html'
     dummybase_template = LIBRARY_DUMMY_BASE
@@ -150,7 +137,7 @@ class LibraryExcerptView(ItemView):
     paginate_by = 10
 
     model = LibraryItem
-    slug_name = 'slug'
+    slug_name = 'item'
 
     template = 'library/list.html'
     dummybase_template = LIBRARY_DUMMY_BASE

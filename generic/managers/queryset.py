@@ -1,23 +1,24 @@
 from django.db import models
 from django.db.models import Q
+from django.core.exceptions import ObjectDoesNotExist
 
-
-# class CollectionQuerySet(models.query.QuerySet):
-#     def get_frontcover(self):
-#         return self.first.image
+from django.core.paginator import Paginator
 
 
 class PageQuerySet(models.query.QuerySet):
     '''Defines methods to easily get specific pages'''
 
     def get_frontcover(self):
-        return self.get(page_number__contains='frontcover').image
+        try:
+            return self.get(page_number__contains='frontcover')
+        except ObjectDoesNotExist:
+            return self.all().first()
 
     def get_backcover(self):
-        return self.get(page_number__contains='backcover').image
+        return self.get(page_number__contains='backcover')
 
     def get_singleimage(self, req_page):
-        return self.get(page_number__contains=req_page).image
+        return self.get(page_number__contains=req_page)
 
     def get_coverimages(self):
         # coverimages except frontcover
@@ -62,7 +63,7 @@ class PageQuerySet(models.query.QuerySet):
         )
         return contentimage_queryset
 
-    def get_all_images_but_frontcover(self):
+    def all_but_frontcover(self):
         contentimage_queryset = self.exclude(
             Q(page_number__contains='frontcover')
         )
@@ -86,7 +87,7 @@ class PageQuerySet(models.query.QuerySet):
         chosen_index = None
 
         # get ordered queryset
-        contentimages = self.reorder(self.get_all_images_but_frontcover())
+        contentimages = self.reorder(self.all_but_frontcover())
 
         for index, item in enumerate(contentimages):
             if item == chosen_image:
@@ -98,7 +99,7 @@ class PageQuerySet(models.query.QuerySet):
                     next_images.append(item)
 
         get_images = {
-            'chosen_image': chosen_image,
+            'current_image': chosen_image,
             'previous_images': previous_images,
             'next_images': next_images,
             }
@@ -107,12 +108,29 @@ class PageQuerySet(models.query.QuerySet):
 
     def get_two_surroundingimages(self, req_page):
         '''Returns previous and next image'''
-        all_images = self.get_allsurroundingimages(req_page)
+        images = self.reorder(self.all_but_frontcover())
+        # create paginator to find next and previous images
+        p = Paginator(images, 1)
 
-        get_images = {
-                    'previous_image': all_images['previous_images'][-1] if all_images['previous_images'] else '',
-                    'chosen_image': all_images['chosen_image'],
-                    'next_image': all_images['next_images'][0] if all_images['next_images'] else ''
-                }
+        # get index in ordered queryset
+        current_index = 0
+        current_image = self.get(page_number__exact=req_page)
+        for index, item in enumerate(images):
+            if item == current_image:
+                current_index = index + 1
+                break
 
-        return get_images
+        # get next and previous image
+        current_page = p.page(current_index)
+        next_image = None
+        previous_image = None
+        if current_page.has_next():
+            next_image = p.page(current_index+1).object_list[0]
+        if current_page.has_previous():
+            previous_image = p.page(current_index-1).object_list[0]
+
+        return {
+            'previous_image': previous_image,
+            'current_image': current_image,
+            'next_image': next_image
+        }

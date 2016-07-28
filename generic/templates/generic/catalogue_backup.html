@@ -1,0 +1,108 @@
+{% extends dummy_base %}
+{% load markdown_filter %}
+{% load humanize %}
+{% load thumbnail %}
+
+{% block content %}
+	<div class="detail">
+		<div id="detailcover">
+			{% block cover %}
+				{% if frontcover %}
+					{% thumbnail frontcover "300" crop="90% 0%" as im %}
+					<a href="#" data-toggle="modal" data-target="#detailModal">
+						<img class="frontcover" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+					</a>
+					{% endthumbnail %}
+				{% else %}
+					<img class="frontcover" height="550" width="260" src="{% block ghost_frontcover %}{% endblock %}">
+				{% endif %}
+			{% endblock %}
+		</div>
+
+	{% block frontmodal %}	
+	{% endblock %}
+
+	<div class="tabnav column650">
+		<div class="tabs">
+			<ul class="nav nav-tabs" role="tablist">
+				<li role="presentation" class="active">
+					<a href="#item" aria-controls="home" role="tab" data-toggle="tab" class="taba">
+						<span class="glyphicon glyphicon-book"></span>
+						{{ data_type }}
+					</a>
+				</li>
+
+				{% if collection_list or covers %}
+					<li role="presentation">
+						<a href="#rnotes" aria-controls="profile" role="tab" data-toggle="tab" class="taba">
+							<span class="glyphicon glyphicon-list-alt"></span>
+							{{ list_type }}
+							<span class="badge">{{ item_count }}</span>
+						</a>
+					</li>
+				{% endif %}
+
+				{% block extra_tab %}{% endblock %}
+
+			</ul>
+		</div>
+
+		<div class="tab-content">
+
+		<div role="tabpanel" class="tab-pane fade in active" id="item">
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<strong>{{ item }}</strong>
+					<br/>
+
+					{% block description %}{% endblock %}
+
+					<hr>
+					{% block info %}{{ item.info|markdownify|safe }}{% endblock %}
+
+					{% block extra_info %}{% endblock %}
+				</div>
+			</div>		
+		</div>
+
+		<div role="tabpanel" class="tab-pane fade" id="rnotes">
+
+			<div class="panel panel-default">
+				<div class="panel-body">
+					{% block itempanel_head %}{% endblock %}
+					{% if covers %}
+						{% block cover_display %}
+							<h5 class="media-heading">Covers</h5>
+							<hr>
+							<div class="row">
+							{% for cover in covers %}
+								<div class="col-xs-6 col-md-3">
+								{% thumbnail cover.image "x100" as thum %}
+									<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
+									<div class="caption thum_caption">{{ cover.actual_pagenumber }}</div>
+								{% endthumbnail %}
+								</div>
+							{% endfor %}
+							</div>
+						{% endblock %}
+					{% endif %}
+					{% if collection_list %}
+						{% block list_display %}
+							<hr>
+							Content: {{ detail_count|apnumber|title }} page{{ detail_count|pluralize }}
+							<hr>
+							{% for element in collection_list %}
+								{{ element.page_number }}
+							{% endfor %}
+						{% endblock %}
+					{% endif %}
+				</div>
+			</div>
+		</div>
+
+		{% block extra_tab_content %}{% endblock %}
+
+		</div>
+	</div>
+	</div>
+{% endblock %}

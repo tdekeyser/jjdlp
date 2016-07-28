@@ -1,52 +1,64 @@
-{% extends 'generic/desk.html' %}
+{% extends 'library/page.html' %}
 
-{% block title_display %}
-<h4 class="media-heading">
-	<a class="notred" href="{% url 'library_item' slug=item.slug %}">
-		{{ item.title }}
-	</a>
-</h4>
-<table id="item_info">
-	<tr>
-		{% if item.get_authors %}<td><span class="glyphicon glyphicon-option-vertical"></span></td><td>{{ item.get_authors }}</td>{% endif %}
-		{% if item.date %}<td><span class="glyphicon glyphicon-option-vertical"></td><td>{{ item.date }}</td>{% endif %}
-		{% if item.publisher %}<td><span class="glyphicon glyphicon-option-vertical"></span></td><td>{{ item.publisher }}</td>{% endif %}
-	</tr>
-	<tr class="blank_row"></tr>
-	{% if item.collection %}<tr><td><span class="glyphicon glyphicon-tasks"></td><td><a href="{% url 'library_collection' slug=item.collection.slug %}">{{ item.collection }}</a></td></tr>{% endif %}
-	<tr><td><span class="glyphicon glyphicon-list-alt"></td><td colspan="5">There are <strong>{{ detail_count }} reading traces</strong> identified with relation to Joyce's notes. The desk shows <strong>trace {{ page_obj.start_index }} to {{ page_obj.end_index }}</strong>.</td></tr>
-</table>
+{% block cover %}{% endblock %}
+{% block frontmodal %}{% endblock %}
+{% block pagination %}{% endblock %}
+{% block grid %}{% endblock %}
+
+
+{% block item_title %}
+<div class="small" style="margin-bottom: 1em;"><span class="glyphicon glyphicon-list"></span> List of all reading traces</div>
 {% endblock %}
 
-{% block desk_content %}
-	{% include 'generic/includes/nums_paginator.html' %}
+
+{% block content_division %}
+column100
+{% endblock %}
+
+
+{% block extra %}
 
 	{% if excerpts %}
+
+		<div class="grid-header small">Available reading traces (<strong>{{ excerpts.count }}</strong> of <strong>{{ item.excerpt_set.count }}</strong>)</div>
+
 		{% for excerpt in excerpts %}
-			<div class="panel panel-default">
-				<div class="arrow"></div>
-				<div class="panel-heading">
-					<a href="{% url 'library_page' itemslug=item.slug req_page=excerpt.page.actual_pagenumber %}">
-						Page {{ excerpt.page.actual_pagenumber }}
-					</a>
-				</div>
-				<div class="panel-body">
-					{{ excerpt.content }}
-				</div>	
-				{% if excerpt.note_set %}
-				<ul class="list-group">
-		    		{% for note in excerpt.note_set.all %}
-		    			<li class="list-group-item">
-		    				<a class="notunderline" href="{% url 'notebooks_page' noteb=note.noteb notebpage=note.page %}">
-		    					{{ note|safe }}
-		    				</a>
-		    			</li>
-		    		{% endfor %}
-		    	</ul>
-		    	{% endif %}
-    		</div>
+		<div class="excerpt-panel">
+			<a class="notunderline" href="{% url 'library_page' item.collection.recurse item.slug excerpt.page.actual_pagenumber %}">
+			<div class="panel-heading">
+					Reading trace on page <strong>{{ excerpt.page.actual_pagenumber }}</strong>
+					<span class="database-id small">database id: {{ excerpt.pk }}</span>
+			</div>
+			</a>
+			<div class="panel-body panel-excerpt">
+				{{ excerpt.content }}
+			</div>
+			{% with excerpt.note_set.all as notes %}
+			{% if notes %}
+			<div class="panel-nav">
+				<a class="notred neverred disabled list-group-item">Notes taken:</a>
+	    		{% for note in notes %}
+	    		<a class="notunderline notred list-group-item list-child" href="{% url 'notebooks_page' note.noteb note.page %}">
+	    			{{ note|safe }}
+	    		</a>
+	    		{% endfor %}
+	    		<a class="list-group-item notred notunderline" target="_blank" href="{% url 'connect' %}?model=libraryexcerpt&pk={{ excerpt.pk }}">
+	    			<span class="glyphicon glyphicon-tree-deciduous"></span>
+	    			View relations
+	    		</a>
+	    	</div>
+	    	{% endif %}
+	    	{% endwith %}
+		</div>
+		<hr/>
     	{% endfor %}
+
+    	{% include 'generic/includes/nums_paginator.html' %}
+
+    {% else %}
+
+    	<div class="grid-header small">No reading traces found</div>
+
 	{% endif %}
 
-	{% include 'generic/includes/nums_paginator.html' %}
 {% endblock %}

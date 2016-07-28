@@ -1,9 +1,12 @@
-from django.core.exceptions import ObjectDoesNotExist
-
 from generic.views.item import ItemView
 
 
 class CollectionView(ItemView):
+
+    def get_item(self):
+        # override
+        c = self.kwargs[self.slug_name].split('/')[-1]
+        return self.model.objects.get(slug=c)
 
     def set_page_caller(self):
         # override
@@ -11,10 +14,7 @@ class CollectionView(ItemView):
 
     def _compile_pages(self):
         # override
-        try:
-            self.frontcover = self.item.image
-        except ObjectDoesNotExist:
-            self.frontcover = self.pageQ.none()
+        self.frontcover = self.item
         self.covers = self.pageQ.none()
         self.details = self.pageQ.all()
 
@@ -22,5 +22,5 @@ class CollectionView(ItemView):
         # override
         context = super(CollectionView, self).get_context_data(**kwargs)
         context['data_type'] = 'Collection'
-        context['list_type'] = 'Items'
+        context['child_collections'] = self.get_item().collection_set.all()
         return context

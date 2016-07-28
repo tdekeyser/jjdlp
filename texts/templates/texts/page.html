@@ -1,0 +1,52 @@
+{% extends 'texts/dummy_base.html' %}
+{% load stringoperations %}
+
+{% block heads %}
+{% endblock %}
+
+{% block body_title %}
+{% endblock %}
+
+{% block content %}
+
+<div id="detail">
+	{% block cover %}
+
+	<h3 style="margin: 15px;">
+	{% with object.novel_ref as novel %}
+		<strong>{{ novel }}</strong>
+	{% endwith %}
+	</h3>
+
+	{% endblock %}
+	<div class="novel_page">
+	{% if lines %}
+		<div class="panel panel-default">
+			<div class="panel-body">
+			{% if paginator %}
+				<div class="djpagination" style="margin-top: 10px;" id="pag_info">
+					{% if paginator.has_previous %}
+					<a href="{% url 'texts_page' slug=item.slug page=paginator.previous_page_number|add:'2' %}">&#171;</a> {{ paginator.previous_page_number|add:'2' }} |
+					{% endif %}
+					<strong>{{ page.page_number }}</strong>
+					{% if paginator.has_next %}
+					| {{ paginator.next_page_number|add:'2' }} <a href="{% url 'texts_page' slug=item.slug page=paginator.next_page_number|add:'2' %}">&#187;</a>
+					{% endif %}
+				</div>
+			{% endif %}
+			
+			<table style="margin-bottom: 20px;">
+				{% for line in lines %}
+				<tr class="linenumber" id="{{ line.linenumber }}">
+					<td>{{ line.content|safe }}</td>
+					<td style="float: right;">{% if line.linenumber|splitondot != '99' %}{{ line.linenumber|splitondot }}{% endif %}</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+	{% endif %}
+	</div>    
+</div>
+
+{% endblock %}
+

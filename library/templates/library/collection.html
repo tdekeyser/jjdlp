@@ -1,26 +1,170 @@
 {% extends "generic/catalogue.html" %}
 {% load humanize %}
+{% load markdown_filter %}
 {% load thumbnail %}
+{% load staticfiles %}
+
 
 {% block heads %}
 {% endblock %}
 
-{% block ghost_frontcover %}{{ MEDIA_URL }}JJDLP/images/generic_frontcover.jpg{% endblock %}
 
-{% block description %}
-	<span class="titleinfo">{{ item.publication_period }}</span>
+{% block no_cover %}{% endblock %}
+
+
+{% block item_title %}
+	<div class="small" style="margin-bottom: 1em;"><span class="glyphicon glyphicon-book"></span> {{ item.collection_type|title }} Collection</div>
+	{{ item }}
 {% endblock %}
 
 
-{% block extra_info %}
-	<hr>
+{% block description %}
+	<div class="titleinfo">{{ item.publication_period }}</div>
+{% endblock %}
+
+
+{% block info %}{{ item.info|markdownify|safe }}{% endblock %}
+
+
+{% block nav %}
+	<div class="list-group">
+		<a class="list-group-item disabled notred neverred">Related collections:</a>
+		{% with item.get_parent_collections as parents %}
+		{% if parents %}
+			{% for parent in parents %}
+			<a class="list-group-item notred" id="{{ parent.slug }}" href="{% url 'library_collection' parent.recurse %}" title="{{ parent }}">
+				{{ parent.short }}
+			</a>
+			{% endfor %}
+		{% endif %}
+		{% endwith %}
+		<a class="list-group-item notred show-collection {% if parents %}list-child{% endif %}" id="{{ item.slug }}" href="#" title="{{ item }}">
+			{{ item.short }}
+		</a>
+		{% if child_collections %}
+			{% for collection in child_collections %}
+				<a class="list-group-item notred list-child show-child-collection" id="{{ collection.slug }}" href="#" title="{{ collection }}">
+					{{ collection.short }}
+				</a>
+			{% endfor %}
+		{% endif %}
+	</div>
+{% endblock %}
+
+
+{% block grid %}
+	<div class="view-grid-thumbnails">
+	{% if collection_list or child_objects %}
+		{% if collection_list %}
+			<div class="collection preview">
+			<div class="row">
+				<div class="grid-header small">Available items (<strong>{{ collection_list.count }}</strong> of <strong>{{ item_count }}</strong>)</div>
+			  	{% for child in collection_list %}
+			  	<div class="col-sm-3 col-md-3" style="margin-bottom: 5px;">
+			  	<a href="{% url 'library_item' item.recurse child.slug %}" class="thumbnail notred neverred" title="{{ child }}">
+				    {% if child.page_set.get_frontcover %}
+				    	{% thumbnail child.page_set.get_frontcover.image "123x159" crop="top" as thum %}
+				      	<img src="{{ thum.url }}" height="{{ thum.height }}" width="{{ thum.width }}">
+				      	{% endthumbnail %}
+				    {% else %}
+				    	<img src="{% static 'JJDLP/images/gen_frontcover_thum.jpg' %}">
+				    {% endif %}
+			        	<div class="caption-title" style="padding: 1px;">
+			        		<div class="thum-info"><i>{{ child.short }}</i></div>
+			        		{% if child.date < 5000 %}
+			        			<div class="thum-info">{{ child.get_date }}</div>
+			        		{% endif %}
+			        	</div>
+				</a>
+				</div>
+				{% endfor %}
+			</div>
+			<br/>
+			{% include 'generic/includes/nums_paginator.html' %}
+			</div>
+		{% else %}
+				<div class="grid-header small collection preview">This collection seems to only contain items that also belong to subcollections.<br/>Click in the column to the left to preview the content of any subcollections.</div>
+		{% endif %}
+
+		{% if child_objects %}
+		<div class="row">
+			{% for name, collections, items in child_objects %}
+				{% if collections or items %}
+					<div class="{{ name.slug }} preview" style="display: none;">
+					<h4>
+						<div class="small" style="margin-bottom: 1em;"><span class="glyphicon glyphicon-book"></span> {{ name.collection_type|title }} Collection</div>
+						<a href="{% url 'library_collection' name.recurse %}" class="notred">{{ name }}</a>
+						<div class="small preview-info">{{ name.info|markdownify|safe }}</div>
+					</h4>
+					{% if collections %}
+						<div class="grid-header small">Available collections</div>
+						<div class="preview-collections">
+						{% for c in collections %}
+							<a href="{% url 'library_collection' c.recurse %}" class="notred">
+								{{ c }}
+								<span class="small">{% if c.collection_set.count > 0 %}<span class="glyphicon glyphicon-book" aria-hidden="true"></span> {{ c.collection_set.count }}{% endif %} {% if c.item_set.count > 0 %}<span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> {{ c.item_set.count }}{% endif %}</span>
+							</a>
+						{% endfor %}
+						</div>
+					{% endif %}
+					{% if items %}
+						<div class="grid-header small">Preview of available items (<strong>{{ items.count }}</strong> of <strong>{{ name.item_set.count }}</strong>)</div>
+						{% for i in items %}
+							<div class="col-sm-3 col-md-3" style="margin-bottom: 5px;">
+							  	<a href="{% url 'library_item' name.recurse i.slug %}" class="thumbnail notred neverred" title="{{ i }}">
+							  	{% with i.page_set.get_frontcover as frontcover %}
+								    {% if frontcover %}
+								    	{% thumbnail frontcover.image "123x159" crop="top" as thum %}
+								      	<img src="{{ thum.url }}" height="{{ thum.height }}" width="{{ thum.width }}">
+								      	{% endthumbnail %}
+								    {% else %}
+								    	<img src="{% static 'JJDLP/images/gen_frontcover_thum.jpg' %}">
+								    {% endif %}
+								{% endwith %}
+							        	<div class="caption-title" style="padding: 1px;">
+							        		<div class="thum-info"><i>{{ i.short }}</i></div>
+							        		{% if i.date < 5000 %}
+							        		<div class="thum-info">{{ i.get_date }}</div>
+							        		{% endif %}
+							        	</div>
+								</a>
+							</div>
+						{% endfor %}
+					{% endif %}
+					</div>
+				{% else %}
+					<div class="grid-header small {{ name.slug }} preview" style="display:none;">No items or collections found.</div>
+				{% endif %}
+			{% endfor %}
+		</div>
+		<br/>
+		{% endif %}
+	{% else %}
+		<div class="grid-header small">No content found.</div>
+	{% endif %}
+	</div>
 {% endblock %}
 
 
 {% block list_display %}
-	{% for item in collection_list %}
-		<a href="{% url 'library_item' slug=item.slug %}">{{ item }}</a><br/>
-	{% endfor %}
-	<br/>
-	{% include 'generic/includes/nums_paginator.html' %}
+
+{% endblock %}
+
+
+{% block finaljavascript %}
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+<script>
+$(document).ready(function() {
+	$(".show-child-collection").click(function(e) {
+		e.preventDefault();
+		$(".preview").hide("fast");
+		$("." + e.target.id).show("fast");
+	});
+	$(".show-collection").click(function(e) {
+		e.preventDefault();
+		$(".preview").hide("fast");
+		$(".collection").show("fast");
+	});
+});
+</script>
 {% endblock %}

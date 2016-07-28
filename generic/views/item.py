@@ -42,10 +42,7 @@ class ItemView(BaseListView):
         '''
         Collect pages to be taken to queryset.
         '''
-        try:
-            self.frontcover = self.pageQ.get_frontcover()
-        except ObjectDoesNotExist:
-            self.frontcover = self.pageQ.none()
+        self.frontcover = self.pageQ.get_frontcover()
         try:
             self.covers = self.pageQ.get_coverimages()
         except ObjectDoesNotExist:
@@ -56,7 +53,9 @@ class ItemView(BaseListView):
             self.details = self.pageQ.none()
 
     def _allocate_objects(self):
-        '''Sets the requested object and pages'''
+        '''
+        Sets the requested object and pages
+        '''
         self.item = self.get_item()
         self.set_page_caller()
         try:
@@ -88,7 +87,6 @@ class ItemView(BaseListView):
         context = super(ItemView, self).get_context_data(**kwargs)
         # set basic info in context
         context['data_type'] = 'Item'
-        context['list_type'] = 'Pages'
         context['covers'] = self.covers
         context['frontcover'] = self.frontcover
         # counts

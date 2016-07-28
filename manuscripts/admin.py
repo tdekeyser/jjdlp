@@ -15,9 +15,9 @@ class ManuscriptCollectionAdmin(admin.ModelAdmin):
 		'info',
 		'note_on_transcriptions',
 		'further_usage',
-		'used_source',
+		# 'source',
 		)
-	filter_horizontal = ('used_source',)
+	# filter_horizontal = ('source',)
 	fields = (
 		'title',
 		'frontcover',
@@ -25,7 +25,7 @@ class ManuscriptCollectionAdmin(admin.ModelAdmin):
 		'info',
 		'note_on_transcriptions',
 		'further_usage',
-		'used_source'
+		# 'source'
 		)
 	inlines = [
         ManuscriptPageInline,

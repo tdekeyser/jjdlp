@@ -1,12 +1,17 @@
 {% load highlight %}
 
-<tr>
-	<td class="list_pages">
-		<span class="glyphicon glyphicon-book"></span>
-	</td>
-	<td class="bib_info">
-		<a class="notred" href="{% url 'library_item' slug=result.object.slug %}">
-			{% highlight result.object.biblio with query max_length 100000000 %}
+<div class="result-element">
+	<div class="result-item">
+		<a class="notred notunderline" href="{% url 'library_item' result.object.collection.recurse result.object.slug %}">
+			{% highlight result.object.bib with query max_length 100000000 %}
 		</a>
-	</td>
-</tr>
+	</div>
+	<div class="result-info small">
+		{% with result.object.excerpt_set.count as excerpt_count %}
+			{% if excerpt_count %}
+			<div class="result-info-part">reading traces: <strong>{{ excerpt_count }}</strong></div>
+			{% endif %}
+		{% endwith %}
+	</div>
+</div>
+<hr class="search-hr" />

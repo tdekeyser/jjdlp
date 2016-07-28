@@ -1,0 +1,42 @@
+{% extends 'generic/catalogue.html' %}
+{% load staticfiles %}
+{% load markdown_filter %}
+
+{% block heads %}
+{% endblock %}
+
+
+{% block cover %}
+	<img class="frontcover" src="{% static 'JJDLP/images/finneganswake_cover.jpg' %}" width="360" height="550">
+{% endblock %}
+
+
+{% block description %}
+	<table id="item_info">
+		{% if item.publication_date %}<tr><td><span class="glyphicon glyphicon-option-vertical"></td><td>{{ item.publication_date }}</td></tr>{% endif %}
+		{% if item.publisher %}<tr><td><span class="glyphicon glyphicon-option-vertical"></span></td><td>{{ item.publisher }}</td></tr>{% endif %}
+	</table>
+{% endblock %}
+
+
+{% block info %}{{ item.info|markdownify|safe }}{% endblock %}
+
+
+{% block list_display %}
+	{% for section in view.sections %}
+		{% for chapter in section.chapter_set.all %}
+		<div>
+			{{ section }}.{{ chapter }}: pp. {{ chapter.page_set.first.page_number }} - {{ chapter.page_set.last.page_number }}
+		</div>
+		{% endfor %}
+	{% endfor %}
+
+	<div class="pagination">
+		Go to page 
+	    <select class="selector" onchange="location = this.options[this.selectedIndex].value;">
+	    	{% for page in collection_list %}
+	    	<option value="{% url 'texts_page' slug=item.slug page=page.page_number %}">{{ page.page_number }}</option>
+	    	{% endfor %}
+	    </select>
+    </div>
+{% endblock %}

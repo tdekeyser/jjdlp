@@ -1,0 +1,49 @@
+{% extends 'JJDLP/dummy_base.html' %}
+{% load staticfiles %}
+
+
+{% block heads %}
+<link rel="stylesheet" type="text/css" href="{% static 'library/css/library_homepage_css.css' %}" />
+{% endblock %}
+
+{% block title %}Texts{% endblock %}
+
+{% block body_title %}
+<table id="head_banner">
+	<tr>
+		<section id="title">Texts</section>
+	</tr>
+	<tr>
+			<div id="info">
+				<p></p>
+			</div>
+	</tr>
+	<tr>
+		<div id="lib_pic">
+			<img id="library_picture" src="">
+		</div>
+	</tr>
+</table>
+{% endblock %}
+
+{% block body %}
+<div class="module" id="database-count-module">
+	<strong>{{ books.count }}</strong> text{{ books.count|pluralize }} and <strong>{{ lines }}</strong> lines in the texts database
+</div>
+
+<div style="text-align: center;">
+{% for book in books %}
+<a href="{% url 'texts_item' slug=book.slug %}">			
+	<div class="panel panel-default" style="min-height: 170px;">
+		<div class="panel-heading">
+		{{ book }} | {{ book.line_set.count }} lines
+		</div>
+		<div class="panel-body">
+				<img src="{% static 'JJDLP/images/finneganswake_cover.jpg' %}" width="150" height="230" style="border-radius: 5px;">
+		</div>
+	</div>
+</a>
+{% endfor %}
+</div>
+
+{% endblock %}

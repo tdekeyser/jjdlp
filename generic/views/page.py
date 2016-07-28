@@ -62,7 +62,7 @@ class PageView(BaseDetailView):
         # setup context
         context['item'] = self.item
         context['frontcover'] = self.get_frontcover()
-        context['chosen_image'] = surroundings['chosen_image']
+        context['current_image'] = surroundings['current_image']
         context['previous_image'] = surroundings['previous_image']
         context['next_image'] = surroundings['next_image']
         return context

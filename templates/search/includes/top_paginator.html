@@ -1,9 +1,11 @@
+<div class="top-paginator">
 {% ifnotequal paginator.count 0 %}
-	<div class="well-sm" style="text-align:center;">Search query "<strong>{{ query }}</strong>" returned <strong>{{ paginator.count }} result{{ page|pluralize }}</strong>
+	<div>Search query "<strong>{{ query }}</strong>" returned <strong>{{ paginator.count }} result{{ page|pluralize }}</strong>
 	{% if paginator.count > 1 %}
-	, showing {{ page.start_index }} to {{ page.end_index }}</div>
+	, showing {{ page.start_index }} to {{ page.end_index }}
 	{% endif %}
 	</div>
 {% else %}
-	<div class="well-sm" style="text-align:center;">Search query "<strong>{{ query }}</strong>" has returned no results</div>
+	<div>Search query "<strong>{{ query }}</strong>" has returned no results</div>
 {% endifnotequal %}
+</div>

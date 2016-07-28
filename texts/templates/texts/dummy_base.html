@@ -1,0 +1,20 @@
+{% extends 'JJDLP/dummy_base.html' %}
+
+{% block title %}Texts{% endblock %}
+
+{% block extra_tools %}
+<div class="s">
+	<form action="{% url 'texts_fast_search' %}" method="get">
+			<input class="form-control" id="searchquery" type="text" name='q' placeholder="Search texts...">
+			<input type="hidden" name="models" value="texts.line" /> 
+	</form>
+</div>
+{% endblock %}
+
+{% block body %}
+	<section id="content">
+		{% block content %}
+			Oops, you have found a hidden page! This is rather problematic, so please contact the developers.
+		{% endblock %}
+	</section>
+{% endblock %}

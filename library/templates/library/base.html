@@ -1,136 +1,100 @@
 {% extends 'JJDLP/dummy_base.html' %}
-{% load thumbnail %}
 {% load markdown_filter %}
 {% load staticfiles %}
 
+
+{% block title %}Library{% endblock %}
+
+
 {% block heads %}
-<link rel="stylesheet" type="text/css" href="{% static 'library/css/library_homepage_css.css' %}" />
+<link rel="stylesheet" href="{% static 'JJDLP/css/homepage.css' %}"/>
+<script src="https://code.angularjs.org/1.3.15/angular.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/showdown/0.3.1/showdown.min.js"></script>
 {% endblock %}
 
-{% block title %}Library - James Joyce Database{% endblock %}
-
-{% block body_title %}
-<table id="head_banner">
-	<tr>
-		<section id="title">Library</section>
-	</tr>
-	<tr>
-			<div id="info">
-				<p>Joyce's extant and virtual library</p>
-			</div>
-	</tr>
-	<tr>
-		<div id="lib_pic">
-			<img id="library_picture" src="{% static 'JJDLP/images/half_lib.jpg' %}">
-		</div>
-	</tr>
-</table>
-{% endblock %}
 
 {% block body %}
-<div class="double-paneldisplay">
-<div class="leftpanel">
-	<div class="panel panel-default well" style="min-height: 170px;">
-		<div class="panel-body">
-			<h3 style="display:inline;padding-right: 40px;"><span class="glyphicon glyphicon-search"></span> Search</h3>
-				<div id="search_box">
-					<form action="{% url 'library_search' %}" method="get">
-						<input style="width: 120%;" class="form-control" id="searchquery" type="text" name='q' placeholder="Search library...">
-						<input type="hidden" name="models" value="library.source" /> 
-					</form>
-				</div>
-
-			<div class="timeline-wrap detail-timeline detailtimeline">
-				Visit the <a href="{% url 'haystack_search' %}">advanced search</a> page for more thorough searches.
-			</div>				
-		</div>
-	</div>
-</div>
-<div class="rightpanel" data-toggle="modal" data-target="#sortfieldsmodal">
-	<div class="panel panel-default well" style="min-height: 170px;">
-		<div class="panel-body">
-			<h3 style="display: inline;"><span class="glyphicon glyphicon glyphicon-th"></span> Browse</h3>
-			<div class="timeline-wrap detail-timeline detailtimeline">
-				Click to get a list of all collections.
-			</div>				
-		</div>
-	</div>
-</div>
-</div>
-
-<div class="modal fade" id="sortfieldsmodal" tabindex="-1" role="dialog">
-	<div class="modal-dialog" role="document">
-	    <div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title" id="myModalLabel">Browse collections</h4>
+<div class="homepage-wrap">
+	
+	<div class="module module-header">
+		<div class="left">
+			<div class="title">James Joyce Digital Library</div>
+			<div class="info"></div>
+			<div class="module-counter">
+				Items: <strong>{{ itemcount }}</strong>
+				<br/>
+				Reading traces: <strong>{{ rtcount }}</strong>
 			</div>
-			<div class="modal-body">
-				<div class="sorter">
-					<ul class="list-group">
-						{% for collection in collections %}
-						<li class="list-group-item blocklist">
-							<a class="notred neverred" href="{% url 'library_collection' slug=collection.slug %}">
-								{{ collection.title }}; {{ collection.item_set.count }} item{{ collection.item_set.count|pluralize }}
-							</a>
-						</li>
-						{% endfor %}
-					</ul>
+		</div>
+
+		<div class="search">
+			<form class="form-wrap" action="{% url 'library_search' %}" method="get">
+				<input class="form-control" id="searchquery" type="text" name='q' placeholder="Search the library...">
+				<input type="hidden" name="models" value="library.libraryitem" />
+				<button class="searchbutton btn btn-default" type="submit">Search</button>
+			</form>
+			<div style="text-align: right;float: right;">
+				<a href="{% url 'haystack_search' %}">advanced search</a>
+			</div>
+		</div>
+	</div>
+
+<hr/>
+	<div id="chart"></div>
+	<div class="chart-info" style="color:#999; margin-top: 15px; margin-left: 15px;">
+		<span class="small">Figure: Visualisation of the library. Bars represent the amount of reading traces identified per item.</span>
+<!-- 		<span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-placement="top" title="Each bar displays the amount of reading traces that have been identified per item (between brackets)."></span>
+ -->	</div>
+<hr style="margin-top: 5px;" />
+
+	<div ng-app="library">
+		<div ng-controller="collectionCtrl" class="viewer">
+			<div class="module-title">
+				<div class="module-info">
+					<p>The library module aims to collect the research done by many genetic scholars in the field of tracing Joyce's source texts. Finding these texts is an ongoing process that has been documented both in the online journal <a href="http://www.geneticjoycestudies.org">Genetic Joyce Studies</a> and in the <a href="http://www.brepols.net/Pages/BrowseBySeries.aspx?TreeSeries=FWNB">Finnegans Wake Notebooks at Buffalo</a>. Evidence for identifying a book as a source text can be found in Joyce's correspondence, in his own personal libraries, or in his notebooks. In the latter case, scholars are able to track down an item based on a multiplicity of reading traces, parts of a text that can be connected to one of Joyce's notes.</p>
+					<p>Reading traces provide empirical evidence that Joyce most probably read a specific section of a book, article or newspaper, or that he at least took an interest in the page at hand. In Joyce's case, reading traces usually do not come in the form of marginalia, but as separate notes in a notebook. Therefore, a substantial part of the items in the library has scanned sections that refer to notes in Joyce's personal notebooks.</p>
+				</div>		
+				<span class="title-text">Digital Collections</span>
+				<div class="module-info">
+					<p>This project mainly aims to document the virtual library, in contrast to leading studies such as Thomas Connolly's (1977). The items of the digital library have been classified in different sections. These sections, or "collections" as they are called here, bring structure to the list of books, articles and newspapers in the library.</p>
+				</div>
+				<input class="form-control" id="filterq" placeholder="Find collections..." type="text" ng-model="fquery.title"/>
+			</div>
+			<div class="col-md-6" ng-repeat="c in collections | filter:fquery | orderBy:'-collection'" ng-cloak>
+				<div class="pane">
+					<div class="pane-title">
+						{$ c.title $}
+						{$ fetch(c.collection) $}
+						<a class="pane-ref small notunderline" href="">{$ fetched.title $}</a>
+					</div>
+					<!-- <div class="pane-img" ng-if="c.image" style="overflow: hidden;width:100%; height:100px;">
+						<img src="/media/{$c.image$}"/ style="overflow:hidden;">
+					</div> -->
+					<div class="pane-body" ng-bind-html="c.info|markdown"></div>
+					<a class="pane-link notunderline" href="{$ c.slug $}/"><span class="pane-link-text">more</span> <span class="glyphicon glyphicon-link"></span></a>
 				</div>
 			</div>
-	    </div>
-	</div>
-</div>
-
-<div class="module" id="database-count-module">
-	<strong>{{ source_amount }}</strong> items and <strong>{{ page_amount }}</strong> pages in the library database <span style="font-size: 60%;" class="glyphicon glyphicon-question-sign" data-toggle="tooltip" data-placement="top" title="The bar chart represents the amount of reading traces that have been identified per item. Hover over the bars and the title of the item will appear."></span>
-</div>
-
-<div id="bar-chart"></div>
-
-<div class="panel panel-default module" id="info-module">
-	<div class="panel-body">
-	<h4 class="media-heading">Components</h4>
-		<div class="media">
-		  <div class="media-left">
-		  	{% thumbnail vl_example.image "100x150" crop="98% 0%" as vl_example %}
-		      <img class="media-object thum frontcover" src="{{ vl_example.url }}" alt="" width="{{ vl_example.width }}" height="{{ vl_example.height }}">
-		    {% endthumbnail %}
-		  </div>
-		  <div class="media-body">
-		    <h4 class="media-heading">{{ virtual_library.title }}</h4>
-		    {{ virtual_library.info|markdownify|safe }}  
-		  </div>
 		</div>
-	{% if newspapercollections %}
-		<div class="media">
-		  <div class="media-left">
-		  	<img class="media-object thum frontcover" src="{% static 'JJDLP/images/freeman,a_frco.jpg' %}" alt="" width="100" height="150">
-		  </div>
-		  <div class="media-body">
-		    <h4 class="media-heading">Newspapers</h4>
-		    	<ul>
-		    	{% for collection in newspapercollections %}
-		    		<li><a href="{% url 'library_collection' slug=collection.slug %}">{{ collection.title }}</a></li>
-		    	{% endfor %}
-		    	</ul>
-		  </div>
-		</div>
-	{% endif %}
 	</div>
-</div>
-
-<div class="panel panel-default module" id="action-module">
-	<div class="panel-body">
-	{% include 'generic/includes/recent_actions.html' %}
-	</div>
-</div>
 
 </div>
 {% endblock %}
 
+
 {% block finaljavascript %}
-{% include 'library/includes/bar_chart_with_tooltips.html' %}
+<script src="{% static 'library/angular/library.module.js' %}"></script>
+<script src="{% static 'library/angular/collection-parse.js' %}"></script>
+<script src="//d3js.org/d3.v3.min.js"></script>
+<script src="{% static 'library/js/bar_chart_with_tooltips.js' %}"></script>
+<script>
+	//  the data that powers the bar chart, a simple array of numeric values
+	var chartdata = {{ countdata }};
+	var namedata = {{ namedata|safe }};
+
+	// create a bar chart with tooltips
+	tooltipBarChart(chartdata, namedata);
+
+</script>
 <script>
 $(function () {
   $('[data-toggle="tooltip"]').tooltip()

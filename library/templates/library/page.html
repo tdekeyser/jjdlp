@@ -3,139 +3,142 @@
 {% load operations %}
 
 
-{% block title_display %}
-	<h4 class="media-heading">
-		<a class="notred" href="{% url 'library_item' slug=item.slug %}">
-			{{ item }}
-		</a>
-	</h4>
-	<table id="item_info">
-		<tr>
-			{% if item.get_authors %}<td><span class="glyphicon glyphicon-option-vertical"></span></td><td>{{ item.get_authors }}</td>{% endif %}
-			{% if item.date %}<td><span class="glyphicon glyphicon-option-vertical"></td><td>{{ item.date }}</td>{% endif %}
-			{% if item.publisher %}<td><span class="glyphicon glyphicon-option-vertical"></span></td><td>{{ item.publisher }}</td>{% endif %}
-		</tr>
-		<tr class="blank_row"></tr>
-		{% if item.collection %}<tr><td><span class="glyphicon glyphicon-tasks"></td><td><a href="{% url 'library_collection' slug=item.collection.slug %}">{{ item.collection }}</a></td></tr>{% endif %}
-		<tr><td><span class="glyphicon glyphicon-list-alt"></td><td>Page <strong>{{ chosen_image.actual_pagenumber }}</strong></td></tr>
-	</table>
+{% block heads %}
 {% endblock %}
 
-{% block desk_content %}
-	<div id="detail_page" class="detail_page">
-		{% if chosen_image.image|is_portrait %}
-			{% thumbnail chosen_image.image "770" upscale=False quality=100 as im %}
-				<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
-				
-				<table class="frame" width="{{ im.width }}" style="margin-left:{{ im.width|absSubtract:"1000"|divide:"2" }}px">
-					<tr class="frame-top" height="{{ im.height|divide:"2" }}">
-						<td id="frame-top-single" class="framelight frame-top-single">
-							<div style="width: 50%;" id="frame-top-left" class="framelight frame-top-left">&nbsp;</div>
-							<div style="width: 50%;" id="frame-top-right" class="framelight frame-top-right">&nbsp;</div>
-						</td>
-					</tr>
-					<tr class="frame-bottom" height="{{ im.height|divide:"2" }}">
-						<td id="frame-bottom-single" style="width:100%;" class="framelight frame-bottom-single">
-							<div style="width: 50%; height: {{ im.height|divide:"2" }}px; float: left;" id="frame-bottom-left" class="framelight frame-bottom-left">&nbsp;</div>
-							<div style="width: 50%; height: {{ im.height|divide:"2" }}px; float: right;" id="frame-bottom-right" class="framelight frame-bottom-right">&nbsp;</div>
-						</td>
-					</tr>
-				</table>
+
+{% block item_title %}
+<div class="small" style="margin-bottom: 1em;"><span class="glyphicon glyphicon-list-alt"></span> Page</div>
+{{ current_image.actual_pagenumber }}
+{% endblock %}
+
+
+{% block description %}
+<div class="titleinfo">
+	{{ item.bib }}
+</div>
+{% endblock %}
+{% block test %}
+<div class="titleinfo">
+	<br/>
+	<br/>
+	{% if item.publisher %}{{ item.publisher }}{% endif %}
+</div>
+{% endblock %}
+
+
+{% block cover %}
+	{% if current_image.image|is_portrait %}
+		{% thumbnail current_image.image "576" upscale=False as im %}
+		<a href="#" data-toggle="modal" data-target="#desk-modal">
+			<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+		</a>
+		{% endthumbnail %}
+	{% else %}
+		{% thumbnail current_image.image "576" upscale=False as im %}
+		<a href="#" data-toggle="modal" data-target="#desk-modal">
+			<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+		</a>
+		{% endthumbnail %}
+	{% endif %}
+{% endblock %}
+
+
+{% block frontmodal %}
+<div class="modal fade" id="desk-modal" role="dialog">
+	<div class="modal-dialog">
+		{% if current_image.image|is_portrait %}
+			{% thumbnail current_image.image "x900" as im %}
+				<img class="modal_image" src="{{ im.url }}">
 			{% endthumbnail %}
 		{% else %}
-			{% thumbnail chosen_image.image "1000x900" upscale=False quality=100 as im %}
-				<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
-				<table class="frame" width="{{ im.width }}" style="margin-left:{{ im.width|absSubtract:"1000"|divide:"2" }}px">
-					<tr class="frame-top" height="{{ im.height|divide:"2" }}"><td id="frame-top-left" class="framelight frame-top-left">&nbsp;</td><td id="frame-top-right" class="framelight frame-top-right">&nbsp;</td></tr>
-					<tr class="frame-bottom" height="{{ im.height|divide:"2" }}"><td id="frame-bottom-left" class="framelight frame-bottom-left">&nbsp;</td><td id="frame-bottom-right" class="framelight frame-bottom-right">&nbsp;</td></tr>
-				</table>
+			{% thumbnail current_image.image "1000" as im %}
+				<img class="modal_image" src="{{ im.url }}">
 			{% endthumbnail %}
 		{% endif %}
-		{% for sourceexcerpt in found_excerpts %}
-			<div class="excerptPopover excerpt {{ sourceexcerpt.place }}">
-				<div class="panel panel-default">
-					<div class="arrow"></div>
-					<div class="panel-heading">Reading trace</div>
-					<div class="panel-body">
-						{{ sourceexcerpt.content }}
-					</div>	
-					{% if sourceexcerpt.note_set %}
-					<ul class="list-group">
-			    		{% for note in sourceexcerpt.note_set.all %}
-			    			<li class="list-group-item"><a class="notunderline" href="{% url 'notebooks_page' noteb=note.noteb notebpage=note.page %}">{{ note|safe }}</a></li>
-			    		{% endfor %}
-			    	</ul>
-			    	{% endif %}
-	    		</div>
-	    	</div>
-		{% endfor %}
 	</div>
+</div>
 {% endblock %}
 
-{% block desk_paginator %}
-	<div class="page-row-well well well-sm">
 
-		{% if coverimages %}
-			{% for cover in coverimages %}
+{% block grid %}
+{% if found_excerpts %}
+	{% for excerpt in found_excerpts %}
+		<div class="excerpt-panel">
+			<div class="panel-heading">
+				Reading trace
+				<span class="database-id small">database id: {{ excerpt.pk }}</span>
+			</div>
+			<div class="panel-body panel-excerpt">
+				{{ excerpt.content }}
+			</div>	
+			{% with excerpt.note_set.all as notes %}
+			{% if notes %}
+			<div class="panel-nav">
+				<a class="notred neverred disabled list-group-item">Notes taken:</a>
+	    		{% for note in notes %}
+	    		<a class="notunderline notred list-group-item list-child" href="{% url 'notebooks_page' note.noteb note.page %}">
+	    			{{ note|safe }}
+	    		</a>
+	    		{% endfor %}
+	    		<a class="list-group-item notred notunderline" target="_blank" href="{% url 'connect' %}?model=libraryexcerpt&pk={{ excerpt.pk }}">
+	    			<span class="glyphicon glyphicon-tree-deciduous"></span>
+	    			View relations
+	    		</a>
+	    	</div>
+	    	{% endif %}
+	    	{% endwith %}
+		</div>
+	{% endfor %}
+{% else %}
+	<div class="grid-header small">No reading traces connected with this page.</div>
+{% endif %}
+{% endblock %}
 
-				<div class="page-row">
-				{% thumbnail cover.image "x100" as cover_thum %}
-					<a href="{% url 'library_page' itemslug=item.slug req_page=cover.page_number %}" title="{{ cover.actual_pagenumber }}">
-						<img class="thumbnail" src="{{ cover_thum.url }}" width="{{ cover_thum.width }}" height="{{ cover_thum.height }}">
-					</a>
-				{% endthumbnail %}
-				</div>
 
-			{% endfor %}
-		{% endif %}
-
+{% block pagination %}
+	<div class="desk-pagination">
 		{% if previous_image %}
-			
-				<div class="page-row">
-				{% thumbnail previous_image.image "x100" as previous_thum %}
-					<a href="{% url 'library_page' itemslug=item.slug req_page=previous_image.actual_pagenumber %}">
-						<img class="thumbnail" style="margin-bottom:0;" src="{{ previous_thum.url }}" width="{{ previous_thum.width }}" height="{{ previous_thum.height }}">
-						<div class="caption thum_caption" >{{ previous_image.actual_pagenumber }}</div>
-					</a>
-				{% endthumbnail %}
-				</div>
+			<div class="pagination-page col-sm-3 col-md-3">
+			<div class="grid-header small">Previous</div>
+			{% thumbnail previous_image.image "123x85" crop="top" as thum %}
+				<a class="thumbnail notred neverred" href="{% url 'library_page' item.collection.recurse item.slug previous_image.actual_pagenumber %}">
+					<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
+					<div class="caption-title">
+						<div class="thum-info">{{ previous_image.actual_pagenumber }}</div>
+					</div>
+				</a>
+			{% endthumbnail %}
+			</div>
 		{% endif %}
-				<div class="page-row">
-				{% thumbnail chosen_image.image "x100" as actual_thum %}
-					<img class="thumbnail active" style="margin-bottom:0;" src="{{ actual_thum.url }}" width="{{ actual_thum.width }}" height="{{ actual_thum.height }}">
-					<div class="caption thum_caption">{{ chosen_image.actual_pagenumber }}</div>
-				{% endthumbnail %}
-				</div>
+
+		<div class="pagination-page col-sm-3 col-md-3">
+		<div class="grid-header small">Current</div>
+		{% thumbnail current_image.image "123x85" crop="top" as thum %}
+		<a class="thumbnail notred neverred" href="#">
+			<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
+			<div class="caption-title">
+				<div class="thum-info">{{ current_image.actual_pagenumber }}</div>
+			</div>
+		</a>	
+		{% endthumbnail %}
+		</div>
+
 		{% if next_image %}
-				<div class="page-row">
-				{% thumbnail next_image.image "x100" as next_thum %}
-					<a href="{% url 'library_page' itemslug=item.slug req_page=next_image.actual_pagenumber %}">
-						<img class="thumbnail" style="margin-bottom:0;" src="{{ next_thum.url }}" width="{{ next_thum.width }}" height="{{ next_thum.height }}">
-						<div class="caption thum_caption">{{ next_image.actual_pagenumber }}</div>
-					</a>
-				{% endthumbnail %}
-				</div>
-			
+			<div class="pagination-page col-sm-3 col-md-3">
+			<div class="grid-header small">Next</div>
+			{% thumbnail next_image.image "123x85" crop="top" as thum %}
+				<a class="thumbnail notred neverred" href="{% url 'library_page' item.collection.recurse item.slug next_image.actual_pagenumber %}">
+					<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
+					<div class="caption-title">
+						<div class="thum-info">{{ next_image.actual_pagenumber }}</div>
+					</div>
+				</a>
+			{% endthumbnail %}
+			</div>	
 		{% endif %}
 	</div>
 {% endblock %}
 
 {% block finaljavascript %}
-	{% if found_excerpts %}
-		<script type="text/javascript">
-				$('[data-toggle="popover"]').popover({ html: true });
-		</script>
-		<script type="text/javascript">
-			// options are: top/bottom-single/left/right
-			var framePosition;
-			$(".excerpt").on("mouseover", function() {
-				framePosition = $(this)[0].className.split(' ')[2];
-				
-				$("#frame-"+framePosition).css("visibility", "visible");
-				
-			}).on("mouseout", function() {
-				$("#frame-"+framePosition).css("visibility", "hidden");
-			});
-		</script>
-	{% endif %}
- {% endblock %}
+{% endblock %}

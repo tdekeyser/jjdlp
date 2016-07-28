@@ -1,0 +1,3 @@
+{{ object.biblio }}
+{{ object.collection }}
+{{ object.item_type }}

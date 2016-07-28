@@ -82,11 +82,11 @@ class NotebookPageView(PageView):
         notes = self.object.note_set.all()
         if notes:
             context['notes'] = notes
-            traced_objects = self.pageQ.get_traced_objects_list(self.object)
-            context['traced_sources'] = traced_objects['traced_sources']
-            context['traced_sources_count'] = traced_objects['traced_sources_count']
-            context['traced_manuscripts'] = traced_objects['traced_manuscripts']
-            context['traced_manuscripts_count'] = traced_objects['traced_manuscripts_count']
-            context['traced_novellines'] = traced_objects['traced_novellines']
-            context['traced_novellines_count'] = traced_objects['traced_novellines_count']
+        #     traced_objects = self.pageQ.get_traced_objects_list(self.object)
+        #     context['libraryitems'] = traced_objects['traced_sources']
+        #     context['libraryitems_count'] = traced_objects['traced_sources_count']
+        #     context['manuscripts'] = traced_objects['traced_manuscripts']
+        #     context['manuscripts_count'] = traced_objects['traced_manuscripts_count']
+        #     context['textlines'] = traced_objects['traced_novellines']
+        #     context['textlines_count'] = traced_objects['traced_novellines_count']
         return context

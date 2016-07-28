@@ -17,7 +17,7 @@
 				<li class=""><a href="{% url 'library_home' %}">Library</a></li>
 				<li class=""><a href="{% url 'notebooks_home' %}">Notebooks</a></li>
 				<li class=""><a href="{% url 'manuscripts_home' %}">Manuscripts</a></li>
-				<li class=""><a href="{% url 'novels_home' %}">Novels</a></li>
+				<li class=""><a href="{% url 'texts_home' %}">Texts</a></li>
 				<li><a style="cursor: default;">|</a></li>
 				<li><a title="Advanced Search" href="{% url 'haystack_search' %}"><span class="glyphicon glyphicon-search"></span></a></li>
 				<li><a title="Connect" href="{% url 'connect' %}"><span class="glyphicon glyphicon-tree-deciduous"></span></a></li>
@@ -69,5 +69,4 @@
 	</div>
 	{% block extra_tools %}{% endblock %}
 </div>
-	{% block body_title %}{% endblock %}
 {% endblock %}

@@ -53,7 +53,7 @@
 			{% for item in view.all_lib_items %}
 			<li>
 				<a href="{% url 'library_item' slug=item.slug %}">
-					{{ item.biblio|safe }}
+					{{ item.biblio }}
 				</a>
 			</li>
 			{% endfor %}

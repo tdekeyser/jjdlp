@@ -1,29 +1,40 @@
 {% extends "library/dummy_base.html" %}
 {% load staticfiles %}
 
+{% block extra_tools %}
+{% endblock %}
+
 {% block content %}
 <div class="books_list">
 	{% if query %}
+	<div class="left-paginator">
+		<div class="more-search">
+			<form class="form-wrap" action="{% url 'library_search' %}" method="get">
+				<input class="form-control" id="searchquery" type="text" name='q' placeholder="Search the library...">
+				<input type="hidden" name="models" value="library.libraryitem" />
+				<button class="searchbutton btn btn-default" type="submit">Search</button>
+			</form>
+			<div style="text-align: right;float: right;">
+				<a href="{% url 'haystack_search' %}">advanced search</a>
+			</div>
+		</div>
+	</div>
+	<div class="search-results">
 		{% include 'search/includes/top_paginator.html' %}
-		{% include 'search/includes/bottom_paginator.html' %}
-	<div class="panel panel-default">
-	<div class="panel-body">
-	<table class="result_list">
+		<hr class="pag-hr"/>
 		{% with result_list=page.object_list %}
 		{% if result_list %}
 			{% for result in result_list %}
 				{% include 'library/includes/library_searchresults.html' %}
 			{% empty %}
-			<tr>
-				<td class="fail">No sources matched your search criteria "<strong>{{ query }}</strong>". Modify your existing search or try a new query.</td>
-			</tr>
+			<div class="fail">
+				No sources matched your search criteria "<strong>{{ query }}</strong>". Modify your existing search or try a new query.
+			</div>
 			{% endfor %}
 		{% endif %}
 		{% endwith %}
-	</table>
-	</div>
-	</div>
 		{% include 'search/includes/bottom_paginator.html' %}
+	</div>
 	{% else %}
 	<div class="pagination" id="pag_info">No search query found</div>
 	{% endif %}

@@ -1,116 +1,131 @@
 {% extends "generic/catalogue.html" %}
 {% load markdown_filter %}
+{% load humanize %}
 {% load thumbnail %}
 {% load staticfiles %}
 
+{% block heads %}{% endblock %}
 
-{% block heads %}
+
+{% block item_title %}
+	<div class="small" style="margin-bottom: 1em;"><span class="glyphicon glyphicon-book"></span> {% if item.item_type %}{{ item.item_type|title }}{% else %}Item{% endif %}</div>
+	{{ item }}
 {% endblock %}
 
 
 {% block ghost_frontcover %}{{ MEDIA_URL }}JJDLP/images/generic_frontcover.jpg{% endblock %}
 
 
-{% block frontmodal %}
-	{% if frontcover %}
-	<div class="modal fade" id="detailModal" role="dialog">
-		<div class="modal-dialog">
-			{% thumbnail frontcover "x900" as im %}
-				<div class="modal_titleHeading" style="width: {{ im.width }}px;">{{ item.biblio }}</div>
-				<img class="modal_image" src="{{ im.url }}">
-			{% endthumbnail %}
-		</div>
-	</div>
-	{% endif %}
-{% endblock %}
-
-
 {% block description %}
-	<table id="item_info">
-		{% if item.get_authors %}<tr><td><span class="glyphicon glyphicon-option-vertical"></span></td><td>{{ item.get_authors }}</td></tr>{% endif %}
-		{% if item.date %}<tr><td><span class="glyphicon glyphicon-option-vertical"></td><td>{{ item.date }}</td></tr>{% endif %}
-		{% if item.publisher %}<tr><td><span class="glyphicon glyphicon-option-vertical"></span></td><td>{{ item.publisher }}</td></tr>{% endif %}
-	</table>
+<div class="titleinfo">
+	{% if item.author %}{{ item.get_author }}{% endif %}
+	<br/>
+	{% if item.date < 5000 %}{{ item.get_date }}{% endif %}
+	<br/>
+	{% if item.publisher %}{{ item.get_publisher }}{% endif %}
+
+	<div class="extra-info small database-id">
+		{% if item.discovered_by %}
+			pointer: <i>{{ item.discovered_by }}</i>
+		{% endif %}
+	</div>
+	
+</div>
 {% endblock %}
 
 
 {% block info %}{{ item.info|markdownify|safe }}{% endblock %}
 
 
-{% block extra_info %}
-	{% if collection_list %}
-		Reading traces can be displayed page per page via the Page tab or as a list via the <a href="{% url 'library_list' slug=item.slug %}">Traces</a> tab.
-	{% endif %}
-	{% if view.all_notebooks %}
-	<hr>
-	<div>
-		Evidence for the appearance of this {{ item.item_type }} in the {{ item.collection }} collection can be found in:
-		<ul style="margin:1em;">
-			{% for nb in view.all_notebooks %}
-			<li>
-				<a href="{% url 'notebooks_item' noteb=nb %}">
-					{{ nb.item_type }} {{ nb }}
-				</a>
-			</li>
-			{% endfor %}
-		</ul>	
-	</div>
-	{% endif %}
-{% endblock %}
-
-
-{% block extra_tab %}
-	{% if collection_list %}
-		<li role="presentation">
-			<a href="{% url 'library_list' slug=item.slug %}" class="taba">
-				<span class="glyphicon glyphicon-list"></span>
-				Traces
+{% block nav %}
+	<div class="list-group">
+			{% if item.link %}
+			<a class="list-group-item notred" id="external-link" target="_blank" href="{{ item.link }}">
+				<span class="glyphicon glyphicon-link"></span> Full scan
 			</a>
-		</li>
-	{% endif %}
+			{% endif %}
+			{% with view.all_reading_traces as reading_traces %}
+			{% if reading_traces %}
+			<a class="list-group-item notred" href="{% url 'library_list' item.collection.recurse item.slug %}" title="List the reading traces">
+				<span class="glyphicon glyphicon-tag"></span> 
+				{{ reading_traces }} reading trace{{ reading_traces|pluralize }}
+			</a>
+			{% else %}
+			<div class="list-group-item notred">
+				<span class="glyphicon glyphicon-tag"></span>
+				0 reading traces
+			</div>
+			{% endif %}
+			{% endwith %}
+		{% with view.all_notebooks as notebooks %}
+		{% if notebooks %}
+			<a class="list-group-item notred disabled">Evidence found in:</a>
+			{% for nb in notebooks %}
+			<a class="list-group-item notred list-child" href="{% url 'notebooks_item' nb %}">{{ nb }}</a>
+			{% endfor %}
+		{% else %}
+			{% if item.notebooks %}
+				<a class="list-group-item notred disabled">Evidence found in:</a>
+				<a class="list-group-item notred list-child">{{item.notebooks}}</a>
+			{% endif %}
+		{% endif %}
+		{% endwith %}
+			<a class="list-group-item notred notunderline" target="_blank" href="{% url 'connect' %}?model=libraryitem&pk={{ item.pk }}">
+    			<span class="glyphicon glyphicon-tree-deciduous"></span>
+    			View relations
+	    	</a>
+
+	</div>
 {% endblock %}
 
 
-{% block itempanel_head %}
-	{% if item.source_link %}
-		<div class="panel-body">
-			Only a few pages have been reproduced here. For more pages, visit the webpage of the <a href="{{ item.source_link }}" target="_blank">complete book</a>.
-		</div>
-	{% endif %}
-{% endblock %}
+{% block grid %}
 
-
-{% block cover_display %}
-	Covers
-	<hr>
+	{% if covers or collection_list %}
+	{% if covers %}
+	<div class="grid-header small">Front matter</div>
 	<div class="row">
 		{% for cover in covers %}
-			<div class="col-sm-2 col-md-3" style="margin-bottom: 1em;">
-			{% thumbnail cover.image "x85" as thum %}
-				<a class="thumbnail" href="{% url 'library_page' itemslug=item.slug req_page=cover.actual_pagenumber %}" title="{{ cover.actual_pagenumber }}">
+			<div class="col-sm-3 col-md-3" style="margin-bottom: 5px;">
+			{% thumbnail cover.image "123x85" crop="top" as thum %}
+				<a class="thumbnail notredneverred" href="{% url 'library_page' item.collection.recurse item.slug cover.actual_pagenumber %}">
 					<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
-					<div class="caption thum_caption">{{ cover.actual_pagenumber }}</div>
+					<div class="caption-title">
+						<div class="thum-info">{{ cover.actual_pagenumber }}</div>
+					</div>
 				</a>
 			{% endthumbnail %}
 			</div>
 		{% endfor %}
 	</div>
-{% endblock %}
+	{% endif %}
 
-
-{% block list_display %}
-	<hr>
-	Content: {{ detail_count }} page{{ detail_count|pluralize }}
-	<hr>
+	{% if collection_list %}
+	<div class="grid-header small"><strong>{{ detail_count }}</strong> scanned page{{ detail_count|pluralize }} that may contain reading traces</div>
 	<div class="row">
 		{% for element in collection_list %}
-		<div class="col-xs-6 col-md-3" style="margin-bottom: 5px;">
-			<a href="{% url 'library_page' itemslug=item.slug req_page=element.actual_pagenumber %}" title="{{ element.actual_pagenumber }}">
-				{{ element.actual_pagenumber }}
+		<div class="col-xs-3 col-md-3" style="margin-bottom: 5px;">
+			{% thumbnail element.image "123x85" crop="top" as thum %}
+			<a class="thumbnail notred neverred" title="{{ element.actual_pagenumber }}" href="{% url 'library_page' item.collection.recurse item.slug element.actual_pagenumber %}">
+				<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
+				<div class="caption-title">
+					<div class="thum-info">
+						{{ element.actual_pagenumber }}
+						<span class="database-id small" style="color: #777;"><span class="glyphicon glyphicon-tag"></span> {{ element.excerpt_set.count }}</span>
+					</div>
+				</div>
 			</a>
+			{% endthumbnail %}
 		</div>
 		{% endfor %}
 	</div>
+	{% include 'generic/includes/nums_paginator.html' %}
+	{% endif %}
+
+	{% else %}
+		<div class="grid-header small collection preview">No scans found.</div>
+	{% endif %}
+
 {% endblock %}
 
 

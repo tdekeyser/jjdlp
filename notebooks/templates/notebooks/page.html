@@ -124,14 +124,14 @@
 							{% endif %}
 							{% endwith %}
 
-							{% with note.novelline as novelline %}
-							{% if novelline %}
+							{% with note.textline as textline %}
+							{% if textline %}
 								<div class="media novelpage noteinfo">
 								  <div class="media-left">
 								      <span style="color: #c34528;" class="glyphicon glyphicon-certificate"></span>
 								  </div>
 								  <div class="media-body">
-								  	<a class="notred notunderline" href="{% url 'novelpage_detail' novelslug=novelline.novel.slug novelpage=novelline.page.pagenumber %}">{{ novelline.novel }} {{ novelline.linenumber }}</a>
+								  	<a class="notred notunderline" href="{% url 'texts_page' slug=textline.novel.slug page=textline.page.page_number %}">{{ textline.novel }} {{ textline.linenumber }}</a>
 								  </div>
 								</div>
 							{% endif %}
@@ -188,15 +188,16 @@
 
 {% block finaljavascript %}
 <script>
-	$(document).ready(function() {
-		$("#info-toggle").click(function() {
-			$(".noteinfo").toggle("fast");
-			if ($(this).children(":first-child").hasClass("glyphicon-align-justify")) {
-				$(".glyphicon-align-justify").toggleClass("glyphicon-align-justify glyphicon-minus"); 
-			} else {
-				$(".glyphicon-minus").toggleClass("glyphicon-minus glyphicon-align-justify"); 
-			}
-		});
-	});
+$("#info-toggle").click(function() {
+	$(".noteinfo").toggle("fast");
+	if ($(this).children(":first-child").hasClass("glyphicon-align-justify")) {
+		$(".glyphicon-align-justify").toggleClass("glyphicon-align-justify glyphicon-minus"); 
+	} else {
+		$(".glyphicon-minus").toggleClass("glyphicon-minus glyphicon-align-justify"); 
+	}
+});
+$(".noteclick").click(function() {
+	$(this).siblings(".noteinfo").toggle("fast");
+});
 </script>
 {% endblock %}

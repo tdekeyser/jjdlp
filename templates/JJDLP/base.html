@@ -1,19 +1,17 @@
+{% load staticfiles %}
+
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
 <head>
-	<title>{% block title %}James Joyce Digital Library{% endblock %}</title>
-<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}JJDLP/css/JJDLP_css.css" />
+<title>{% block title %}Home{% endblock %} | James Joyce Digital Library</title>
+<link rel="stylesheet" type="text/css" href="{% static 'JJDLP/css/JJDLP_css.css' %}" />
 <link rel="shortcut icon" href="http://www.geneticjoycestudies.org/favicon.ico">
-
-<!-- bootstrap -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-<!-- <link href="{{ STATIC_URL }}JJDLP/bootstrap-3.3.5-dist/css/bootstrap.min.css" rel="stylesheet">
- -->	{% block heads %}
-<link href="http://fonts.googleapis.com/css?family=Dancing+Script" rel="stylesheet" type="text/css">
-<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}JJDLP/css/homepage_css.css" />
-
-<script type="text/javascript" src="{{ STATIC_URL }}JJDLP/js/smooth_anchorage.js"></script>
-	{% endblock %}
+<script src="{% static 'JJDLP/js/jquery-1.11.2.js' %}"></script>
+<script src="{% static 'JJDLP/js/bootstrap.min.js' %}"></script>
+{% block heads %}
+<link rel="stylesheet" href="{% static 'JJDLP/css/homepage.css' %}"/>
+{% endblock %}
 </head>
 <body>
 	{% block navigation %}
@@ -85,15 +83,13 @@
 	</div>
 	<div class="footer-wrap">
 		<div class="footer">
-			<div class="copyright info">© 2015 University of Antwerp, James Joyce Database.</div>
+			<div class="copyright info">© 2016 University of Antwerp, James Joyce Digital Library.</div>
 			<div class="footerimages info">
 				<img src="https://www.uantwerpen.be/styles2/UA/reference/img/logo_en.png" width="120px" style="padding-right: 15px;">
 				<img src="{{ STATIC_URL }}JJDLP/images/cmg.png" width="150px" style="padding-right: 15px;">
 			</div>
 		</div>
 	</div>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-<script src="{{ STATIC_URL }}JJDLP/bootstrap-3.3.5-dist/js/bootstrap.min.js"></script>
 {% block finaljavascript %}
 {% endblock %}
 </body>

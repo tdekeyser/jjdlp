@@ -4,6 +4,9 @@ from model_utils.managers import PassThroughManager
 
 from JJDLP.managers import custom_managers
 
+from generic.models.bib import BibModel
+from generic.models.structure import RecursiveCollectionModel, ItemModel
+
 
 def upload_to_collection(instance, filename):
     url = 'library/images/{0}/{1}'.format(instance.slug, filename)
@@ -15,80 +18,45 @@ def upload_to_item(instance, filename):
     return url
 
 
-class Author(models.Model):
-
-    first_name = models.CharField(max_length=30, blank=True)
-    last_name = models.CharField(max_length=50, blank=True)
-
-    def __unicode__(self):
-        return u'{0}, {1}'.format(self.last_name, self.first_name)
-
-    class Meta:
-        ordering = ['last_name']
+def short(name):
+    '''
+    Returns shortened unicode string of input string.
+    '''
+    if len(name) > 19:
+        return u'{}...'.format(name[:19])
+    else:
+        return u'{}'.format(name)
 
 
-class Publisher(models.Model):
-
-    name = models.CharField(max_length=100, blank=True)
-    city = models.CharField(max_length=50, blank=True)
-
-    def __unicode__(self):
-        if self.city:
-            return u'{0}: {1}'.format(self.city, self.name)
-        else:
-            return u'{}'.format(self.name)
-
-
-class LibraryCollection(models.Model):
-
-    title = models.CharField(max_length=300)
+class LibraryCollection(RecursiveCollectionModel):
+    '''
+    Recursive collection model. Instances can therefore
+    contain both items and collections.
+    '''
     collection_type = models.CharField(max_length=50, blank=True)
-    info = models.TextField(blank=True)
     publication_period = models.CharField(max_length=100, blank=True)
     image = models.ImageField(upload_to=upload_to_collection, blank=True)
 
-    slug = models.SlugField(unique=True, max_length=255, blank=True)
-
-    def save(self, *args, **kwargs):
-        if not self.id:
-            if ':' in str(self.title):
-                self.slug = slugify(self.title.split(':')[0])
-            else:
-                self.slug = slugify(' '.join(self.title.split()[:7]))
-        super(LibraryCollection, self).save(*args, **kwargs)
-
-    def __unicode__(self):
-        return u'{}'.format(self.title)
-
-    class Meta:
-        ordering = ['title']
+    def short(self):
+        return short(self.title)
 
 
-class LibraryItem(models.Model):
-
-    title = models.CharField(max_length=300)
-    item_type = models.CharField(max_length=10, blank=True)
+class LibraryItem(BibModel, ItemModel):
+    '''
+    Model for virtual library items like books, articles, newspaper issues,
+    poems, encyclopaedia entries etc. It contains bibliographic information
+    as well as links to the full content of the item and information about
+    the finder of the item.
+    '''
     collection = models.ForeignKey(LibraryCollection, related_name='item_set', blank=True, null=True)
-    author = models.ManyToManyField(Author, blank=True)
-    publisher = models.ForeignKey(Publisher, default='', blank=True, null=True)
-    date = models.PositiveIntegerField(blank=True, null=True)
-    info = models.TextField(blank=True)
-    # link to external site, i.e. UA library or archive.org
+    discovered_by = models.CharField(max_length=300, blank=True)
+    side_note = models.TextField(blank=True)
     link = models.CharField(max_length=255, blank=True)
-    slug = models.SlugField(unique=True, max_length=255, blank=True)
 
-    # override save() to make slug on save
-    def save(self, *args, **kwargs):
-        if not self.id:
-            # take 7 first words
-            self.slug = slugify(' '.join(str(self).split()[:7]))
-        super(LibraryItem, self).save(*args, **kwargs)
-
-    # manager
-    objects = PassThroughManager.for_queryset_class(custom_managers.SourceQuerySet)()
+    notebooks = models.CharField(max_length=300, blank=True)
 
     def __unicode__(self):
-        if self.item_type != 'book':
+        if self.item_type == 'newspaper':
             return u'{0}, {1}'.format(
                 self.collection,
                 self.title
@@ -96,78 +64,53 @@ class LibraryItem(models.Model):
         else:
             return u'{}'.format(self.title)
 
-    def biblio(self):
-        # return bibliographic info
-        if self.get_authors():
-            return u'{0}. {1}. {2}. {3}.'.format(
-                self.get_authors(),
-                self.date,
-                self.title,
-                self.publisher
-                )
-        else:
-            return u'{0}. {1}. {2}'.format(
-                self.title,
-                self.date,
-                self.publisher
-                )
+    def short(self):
+        return short(self.title)
 
-    def get_authors(self):
-        names = u' & '.join([u'{0} {1}'.format(a.first_name, a.last_name) for a in self.author.all()])
-        return names.strip()
-
-    class Meta:
-        ordering = ['title']
+    # getters
+    def get_collection(self):
+        return self.collection
 
 
 class LibraryPage(models.Model):
 
     item = models.ForeignKey(LibraryItem, blank=True, null=True, related_name='page_set', max_length=255)
     image = models.ImageField(upload_to=upload_to_item, blank=True)
+    slug = models.SlugField(max_length=255, blank=True)
     # unique page number in form "TITLE-AUTHOR,pagenumber"
     page_number = models.CharField(max_length=50, primary_key=True)
     # non-unique page number
     actual_pagenumber = models.CharField(max_length=50, blank=True)
 
-    def save(self, *args, **kwargs):
-        self.actual_pagenumber = str(self.page_number.split(',')[1])
-        super(LibraryPage, self).save(*args, **kwargs)
-
-    def __unicode__(self):
-        return u'{}'.format(self.page_number)
-
     # manager
     objects = PassThroughManager.for_queryset_class(custom_managers.LibraryPageQuerySet)()
 
     class Meta:
-        ordering = ['page_number']
+        ordering = ['actual_pagenumber']
+
+    def __unicode__(self):
+        return u'{}'.format(self.actual_pagenumber)
+
+    def save(self, *args, **kwargs):
+        # create short page number and slug
+        if not self.actual_pagenumber:
+            self.actual_pagenumber = str(self.page_number.split(',')[1])
+        if not self.slug:
+            self.slug = slugify(self.page_number)
+        super(LibraryPage, self).save(*args, **kwargs)
 
 
 class LibraryExcerpt(models.Model):
     '''
-    Model for the traced fragments of the library items
-    Place set to:
-    * top-single / bottom-single
-    * top-left / top-right / bottom-left / bottom-right
+    Model for transcribed fragments.
     '''
     content = models.TextField()
 
     item = models.ForeignKey(LibraryItem, related_name='excerpt_set')
     page = models.ForeignKey(LibraryPage, related_name='excerpt_set')
 
-    # coordinates on page (x, y, width, height)
-    x = models.PositiveSmallIntegerField(blank=True, null=True)
-    y = models.PositiveSmallIntegerField(blank=True, null=True)
-    w = models.PositiveSmallIntegerField(blank=True, null=True)
-    h = models.PositiveSmallIntegerField(blank=True, null=True)
-    # place on the page
-    place = models.CharField(max_length=20, blank=True)
-
-    def __unicode__(self):
-        return '{0}|{1}'.format(self.page, self.id)
-
-    def short(self):
-        return u'{0}...'.format(self.content[:30])
-
     class Meta:
         ordering = ['page']
+
+    def __unicode__(self):
+        return u'{0}...'.format(self.content[:30])

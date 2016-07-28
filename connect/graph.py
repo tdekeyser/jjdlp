@@ -45,25 +45,35 @@ class GraphLayout(Layout):
         self.layout['nodes'] = nodes
 
     def build_edges(self, obj):
-        '''Create edges dictionary entry of the graph'''
+        '''
+        Create edges dictionary entry of the graph.
+        '''
         edges = []
         for i in range(obj.length-1):
             layerNodes = obj.get_layer(i+1)
             for node in layerNodes:
                 childIndex = self.get_index(i+1, node)
                 for parent in node.parent:
-                    parentIndex = self.get_index(i, parent)
-                    e = {'source': parentIndex, 'target': childIndex}
-                    edges.append(e)
+                    try:
+                        parentIndex = self.get_index(i, parent)
+                        e = {'source': parentIndex, 'target': childIndex}
+                        edges.append(e)
+                    except ValueError:
+                        # node's parent is not part of the branch
+                        continue
         self.layout['edges'] = edges
 
     def get_index(self, layer, node):
-        '''Get the index of a node within layout['nodes']'''
+        '''
+        Get the index of a node within layout['nodes'].
+        '''
         json = node.jsonify()
         json['layer'] = layer
         return self.layout['nodes'].index(json)
 
     def branchlayout(self):
-        '''Perform graph layout on one branch'''
+        '''
+        Perform graph layout on one branch.
+        '''
         self.build_layout(self.obj.branch)
         return self.layout

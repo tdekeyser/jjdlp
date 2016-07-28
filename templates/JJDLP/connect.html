@@ -8,64 +8,109 @@
 {% endblock %}
 
 {% block body_title %}
-<h1>Connection tool</h1>
-Visualisation of 	the components of the James Joyce database.
+<h1>Connect</h1>
+Visualisation of the relations within the James Joyce database.
 <hr>
 {% endblock %}
 
 {% block body %}
-<div class="connect-form">
-	<button type="button" class="btn btn-default" onclick='loadTree()'>Load tree</button>
-	<input id="rootInput" type="text" />
-	<input id="modelInput" type="text" />
-</div>
+<!-- Tabs -->
+<ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#tree" aria-controls="tree" role="tab" data-toggle="tab" class="taba">Tree</a></li>
+    <li role="presentation"><a href="#pathway" aria-controls="pathway" role="tab" data-toggle="tab" class="taba">Pathway</a></li>
+</ul>
 
-<div id="connect-frame" class="frame">
-	<div id="connect-content" class="connect">
-		<span class="small abs">Tree</span>
-		<div class="ui-widget" style="float: right; margin: 5px;">
-		   <input id="search">
-		    <button type="button" class="btn btn-default btn-xs" onclick="searchNode()">Search</button>
+<!-- Tab frames -->
+<div class="tab-content">
+	<div role="tabpanel" class="tab-pane fade in active" id="tree">
+		<div class="connect-form">
+			<button type="button" class="btn btn-default" onclick="loadTree()">Load tree</button>
+			<input id="rootInput" type="text" />
+			<input id="modelInput" type="text" />
+			<button type="button" class="btn btn-default" onclick="reset()">Reset</button>
 		</div>
-		<div id="connect-tree"></div>
+
+		<div id="tree-frame" class="connect-frame">
+			<div id="connect-content" class="connect">
+				<div class="ui-widget" style="float: right; margin: 5px;">
+				   <input id="search">
+				   <button type="button" class="btn btn-default btn-xs" onclick="searchNode()">Search</button>
+				</div>
+				<div id="connect-tree"></div>
+			</div>
+		</div>
 	</div>
-</div>
 
-<div id="pathway-frame" class="frame">
-	<span class="small abs">Pathway</span>
-	<div id="connect-pathway"></div>
+	<div role="tabpanel" class="tab-pane fade" id="pathway">
+		<div id="pathway-frame">
+			<div id="connect-pathway"></div>
 
-    <div id="branch"></div>
-    <button id="reloader" type="button" class="btn btn-default btn-xs" onclick="loadPathwayContent()" style="float: right; margin: 5px;">Reload</button>
+		    <div id="branch"></div>
 
-    <div class="ui-droppable" style="width:80px;height:90px;"></div>
+		</div>
+		<button id="reloader" type="button" class="btn btn-default btn-xs" onclick="loadPathwayContent()" style="float: right; margin: 5px;">Reload</button>
+		<button id="enable-drag" type="button" class="btn btn-default btn-xs" onclick="makeDraggable()" style="float: right; margin: 5px;">Drag</button>
+	</div>
 </div>
 {% endblock %}
 
 
 {% block finaljavascript %}
-<script src="//d3js.org/d3.v3.min.js"></script>
-<script type='text/javascript' src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
-<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+<script src="https://d3js.org/d3.v3.min.js"></script>
+<script type="text/javascript" src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
 <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 <script>
 $(document).on("click", ".node", togglePathway);
 
-function getTreeInput() {
+$(document).ready(function() {
+	if (location.search) {
+		loadTree();
+	}
+});
+
+function getInput() {
+	// check whether there are tree parameters in url
+	// else, get form input
+	if (location.search) {
+		return getURLInput();
+	} else {
+		return getFormInput();
+	}
+}
+
+function getFormInput() {
 	var root = escape(document.getElementById("rootInput").value);
 	var model = escape(document.getElementById("modelInput").value);
 	return [root, model];
 }
-function set_color(node) {
+
+function getURLInput() {
+	var parts = location.search.substring(1).split('&');
+	var model = parts[0].split("=")[1];
+	var pk = parts[1].split("=")[1];
+	return [pk, model];
+}
+
+function set_color(ref) {
 	// custom coloring according to model
-	if (node.referent == "libraryexcerpt") {
+	if (ref == "libraryexcerpt") {
 		return "#F15854";
-	} else if (node.referent == "libraryitem") {
+	} else if (ref == "libraryitem") {
+		return "#9C271E";
+	} else if (ref == "librarypage") {
 		return "#BC3228";
-	} else if (node.referent == 'notebook') {
+	} else if (ref == 'notebook') {
 		return "#F2DF2D";
-	} else if (node.referent == 'note') {
+	} else if (ref == 'notebookpage') {
+		return "#B3A310";
+	} else if (ref == 'note') {
 		return "#DECF3F";
+	} else if (ref == 'page') {
+		return "#0B55B5";
+	} else if (ref == 'chapter') {
+		return "#083A7B";
+	} else if (ref == 'line') {
+		return "#3C87E9";
 	}
 }
 
@@ -73,13 +118,13 @@ function set_color(node) {
 function loadTree() {
 	$("svg").remove();
 
-	var treeInput = getTreeInput();
+	var treeInput = getInput();
 	var url = "get-tree/?rootid=" + treeInput[0] + "&modelid=" + treeInput[1];
 
 	// create force graph;
 	// inspired after the Force-Directed Tree 
 	var width = 1000,
-	    height = 600;
+	    height = 900;
 
 	var color = d3.scale.category20();
 
@@ -107,7 +152,7 @@ function loadTree() {
 	  // get root of tree
 	  var nodeAmount = graph.nodes.length;
 	  function getRoot() {
-		for (i=0; i<nodeAmount-1; i++) {
+		for (i=0; i<nodeAmount; i++) {
 			if (graph.nodes[i].layer == '0') {
 				return graph.nodes[i];
 			}
@@ -149,7 +194,7 @@ function loadTree() {
 	      .append("svg:circle")
 	      .attr("class", "node")
 	      .attr("r", 5)
-	      .style("fill", function(d) { return set_color(d); })
+	      .style("fill", function(d) { return set_color(d.referent); })
 	      .call(force.drag)
 			  .on("mousedown", function(d) { d.fixed = true; })
 			  .on('mouseover', tip.show)
@@ -207,13 +252,13 @@ function loadPathway() {
 	$("#branch").children().remove();
 
 	// compile url for ajax call
-	var treeInput = getTreeInput();
+	var treeInput = getInput();
 	var nodeName = escape(arguments[0]);
 	var url = "get-path/?rootid=" + treeInput[0] + "&modelid=" + treeInput[1] + "&nodename=" + nodeName;
 
 	// compile graph
 	var width = 1000,
-	    height = 250;
+	    height = 350;
 
 	var color = d3.scale.category20();
 
@@ -244,7 +289,7 @@ function loadPathway() {
 	    .enter().append("g")
 	      .attr("class", "pathwaynode")
 	      .attr("r", 5)
-	      .style("fill", function(d) { return set_color(d); })
+	      .style("fill", function(d) { return set_color(d.referent); })
 	      .on("mousedown", function(d) { d.fixed = true; })
 	      .call(force.drag);
 
@@ -281,7 +326,7 @@ function togglePathway() {
 	loadPathway(pathName);
 	// give the graph some time to load
 	// then call node json
-	window.setTimeout(loadPathwayContent, 2000);
+	// window.setTimeout(loadPathwayContent, 2000);
 	$("#reloader").show();
 }
 
@@ -296,18 +341,23 @@ function loadPathwayContent() {
 		var ref = circle.getElementsByTagName("referent")[0].textContent;
 		var pk = circle.getElementsByTagName("pk")[0].textContent;
 
-		callContent(ref, pk);
+		callBranchContent(ref, pk);
 	}
+
 }
 
-function callContent() {
+function makeDraggable() {
+	$(".draggable").draggable();
+	$(".draggable").css("cursor", "move");
+}
+
+function callBranchContent() {
 	$("#branch").children().remove();
 	// ajax request for pathway node content
 	var model = arguments[0];
 	var pk = arguments[1];
-    var data_file = "get-from-database/?model=" + model + "&pk=" + pk;
+    var data = "/api/?model=" + model + "&pk=" + pk;
     var http_request = new XMLHttpRequest();
-    http_request = new XMLHttpRequest();
 
     http_request.onreadystatechange = function(){
        if (http_request.readyState == 4){
@@ -316,16 +366,18 @@ function callContent() {
 
           // insert new panel
 	  	  var twigs = document.createElement("div");
-	  	      twigs.setAttribute("class", "twig panel panel-default ui-draggable");
+	  	      twigs.setAttribute("class", "twig panel panel-default ui-widget-content draggable");
 	  	      twigs.innerHTML = document.getElementById("pathway-components").innerHTML;
 		  document.getElementById("branch").appendChild(twigs);
 
           jQuery.each(jsonObj.items[0], function(i, val) {
-
 			  if (val) {
 				// insert data into panel and visualise
 			  	var element = $(".pathway-component").last();
 			  	$(".referent").last().html(model);
+			  	$(".referent").last().parent().css("background-color", set_color(model));
+			  	$(".referent").last().parent().css("opacity", 0.6);
+			  	$(".referent").last().parent().css("color", "white");
 			  	element.children("div").children("." + i).html(val);
 			  	element.parent().css("display", "inline-block");
 			  }
@@ -333,23 +385,37 @@ function callContent() {
        }
     }
 	
-    http_request.open("GET", data_file, true);
+    http_request.open("GET", data, true);
     http_request.send();
 
 }
+
+function reset() {
+	location.href = "{% url 'connect' %}";
+}
+</script>
+<script>
+// enables closing button on info panels
+$(document).on('click', '.closer', function() {
+    $(this).parent().parent().remove();
+});
 </script>
 <script id="pathway-components" language="text">
-<div class="panel-heading"><span class="referent"></span></div>
-<div class="pathway-component panel-body">
-	<div>id: <span class="id small"></span></div>
-	<div><span class="small slug"></span></div>
-	<div><span class="item_type"></span></div>
-	<div><span class="title"></span></div>
-	<div><span class="name"></span></div>
-	<div><span class="page_id"></span></div>
-	<div><span class="date"></span></div>
-	<div><span class="content"></span></div>
-	<div><span class="notejj"></span></div>
-</div>
+	<div class="panel-heading">
+		<span class="referent"></span>
+		<button type="button" class="close closer">&times;</button>
+	</div>
+	<div class="pathway-component panel-body">
+		<div>id: <span class="id small"></span></div>
+		<div><span class="small slug"></span></div>
+		<div><span class="item_type"></span></div>
+		<div><span class="title"></span></div>
+		<div><span class="name"></span></div>
+		<div><span class="page_id"></span></div>
+		<div><span class="page_number"></span></div>
+		<div><span class="date"></span></div>
+		<div><span class="content"></span></div>
+		<div><span class="notejj"></span></div>
+	</div>
 </script>
 {% endblock %}

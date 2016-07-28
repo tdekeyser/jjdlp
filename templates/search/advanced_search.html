@@ -3,7 +3,6 @@
 {% block title %}Advanced Search{% endblock %}
 
 {% block body %}
-    <div class="search_docs" style="margin-right:1em;"><b>Hint:</b> To gain better results, read about how the engine has been set up in the <a href="{% url 'search_docs' %}" style="text-decoration: underline;"> search docs</a>.</div>
 
     <h1>Advanced search</h1>
     <div id="specified_info">
@@ -27,7 +26,7 @@
         					{% for result in page.object_list %}
 
                         {% with result.object.notepage as notepagenumber %}
-                        {% with result.object.slug as sourceslug %}
+                        {% with result.object.slug as libraryslug %}
                         {% with result.object.page_number as manuscriptpagenumber %}
                         {% with result.object.linenumber as line %}
 
@@ -37,11 +36,11 @@
                             {% elif manuscriptpagenumber %}
                                 {% include 'manuscripts/includes/manuscripts_searchresults.html' %}
 
-                            {% elif sourceslug %}
+                            {% elif libraryslug or libraryitem %}
                                 {% include 'library/includes/library_searchresults.html' %}
 
                             {% elif line %}
-                                {% include 'novels/includes/novels_searchresults.html' %}
+                                {% include 'texts/includes/texts_searchresults.html' %}
 
                             {% endif %}
 

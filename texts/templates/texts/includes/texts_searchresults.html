@@ -1,0 +1,22 @@
+{% load highlight %}
+
+<tr>
+    <td class="list_pages">
+    	<span class="glyphicon glyphicon-certificate"></span>
+    </td>
+    <td class="bib_info">
+        {% with result.object.novel.slug as slug %}
+        <a class="notred" href="{% url 'texts_page' slug result.object.page.page_number %}">
+	        {% ifequal slug 'finnegans-wake' %}
+	        FW
+	        {% endifequal %}
+	        {{ result.object.linenumber }}	
+	    {% endwith %}
+        </a>
+    </td>
+    <td class="second_bib_info">
+        {% with result.object.content|safe as content %}
+        {% highlight content with query max_length 100000000 %}
+        {% endwith %}
+    </td>
+</tr>

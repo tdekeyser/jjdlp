@@ -1,7 +1,7 @@
 from django.contrib import admin
 from library.models import LibraryItem, LibraryCollection
 from library.models import LibraryPage, LibraryExcerpt
-from library.models import Author, Publisher
+from generic.models.bib import Author, Publisher
 
 
 class AuthorAdmin(admin.ModelAdmin):
@@ -19,14 +19,16 @@ class LibraryCollectionAdmin(admin.ModelAdmin):
     fields = (
         'title',
         'collection_type',
+        'collection',
         'info',
         'publication_period',
         'image',
+        'slug'
         )
 
 
 class LibraryItemAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__',)
+    list_display = ('__unicode__', 'item_type')
     search_fields = (
         'title',
         'item_type',
@@ -40,8 +42,8 @@ class LibraryItemAdmin(admin.ModelAdmin):
 
 
 class LibraryPageAdmin(admin.ModelAdmin):
-    list_display = ('page_number', 'item', 'image')
-    search_fields = ('item__title',)
+    list_display = ('page_number', 'item', 'image', 'slug')
+    search_fields = ('item__title', 'page_number')
     fields = ('item', 'page_number', 'actual_pagenumber', 'image')
     raw_id_fields = ('item',)
 

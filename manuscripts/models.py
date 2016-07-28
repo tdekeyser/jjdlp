@@ -4,7 +4,7 @@ from model_utils.managers import PassThroughManager
 
 from JJDLP.managers import custom_managers
 from library.models import LibraryItem, LibraryExcerpt
-from novels.models import Novel, Line
+from texts.models import Novel, Line
 
 
 def upload_to_collection(instance, filename):
@@ -23,12 +23,11 @@ class ManuscriptCollection(models.Model):
     Basic model for a series of manuscripts
     '''
     title = models.CharField(max_length=100, primary_key=True)
-    # perhaps use MARKDOWN for these info fields instead of pure HTML????
     homepage_info = models.TextField(blank=True)
     info = models.TextField(blank=True)
     note_on_transcriptions = models.TextField(blank=True)
     further_usage = models.ForeignKey(Novel, blank=True)
-    used_source = models.ManyToManyField(LibraryItem, blank=True)
+    # source = models.ManyToManyField(LibraryItem, blank=True)
     frontcover = models.ImageField(upload_to=upload_to_collection, blank=True)
 
     '''Create slug'''
