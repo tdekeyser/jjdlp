@@ -62,7 +62,7 @@ class BibModel(models.Model):
             self.bib = pybib(self)
         super(BibModel, self).save(*args, **kwargs)
 
-    # # getters
+    # getters
     def get_author(self):
         return u' & '.join([unicode(a) for a in self.author.all()])
 

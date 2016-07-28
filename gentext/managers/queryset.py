@@ -6,8 +6,14 @@ from django.core.paginator import Paginator
 
 
 class PageQuerySet(models.query.QuerySet):
-    '''Defines methods to easily get specific pages'''
+    '''
+    Defines methods to easily get specific pages, i.e.
 
+    get_frontcover(),
+    get_backcover(),
+    get_singleimage(String page_number),
+    get_coverimages(): i.e. get all 
+    '''
     def get_frontcover(self):
         try:
             return self.get(page_number__contains='frontcover')

@@ -1,8 +1,11 @@
 '''
-Abstract classes for a collection and item.
+Abstract classes for the basic components of a group of texts:
+collections, items, and pages.
 '''
 from django.db import models
 from django.template.defaultfilters import slugify
+
+from gentext.managers.queryset import PageQuerySet
 
 
 class RecursiveCollectionModel(models.Model):
@@ -49,8 +52,14 @@ class RecursiveCollectionModel(models.Model):
 
 
 class ItemModel(models.Model):
-    info = models.TextField(blank=True)
+    '''
+    Basic model for an item of any kind that automatically saves
+    a slug.
 
+    Can be combined with BibModel to create a model for
+    items that need to be bibliographically referenced.
+    '''
+    info = models.TextField(blank=True)
     slug = models.SlugField(unique=True, max_length=255, blank=True)
 
     def save(self, *args, **kwargs):
@@ -59,6 +68,35 @@ class ItemModel(models.Model):
             # create slug; take 7 first words
             self.slug = slugify(' '.join(str(self).split()[:7]))
         super(ItemModel, self).save(*args, **kwargs)
+
+    class Meta:
+        abstract = True
+
+
+class PageModel(models.Model):
+    '''
+    Basic model for a text page, like the pages of a book. A specific
+    page manager has been added that contains methods to get the book's
+    front and back cover, and methods that are able to get previous
+    and next objects.
+
+    All methods are based on input in the page_number field. As it is
+    a CharField, identifiers like "frontcover" are allowed and, in fact,
+    recommended.
+
+    Warning: the page_number field needs to be unique!
+    '''
+    page_number = models.CharField(max_length=50, primary_key=True)
+    slug = models.SlugField(max_length=255, blank=True)
+
+    # manager
+    objects = PageQuerySet.as_manager()
+
+    def save(self, *args, **kwargs):
+        # create a slug
+        if not self.slug:
+            self.slug = slugify(self.page_number)
+        super(PageModel, self).save(*args, **kwargs)
 
     class Meta:
         abstract = True

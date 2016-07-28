@@ -1,11 +1,9 @@
 from django.db import models
-from django.template.defaultfilters import slugify
-from model_utils.managers import PassThroughManager
 
 from JJDLP.managers import custom_managers
 
 from gentext.models.bib import BibModel
-from gentext.models.structure import RecursiveCollectionModel, ItemModel
+from gentext.models.structure import RecursiveCollectionModel, ItemModel, PageModel
 
 
 def upload_to_collection(instance, filename):
@@ -72,20 +70,17 @@ class LibraryItem(BibModel, ItemModel):
         return self.collection
 
 
-class LibraryPage(models.Model):
+class LibraryPage(PageModel):
     '''
     Model for a scanned page.
     '''
     item = models.ForeignKey(LibraryItem, blank=True, null=True, related_name='page_set', max_length=255)
     image = models.ImageField(upload_to=upload_to_item, blank=True)
-    slug = models.SlugField(max_length=255, blank=True)
-    # unique page number in form "TITLE-AUTHOR,pagenumber"
-    page_number = models.CharField(max_length=50, primary_key=True)
     # non-unique page number
     actual_pagenumber = models.CharField(max_length=50, blank=True)
 
     # manager
-    objects = PassThroughManager.for_queryset_class(custom_managers.LibraryPageQuerySet)()
+    objects = custom_managers.LibraryPageQuerySet.as_manager()
 
     class Meta:
         ordering = ['actual_pagenumber']
@@ -97,8 +92,8 @@ class LibraryPage(models.Model):
         # create short page number and slug
         if not self.actual_pagenumber:
             self.actual_pagenumber = str(self.page_number.split(',')[1])
-        if not self.slug:
-            self.slug = slugify(self.page_number)
+        # if not self.slug:
+        #     self.slug = slugify(self.page_number)
         super(LibraryPage, self).save(*args, **kwargs)
 
 
