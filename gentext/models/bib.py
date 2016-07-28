@@ -3,7 +3,7 @@ Abstract models for items that allow a fast bibliographic reference.
 '''
 from django.db import models
 
-from generic.utils.bib import pybib
+from gentext.utils.bib import pybib
 
 
 class Author(models.Model):

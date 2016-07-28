@@ -3,7 +3,7 @@ from django.utils.text import slugify
 from model_utils.managers import PassThroughManager
 
 from JJDLP.managers import custom_managers
-from generic.managers.queryset import PageQuerySet
+from gentext.managers.queryset import PageQuerySet
 
 
 class Novel(models.Model):

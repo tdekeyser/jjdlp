@@ -1,4 +1,4 @@
-from generic.managers.queryset import PageQuerySet
+from gentext.managers.queryset import PageQuerySet
 
 
 class LibraryPageQuerySet(PageQuerySet):

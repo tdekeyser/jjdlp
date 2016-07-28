@@ -4,8 +4,8 @@ from haystack.views import SearchView
 from haystack.forms import HighlightedModelSearchForm
 
 from notebooks.models import Notebook, NotebookPage, Note
-from generic.views.item import ItemView
-from generic.views.page import PageView
+from gentext.views.item import ItemView
+from gentext.views.page import PageView
 
 notebooks_dummy_base = 'notebooks/dummy_base.html'
 

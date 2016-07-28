@@ -1,6 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 
-from generic.views.base import BaseDetailView
+from gentext.views.base import BaseDetailView
 
 
 class PageView(BaseDetailView):

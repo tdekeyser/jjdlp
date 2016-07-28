@@ -4,8 +4,8 @@ from model_utils.managers import PassThroughManager
 
 from JJDLP.managers import custom_managers
 
-from generic.models.bib import BibModel
-from generic.models.structure import RecursiveCollectionModel, ItemModel
+from gentext.models.bib import BibModel
+from gentext.models.structure import RecursiveCollectionModel, ItemModel
 
 
 def upload_to_collection(instance, filename):
@@ -73,7 +73,9 @@ class LibraryItem(BibModel, ItemModel):
 
 
 class LibraryPage(models.Model):
-
+    '''
+    Model for a scanned page.
+    '''
     item = models.ForeignKey(LibraryItem, blank=True, null=True, related_name='page_set', max_length=255)
     image = models.ImageField(upload_to=upload_to_item, blank=True)
     slug = models.SlugField(max_length=255, blank=True)

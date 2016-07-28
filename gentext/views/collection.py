@@ -1,4 +1,4 @@
-from generic.views.item import ItemView
+from gentext.views.item import ItemView
 
 
 class CollectionView(ItemView):

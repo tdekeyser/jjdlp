@@ -1,4 +1,4 @@
-{% extends "generic/catalogue.html" %}
+{% extends "gentext/catalogue.html" %}
 {% load markdown_filter %}
 {% load humanize %}
 {% load thumbnail %}
@@ -119,7 +119,7 @@
 		</div>
 		{% endfor %}
 	</div>
-	{% include 'generic/includes/nums_paginator.html' %}
+	{% include 'gentext/includes/nums_paginator.html' %}
 	{% endif %}
 
 	{% else %}

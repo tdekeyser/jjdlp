@@ -3,9 +3,9 @@ from django.views.generic import TemplateView
 from haystack.views import SearchView
 from haystack.forms import HighlightedModelSearchForm
 
-from generic.views.item import ItemView
-from generic.views.page import PageView
-from generic.views.collection import CollectionView
+from gentext.views.item import ItemView
+from gentext.views.page import PageView
+from gentext.views.collection import CollectionView
 
 from library.models import LibraryItem, LibraryCollection, LibraryExcerpt
 

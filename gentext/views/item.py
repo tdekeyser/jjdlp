@@ -1,4 +1,4 @@
-from generic.views.base import BaseListView
+from gentext.views.base import BaseListView
 from django.core.exceptions import ObjectDoesNotExist
 
 

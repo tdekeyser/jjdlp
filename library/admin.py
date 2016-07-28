@@ -1,7 +1,7 @@
 from django.contrib import admin
 from library.models import LibraryItem, LibraryCollection
 from library.models import LibraryPage, LibraryExcerpt
-from generic.models.bib import Author, Publisher
+from gentext.models.bib import Author, Publisher
 
 
 class AuthorAdmin(admin.ModelAdmin):

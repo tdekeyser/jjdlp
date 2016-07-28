@@ -1,0 +1,11 @@
+<div class="top-paginator">
+{% ifnotequal paginator.count 0 %}
+	<div>Search query "<strong>{{ query }}</strong>" returned <strong>{{ paginator.count }} result{{ page_obj|pluralize }}</strong>
+	{% if paginator.count > 1 %}
+	, showing {{ page_obj.start_index }} to {{ page_obj.end_index }}
+	{% endif %}
+	</div>
+{% else %}
+	<div>Search query "<strong>{{ query }}</strong>" has returned no results</div>
+{% endifnotequal %}
+</div>

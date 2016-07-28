@@ -7,7 +7,7 @@ from library.models import LibraryExcerpt, LibraryItem
 from manuscripts.models import ManuscriptExcerpt
 from texts.models import Line
 
-from generic.managers.queryset import PageQuerySet
+from gentext.managers.queryset import PageQuerySet
 
 
 def upload_to_file(instance, filename):

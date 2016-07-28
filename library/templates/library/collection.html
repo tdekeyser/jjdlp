@@ -1,4 +1,4 @@
-{% extends "generic/catalogue.html" %}
+{% extends "gentext/catalogue.html" %}
 {% load humanize %}
 {% load markdown_filter %}
 {% load thumbnail %}
@@ -80,7 +80,7 @@
 				{% endfor %}
 			</div>
 			<br/>
-			{% include 'generic/includes/nums_paginator.html' %}
+			{% include 'gentext/includes/nums_paginator.html' %}
 			</div>
 		{% else %}
 				<div class="grid-header small collection preview">This collection seems to only contain items that also belong to subcollections.<br/>Click in the column to the left to preview the content of any subcollections.</div>

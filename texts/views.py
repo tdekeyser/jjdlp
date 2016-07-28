@@ -1,11 +1,11 @@
-from django.views.generic import TemplateView, DetailView
+from django.views.generic import TemplateView
 from django.core.paginator import Paginator
 
 from haystack.views import SearchView
 
 from texts.models import Novel, Line
-from generic.views.item import ItemView
-from generic.views.page import PageView
+from gentext.views.item import ItemView
+from gentext.views.page import PageView
 
 
 NOVELS_DUMMY_BASE = 'texts/dummy_base.html'

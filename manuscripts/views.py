@@ -4,8 +4,8 @@ from haystack.views import SearchView
 from haystack.forms import HighlightedModelSearchForm
 
 from manuscripts.models import ManuscriptCollection
-from generic.views.item import ItemView
-from generic.views.page import PageView
+from gentext.views.item import ItemView
+from gentext.views.page import PageView
 
 
 MANUSCRIPTS_DUMMY_BASE = 'manuscripts/dummy_base.html'

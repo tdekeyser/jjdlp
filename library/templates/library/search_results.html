@@ -20,7 +20,9 @@
 		</div>
 	</div>
 	<div class="search-results">
-		{% include 'search/includes/top_paginator.html' %}
+		{% with page as page_obj %}
+		{% include 'gentext/includes/count_paginator.html' %}
+		{% endwith %}
 		<hr class="pag-hr"/>
 		{% with result_list=page.object_list %}
 		{% if result_list %}
@@ -33,7 +35,10 @@
 			{% endfor %}
 		{% endif %}
 		{% endwith %}
-		{% include 'search/includes/bottom_paginator.html' %}
+
+		{% with page as page_obj %}
+		{% include 'gentext/includes/nums_paginator.html' %}
+		{% endwith %}
 	</div>
 	{% else %}
 	<div class="pagination" id="pag_info">No search query found</div>

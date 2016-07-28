@@ -1,14 +1,14 @@
 import library
 import notebooks
 import texts
-import generic
+import gentext
 
-from generic.views.serializer import JsonView
+from gentext.views.serializer import JsonView
 
 
 MODELS = {
-    'libraryauthor': generic.models.bib.Author,
-    'librarypublisher': generic.models.bib.Publisher,
+    'libraryauthor': gentext.models.bib.Author,
+    'librarypublisher': gentext.models.bib.Publisher,
     'libraryitem': library.models.LibraryItem,
     'libraryexcerpt': library.models.LibraryExcerpt,
     'librarypage': library.models.LibraryPage,
