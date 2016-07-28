@@ -14,3 +14,6 @@ CODING_DIRECTIONS.txt
 NOTE_ON_IMAGES.txt
 tests.py
 .idea/*
+
+gentext/README.md
+gentext/.gitignore
