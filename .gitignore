@@ -2,18 +2,21 @@
 *.gif
 *.jpg
 *.png
+*.ico
+*~
 
+.idea
 media/
 */migrations/
 scripts/
 static/JJDLP/bootstrap-3.3.5-dist/
-static/*
-*/static/*
+static/JJDLP/js/bootstrap*
+static/JJDLP/js/d3*
+static/JJDLP/js/elevate*
+static/JJDLP/js/jquery*
 
 CODING_DIRECTIONS.txt
 NOTE_ON_IMAGES.txt
 tests.py
-.idea/*
 
-gentext/README.md
 gentext/.gitignore

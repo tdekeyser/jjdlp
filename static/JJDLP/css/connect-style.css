@@ -1,0 +1,139 @@
+.connect-tab-wrap {
+  width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.connect-frame {
+  width: 1000px;
+  overflow: hidden;
+  position: relative;
+}
+#pathway-frame {
+  width: 1000px;
+  overflow: hidden;
+  position: relative;
+}
+#tree-frame {
+  height: 900px;
+}
+#pathway-frame {
+  height: 900px;
+}
+.connect-form {
+  padding: 1em;
+  border-bottom: 1px solid #ddd;
+}
+#tree, #pathway {
+  border-bottom: 1px solid #ddd;
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  border-radius: 3px;
+}
+.pathway-modal-dialog {
+	width: 1000px;
+}
+#branch {
+	text-align: center;
+}
+.twig {
+	text-align: left;
+	margin: 0 2% 2% 0;
+	min-width: 150px;
+	max-width: 300px;
+	height: 220px;
+	display: none;
+	overflow: hidden;
+}
+.twig panel-heading {
+  opacity: 0.6;
+}
+.node {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+.pathwaynode text {
+	pointer-events: none;
+	font: 14px sans-serif;
+	fill: #000000;
+}
+.link {
+  stroke: #999;
+  stroke-opacity: .4;
+}
+.small {
+	color: #555;
+}
+.abs {
+	position: absolute;
+	margin: .5em 0 0 1em;
+}
+
+d3-tip {
+    line-height: 1;
+    color: black;
+}
+
+button#reloader {
+	display:none;
+}
+
+/* Bootstrap styling for jQuery UI inspired by (https://gist.github.com/daz/2168334) */
+.ui-autocomplete {
+  max-height: 150px;
+  cursor: pointer;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  float: left;
+  display: none;
+  min-width: 160px;
+  _width: 160px;
+  padding: 4px 0;
+  margin: 2px 0 0 0;
+  list-style: none;
+  background-color: #ffffff;
+  border-color: #ccc;
+  border-color: rgba(0, 0, 0, 0.2);
+  border-style: solid;
+  border-width: 1px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  -webkit-background-clip: padding-box;
+  -moz-background-clip: padding;
+  background-clip: padding-box;
+  *border-right-width: 2px;
+  *border-bottom-width: 2px;
+
+  .ui-menu-item > a.ui-corner-all {
+    display: block;
+    padding: 3px 15px;
+    clear: both;
+    font-weight: normal;
+    line-height: 18px;
+    color: #555555;
+    white-space: nowrap;
+
+    &.ui-state-hover, &.ui-state-active {
+      color: #ffffff;
+      text-decoration: none;
+      background-color: #0088cc;
+      border-radius: 0px;
+      -webkit-border-radius: 0px;
+      -moz-border-radius: 0px;
+      background-image: none;
+    }
+  }
+}
+.ui-helper-hidden-accessible {
+	display: none;
+}
+.ui-menu .ui-menu-item a.ui-corner-all:hover {
+	cursor: pointer;
+}
