@@ -1,40 +1,40 @@
 from django.db import models
 from django.utils.text import slugify
-from model_utils.managers import PassThroughManager
 
-from JJDLP.managers import custom_managers
+from gentext.models.structure import SlugModel
 from gentext.managers.queryset import PageQuerySet
 
 
-class Novel(models.Model):
+class Text(SlugModel):
     '''
     Model for novel,
         has some simple information about a book.
         It does NOT allow searching by publisher (no ManyToManyField).
     '''
     title = models.CharField(max_length=50)
-    # author is James Joyce by default; so no need for an author field
+    author = models.CharField(max_length=255, blank=True, default='James Joyce')
     publisher = models.CharField(max_length=255, blank=True)
     publication_date = models.PositiveSmallIntegerField(blank=True)
-    slug = models.SlugField(unique=True, max_length=50, blank=True)
     info = models.TextField(max_length=1000, blank=True, null=True)
 
     def __unicode__(self):
         return self.title
 
-    def abbr(self):
-        '''Create title abbreviation'''
-        if self.slug == 'finnegans-wake':
+    def short(self):
+        '''
+        Create title abbreviation
+        '''
+        if self.title == 'Finnegans Wake':
             return 'FW'
-        elif self.slug == 'ulysses':
+        elif self.title == 'Ulysses':
             return 'U'
 
 
-class BookSection(models.Model):
+class Section(models.Model):
     '''
     Model for sections ("books") that are sometimes part of a novel.
     '''
-    novel = models.ForeignKey(Novel, related_name='section_set')
+    text = models.ForeignKey(Text, related_name='section_set')
     title = models.CharField(max_length=255, blank=True)
 
     def __unicode__(self):
@@ -45,8 +45,8 @@ class Chapter(models.Model):
     '''
     Model for novel chapters
     '''
-    novel = models.ForeignKey(Novel)
-    booksection = models.ForeignKey(BookSection, blank=True, null=True)
+    text = models.ForeignKey(Text)
+    section = models.ForeignKey(Section, blank=True, null=True)
 
     number = models.PositiveSmallIntegerField()
     title = models.CharField(max_length=255, blank=True)
@@ -54,15 +54,15 @@ class Chapter(models.Model):
     slug = models.SlugField(max_length=50, blank=True)
 
     def __unicode__(self):
-        if self.booksection:
-            return u'{0}.{1}'.format(self.booksection, self.number)
+        if self.section:
+            return u'{0}.{1}'.format(self.section, self.number)
         else:
             return u'{}'.format(self.number)
 
     def save(self, *args, **kwargs):
         # override save() to make a unique slug on save
         if not self.slug:
-            if self.booksection:
+            if self.section:
                 self.slug = slugify('{0}{1}'.format(self.booksection, self.number))
             else:
                 self.slug = '{}'.format(self.number)
@@ -71,10 +71,10 @@ class Chapter(models.Model):
 
 class Page(models.Model):
     '''
-    Model for a novel page
+    Model for a text page
     '''
-    novel = models.ForeignKey(Novel)
-    booksection = models.ForeignKey(BookSection, blank=True, null=True)
+    text = models.ForeignKey(Text)
+    section = models.ForeignKey(Section, blank=True, null=True)
     chapter = models.ForeignKey(Chapter, blank=True, null=True)
 
     page_number = models.PositiveSmallIntegerField()
@@ -82,27 +82,24 @@ class Page(models.Model):
     slug = models.SlugField(unique=True, max_length=50, blank=True)
 
     # manager
-    objects = PassThroughManager.for_queryset_class(PageQuerySet)()
+    objects = PageQuerySet.as_manager()
 
     def __unicode__(self):
-        return '{0} {1}'.format(self.novel.abbr(), self.page_number)
-
-    def note_is_present(self):
-        return bool(self.note_set.count())
+        return '{0} {1}'.format(self.text.short(), self.page_number)
 
     def save(self, *args, **kwargs):
         # override save() to make a unique slug on save
         if not self.slug:
-            self.slug = '{0}-{1}'.format(self.novel.abbr().lower(), self.page_number)
+            self.slug = '{0}-{1}'.format(self.text.short().lower(), self.page_number)
         super(Page, self).save(*args, **kwargs)
 
 
 class Line(models.Model):
     '''
-    Model for each line of the novel
+    Model for each line of a text
     '''
-    novel = models.ForeignKey(Novel, blank=True, null=True)
-    booksection = models.ForeignKey(BookSection, blank=True, null=True)
+    text = models.ForeignKey(Text, blank=True, null=True)
+    section = models.ForeignKey(Section, blank=True, null=True)
     chapter = models.ForeignKey(Chapter, blank=True, null=True)
     page = models.ForeignKey(Page, blank=True, null=True)
 
@@ -111,3 +108,6 @@ class Line(models.Model):
 
     def __unicode__(self):
         return u'{0}\t{1}'.format(self.linenumber, self.content)
+
+    def short(self):
+        return u'{0} {1}'.format(self.text.short(), self.linenumber)

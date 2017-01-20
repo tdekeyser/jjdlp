@@ -3,31 +3,57 @@
 {% block title %}Advanced Search{% endblock %}
 
 {% block body %}
+<div id="content">
 
-    <h1>Advanced search</h1>
-    <div id="specified_info">
-        <form method="get" action=".">
-            <table id="advanced_search">
-                {{ form.as_table }}
-                <tr>
-                    <td>&nbsp;</td>
-                    <td>
-                        <input type="submit" value="Search">
-                    </td>
-                </tr>
-            </table>
+    <div class="left-paginator">
+        <h2>Search database</h2>
+        <div class="more-search">
+        <form class="form-wrap" action="." method="get">
+            <input class="form-control" id="searchquery" type="text" name='q' placeholder="Search...">
+            <button class="searchbutton btn btn-default" type="submit">Search</button>
+            <div class="labels">
+                <label for="id_models_0">
+                    <input id="id_models_0" name="models" type="checkbox" value="library.libraryitem">
+                    Library items
+                </label>
+                <br/>
+                <label for="id_models_1">
+                    <input id="id_models_1" name="models" type="checkbox" value="library.libraryexcerpt">
+                    Library excerpts
+                </label>
+                <br/>
+                <label for="id_models_2">
+                    <input id="id_models_2" name="models" type="checkbox" value="notebooks.note">
+                    Notes
+                </label>
+                <br/>
+                <label for="id_models_3">
+                    <input id="id_models_3" name="models" type="checkbox" value="manuscripts.manuscriptpage">
+                    Manuscripts
+                </label>
+                <br/>
+                <label for="id_models_4">
+                    <input id="id_models_4" name="models" type="checkbox" value="texts.line">
+                    Texts
+                </label>
+            </div>
+        </form>
+        </div>
+    </div>
 
+    <div class="search-results">
             {% if query %}
-                {% include 'search/includes/top_paginator.html' %}
-                <div class="panel panel-default">
-                <div class="panel-body">
-                    <table class="result_list">
-        				<tbody>
+                {% with page as page_obj %}
+                {% include 'gentext/includes/count_paginator.html' %}
+                {% endwith %}
+                <hr class="pag-hr"/>
+
         					{% for result in page.object_list %}
 
-                        {% with result.object.notepage as notepagenumber %}
-                        {% with result.object.slug as libraryslug %}
-                        {% with result.object.page_number as manuscriptpagenumber %}
+                        {% with result.object.noteb as notepagenumber %}
+                        {% with result.object.item as libraryexcerpt %}
+                        {% with result.object.collection as libraryitem %}
+                        {% with result.object.manuscript as manuscriptpagenumber %}
                         {% with result.object.linenumber as line %}
 
                             {% if notepagenumber %}
@@ -36,7 +62,7 @@
                             {% elif manuscriptpagenumber %}
                                 {% include 'manuscripts/includes/manuscripts_searchresults.html' %}
 
-                            {% elif libraryslug or libraryitem %}
+                            {% elif libraryexcerpt or libraryitem %}
                                 {% include 'library/includes/library_searchresults.html' %}
 
                             {% elif line %}
@@ -48,19 +74,21 @@
                         {% endwith %}
                         {% endwith %}
                         {% endwith %}
+                        {% endwith %}
 
         					{% endfor %}
         				</tbody>
         			</table>
 
-                    {% include 'search/includes/bottom_paginator.html' %}
+                    {% with page as page_obj %}
+                    {% include 'gentext/includes/nums_paginator.html' %}
+                    {% endwith %}
                 </div>
                 </div>
                 
             {% else %}
-                <div class="fail">
-                Please enter a search query.</div>
+                <div class="pagination" id="pag_info">Please submit a search query</div>
             {% endif %}
-        </form>
     </div>
+</div>
 {% endblock %}

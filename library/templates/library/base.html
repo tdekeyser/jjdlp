@@ -1,5 +1,4 @@
 {% extends 'JJDLP/dummy_base.html' %}
-{% load markdown_filter %}
 {% load staticfiles %}
 
 
@@ -18,7 +17,7 @@
 	
 	<div class="module module-header">
 		<div class="left">
-			<div class="title">James Joyce Digital Library</div>
+			<div class="title">James Joyce digital library</div>
 			<div class="info"></div>
 			<div class="module-counter">
 				Items: <strong>{{ itemcount }}</strong>
@@ -43,8 +42,7 @@
 	<div id="chart"></div>
 	<div class="chart-info" style="color:#999; margin-top: 15px; margin-left: 15px;">
 		<span class="small">Figure: Visualisation of the library. Bars represent the amount of reading traces identified per item.</span>
-<!-- 		<span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-placement="top" title="Each bar displays the amount of reading traces that have been identified per item (between brackets)."></span>
- -->	</div>
+		</div>
 <hr style="margin-top: 5px;" />
 
 	<div ng-app="library">
@@ -60,7 +58,7 @@
 				</div>
 				<input class="form-control" id="filterq" placeholder="Find collections..." type="text" ng-model="fquery.title"/>
 			</div>
-			<div class="col-md-6" ng-repeat="c in collections | filter:fquery | orderBy:'-collection'" ng-cloak>
+			<div class="col-md-12" ng-repeat="c in collections | filter:fquery | orderBy:'-collection'" ng-cloak>
 				<div class="pane">
 					<div class="pane-title">
 						{$ c.title $}

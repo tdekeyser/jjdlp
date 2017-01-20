@@ -1,6 +1,7 @@
 import library
 import notebooks
 import texts
+import manuscripts
 import gentext
 
 from gentext.views.serializer import JsonView
@@ -13,13 +14,17 @@ MODELS = {
     'libraryexcerpt': library.models.LibraryExcerpt,
     'librarypage': library.models.LibraryPage,
     'librarycollection': library.models.LibraryCollection,
+    'notebookcollection': notebooks.models.NotebookCollection,
     'notebook': notebooks.models.Notebook,
     'notebookpage': notebooks.models.NotebookPage,
     'note': notebooks.models.Note,
-    'novel': texts.models.Novel,
+    'text': texts.models.Text,
     'line': texts.models.Line,
     'chapter': texts.models.Chapter,
     'page': texts.models.Page,
+    'manuscript': manuscripts.models.Manuscript,
+    'manuscriptexcerpt': manuscripts.models.ManuscriptExcerpt,
+    'manuscriptpage': manuscripts.models.ManuscriptPage,
     }
 
 

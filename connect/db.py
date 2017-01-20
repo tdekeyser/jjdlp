@@ -3,7 +3,9 @@ Gathers database information via Django models.
 '''
 from django.utils.text import slugify
 
-import library, notebooks, texts
+import library
+import notebooks
+import texts
 
 # constants
 LIBRARY_ITEM = 'libraryitem'
@@ -89,7 +91,7 @@ class DatabaseQuery(object):
         model = node.referent
         parents = node.parent
         q = []
-        # perform naive shallow query based on current object
+        # perform shallow query based on current object
         if downstream:
             if not (model == DOWN_LIMIT and bool(parents)):
                 q += self.query_downstream(modelObj, model)
@@ -112,7 +114,12 @@ class DatabaseQuery(object):
         elif model == LIBRARY_EXCERPT:
             q = modelObj.note_set.all()
         elif model == NOTEBOOKS_NOTE:
-            q = [modelObj.textline] if modelObj.textline else []
+            if modelObj.note:
+                q = [modelObj.note]
+            elif modelObj.textline:
+                q = [modelObj.textline]
+            else:
+                []
         elif model == NOTEBOOKS_PAGE:
             q = modelObj.note_set.all()
         elif model == TEXTS_LINE:

@@ -1,5 +1,4 @@
 {% extends "gentext/catalogue.html" %}
-{% load markdown_filter %}
 {% load humanize %}
 {% load thumbnail %}
 {% load staticfiles %}
@@ -23,10 +22,9 @@
 	{% if item.date < 5000 %}{{ item.get_date }}{% endif %}
 	<br/>
 	{% if item.publisher %}{{ item.get_publisher }}{% endif %}
-
 	<div class="extra-info small database-id">
 		{% if item.discovered_by %}
-			pointer: <i>{{ item.discovered_by }}</i>
+			discovered by: <i>{{ item.discovered_by }}</i>
 		{% endif %}
 	</div>
 	
@@ -34,7 +32,13 @@
 {% endblock %}
 
 
-{% block info %}{{ item.info|markdownify|safe }}{% endblock %}
+{% block info %}
+	{% if item.info %}
+		{% load markdown_filter %}
+		<hr/>
+		{{ item.info|markdownify|safe }}
+	{% endif %}
+{% endblock %}
 
 
 {% block nav %}
@@ -61,7 +65,7 @@
 		{% if notebooks %}
 			<a class="list-group-item notred disabled">Evidence found in:</a>
 			{% for nb in notebooks %}
-			<a class="list-group-item notred list-child" href="{% url 'notebooks_item' nb %}">{{ nb }}</a>
+			<a class="list-group-item notred list-child" href="{% url 'notebooks_item' nb.collection.recurse nb %}">{{ nb }}</a>
 			{% endfor %}
 		{% else %}
 			{% if item.notebooks %}
@@ -101,7 +105,7 @@
 	{% endif %}
 
 	{% if collection_list %}
-	<div class="grid-header small"><strong>{{ detail_count }}</strong> scanned page{{ detail_count|pluralize }} that may contain reading traces</div>
+	<div class="grid-header small"><strong>{{ detail_count }}</strong> scan{{ detail_count|pluralize }} that may contain reading traces</div>
 	<div class="row">
 		{% for element in collection_list %}
 		<div class="col-xs-3 col-md-3" style="margin-bottom: 5px;">

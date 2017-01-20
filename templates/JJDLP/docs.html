@@ -10,23 +10,14 @@
 
 {% block body %}
 	<h1>Documentation</h1>
-	Specialised information about using the website and database.
+	This text serves as a practical aid for users, (future) administrators and developers of the project.
 	<hr>
 
 	{% if not view.raw %}
 
-		<div id="content" style="width:240px; position: absolute;">
+		<div style="width:240px; position: absolute;">
 			<h2>Contents</h2>
-			<ol style="margin-left: 15px;">
-				<li><a href="#1-the-database">The database (admin)</a>
-					<ul>
-						<li>&emsp;<a href="#11-adding-collections-and-items">Adding collections and items</a></li>
-						<li>&emsp;<a href="#12-adding-images">Adding images to the database</a></li>
-						<li>&emsp;<a href="#13-adding-notes">Adding notes</a></li>
-					</ul>
-				</li>
-				<li><a href="#2-coding-info">Coding info</a></li>
-			</ol>
+			<div id="content"></div>
 		</div>
 
 		<div class="md" style="margin-left: 240px; margin-top: 3em;">
@@ -39,4 +30,11 @@
 		</div>
 	{% endif %}
 
+{% endblock %}
+
+{% block finaljavascript %}
+<script>
+// moves table of contents to left-hand column
+$(".toc").appendTo("#content");
+</script>
 {% endblock %}

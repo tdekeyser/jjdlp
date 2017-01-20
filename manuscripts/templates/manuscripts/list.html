@@ -1,42 +1,38 @@
-{% extends 'manuscripts/dummy_base.html' %}
+{% extends "gentext/desk.html" %}
 {% load thumbnail %}
 {% load xml_operations %}
 
 {% block heads %}
 {% endblock %}
 
-{% block source_pages %}
+
+{% block item_title %}
+<div class="small" style="margin-bottom: 1em;"><span class="glyphicon glyphicon-list"></span> Transcription list</div>
+{{item}}
 {% endblock %}
 
-{% block content %}
-<div class="panel panel-default">
-	<div class="panel-body">
-		<div class="media">
-			<div class="media-body">
-			    <h4 class="media-heading">{{ object.title }} - list</h4>
-			    <div class="gallery_toolbar">
-					<div class="btn-group" data-toggle="buttons">
-						<a id="references_button" class="btn btn-default notred neverred" href="#referenced_transcription-content"><span class="glyphicon glyphicon-list-alt"></span></a>
-						<a class="btn btn-default notred neverred" href="#" data-toggle="modal" data-target="#infomodal"><span class="glyphicon glyphicon-question-sign"></span></a>						
-					</div>
-				</div>
-		    </div>
+
+{% block content_division %}
+column100
+{% endblock %}
+
+
+{% block grid %}
+
+	<div class="gallery_toolbar">
+		<div class="btn-group" data-toggle="buttons">
+			<a id="references_button" class="btn btn-default notred neverred" href="#referenced_transcription-content">Notebook view</a>
+			<a class="btn btn-default notred neverred" href="#" data-toggle="modal" data-target="#infomodal"><span class="glyphicon glyphicon-question-sign"></span> Info</a>
 		</div>
 	</div>
-</div>
 
 {% include 'manuscripts/includes/infomodal.html' %}
 
-<div class="panel panel-default">
-	<div class="panel-body">
-
-	{% include 'search/includes/bottom_paginator.html' %}
-
-	{% for page in collection_pages %}
+	{% for page in collection_list %}
 		<div class="media">
 		 	<div class="media-left">
 				{% thumbnail page.image "150" as thum %}
-				<a href="{% url 'manuscriptpage_detail' collectionslug=object.slug manuscriptpage=page.slug %}">
+				<a href="{% url 'manuscripts_page' item.slug page.slug %}">
 					<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
 				</a>
 		    	{% endthumbnail %}
@@ -54,10 +50,7 @@
 			</div>
 		</div>
 	{% endfor %}
-	{% include 'search/includes/bottom_paginator.html' %}
-
-	</div>
-</div>
+		{% include 'gentext/includes/nums_paginator.html' %}
 
 {% endblock %}
 
@@ -77,6 +70,5 @@ button.on('click', function() {
 		$('.transcription-content').show();
 	}
 });
-
 </script>
 {% endblock %}

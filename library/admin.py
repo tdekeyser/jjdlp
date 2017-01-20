@@ -50,6 +50,7 @@ class LibraryPageAdmin(admin.ModelAdmin):
 
 class LibraryExcerptAdmin(admin.ModelAdmin):
     list_display = (
+        'pk',
         'content',
         'item',
         'page',
@@ -59,11 +60,6 @@ class LibraryExcerptAdmin(admin.ModelAdmin):
         'content',
         'item',
         'page',
-        'place',
-        'x',
-        'y',
-        'w',
-        'h',
         )
 
 admin.site.register(Author, AuthorAdmin)

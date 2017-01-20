@@ -3,7 +3,7 @@ from django.db import models
 from JJDLP.managers import custom_managers
 
 from gentext.models.bib import BibModel
-from gentext.models.structure import RecursiveCollectionModel, ItemModel, PageModel
+from gentext.models.structure import RecursiveCollectionModel, SlugModel, PageModel, short
 
 
 def upload_to_collection(instance, filename):
@@ -16,16 +16,6 @@ def upload_to_item(instance, filename):
     return url
 
 
-def short(name):
-    '''
-    Returns shortened unicode string of input string.
-    '''
-    if len(name) > 19:
-        return u'{}...'.format(name[:19])
-    else:
-        return u'{}'.format(name)
-
-
 class LibraryCollection(RecursiveCollectionModel):
     '''
     Recursive collection model. Instances can therefore
@@ -35,11 +25,8 @@ class LibraryCollection(RecursiveCollectionModel):
     publication_period = models.CharField(max_length=100, blank=True)
     image = models.ImageField(upload_to=upload_to_collection, blank=True)
 
-    def short(self):
-        return short(self.title)
 
-
-class LibraryItem(BibModel, ItemModel):
+class LibraryItem(BibModel, SlugModel):
     '''
     Model for virtual library items like books, articles, newspaper issues,
     poems, encyclopaedia entries etc. It contains bibliographic information
@@ -48,6 +35,7 @@ class LibraryItem(BibModel, ItemModel):
     '''
     collection = models.ForeignKey(LibraryCollection, related_name='item_set', blank=True, null=True)
     discovered_by = models.CharField(max_length=300, blank=True)
+    info = models.TextField(blank=True)
     side_note = models.TextField(blank=True)
     link = models.CharField(max_length=255, blank=True)
 

@@ -1,5 +1,5 @@
 {% extends "gentext/desk.html" %}
-{% load markdown_filter %}
+{% load staticfiles %}
 {% load thumbnail %}
 {% load xml_operations %}
 
@@ -8,24 +8,76 @@
 {% endblock %}
 
 
-{% block title_display %}
-    <h4 class="media-heading">{{ item.item_type }} {{ item }}</h4>
-	Current page: {{ object.page_number }}
-	<br/>
-	<br/>
-	{{ item.note_on_transcriptions|markdownify|safe }}
+{% block item_title %}
+<div class="small" style="margin-bottom: 1em;"><span class="glyphicon glyphicon-list-alt"></span> Manuscript page</div>
+{{ current_page.page_number }}
 {% endblock %}
 
 
-{% block desk_content %}
+{% block description %}
+<div class="titleinfo">
+{% if item.note_on_transcriptions %}
+	{% load markdown_filter %}
+		{{ item.note_on_transcriptions|markdownify|safe }}
+{% endif %}
+</div>
+{% endblock %}
+
+
+{% block content_division %}column100{% endblock %}
+
+
+{% block cover %}
+	<div class="desk-pagination">
+		{% if previous_page %}
+			<div class="pagination-page col-sm-3 col-md-3">
+			<div class="grid-header small">Previous</div>
+			{% thumbnail previous_page.image "123x85" crop="top" as thum %}
+				<a class="thumbnail notred neverred" href="{% url 'manuscripts_page' item.recurse previous_page.slug %}">
+					<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
+					<div class="caption-title">
+						<div class="thum-info">{{ previous_page.actual_pagenumber }}</div>
+					</div>
+				</a>
+			{% endthumbnail %}
+			</div>
+		{% endif %}
+
+		<div class="pagination-page col-sm-3 col-md-3">
+		<div class="grid-header small">Current</div>
+		{% thumbnail current_page.image "123x85" crop="top" as thum %}
+		<a class="thumbnail notred neverred" href="#">
+			<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
+			<div class="caption-title">
+				<div class="thum-info">{{ current_page.actual_pagenumber }}</div>
+			</div>
+		</a>	
+		{% endthumbnail %}
+		</div>
+
+		{% if next_page %}
+			<div class="pagination-page col-sm-3 col-md-3">
+			<div class="grid-header small">Next</div>
+			{% thumbnail next_page.image "123x85" crop="top" as thum %}
+				<a class="thumbnail notred neverred" href="{% url 'manuscripts_page' item.recurse next_page.slug %}">
+					<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
+					<div class="caption-title">
+						<div class="thum-info">{{ next_page.actual_pagenumber }}</div>
+					</div>
+				</a>
+			{% endthumbnail %}
+			</div>	
+		{% endif %}
+	</div>
+{% endblock %}
+
+
+{% block grid %}
 	<div class="gallery_toolbar">
 		<div class="btn-group" data-toggle="buttons">
-			<a id="page_button" class="btn btn-default notred neverred" href="#page-view" aria-controls="home" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-file"></span></a>
-			<a id="zoom_button" class="btn btn-default notred neverred" href="#page-view" aria-controls="profile" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-zoom-in"></span></a>
-			<a class="btn btn-default notred neverred nohover" style="cursor: default;">~</a>
-			<a id="transcribe_button" class="btn btn-default notred neverred" href="#transcription-view" aria-controls="profile" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-text-height"></span></a>
-			<a id="references_button" class="btn btn-default notred neverred" href="#referenced_transcription-content"><span class="glyphicon glyphicon-list-alt"></span></a>
-			<a class="btn btn-default notred neverred" href="#" data-toggle="modal" data-target="#infomodal"><span class="glyphicon glyphicon-question-sign"></span></a>
+			<a id="page_button" class="btn btn-default notred neverred" href="#page-view" aria-controls="home" role="tab" data-toggle="tab">Page view</a>
+			<a id="zoom_button" class="btn btn-default notred neverred" href="#page-view" aria-controls="profile" role="tab" data-toggle="tab">Zoom view</a>
+			<a id="transcribe_button" class="btn btn-default notred neverred" href="#transcription-view" aria-controls="profile" role="tab" data-toggle="tab">Transcription view</a>
 		</div>
 	</div>
 
@@ -34,19 +86,8 @@
 	{% endwith %}
 
 	<div class="tab-content detail_page">
-		<div id="page-view" role="tabpanel" class="tab-pane active">
-		{% if object.image|is_portrait %}
-			{% thumbnail object.image "x700" as im %}
-				<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" data-zoom-image="{{ MEDIA_URL }}{{ object.image }}">
-			{% endthumbnail %}
-		{% else %}
-			{% thumbnail object.image "1000" as im %}
-				<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" data-zoom-image="{{ MEDIA_URL }}{{ object.image }}">
-			{% endthumbnail %}
-		{% endif %}
-		</div>
 		<div id="transcription-view" role="tabpanel" class="tab-pane">
-			<div class="page1" style="width:500px; overflow: auto;direction:rtl;">
+			<div class="page1" style="overflow:auto;direction:rtl;">
 		{% if object.image|is_portrait %}
 			{% thumbnail object.image "500" as im %}
 				<img id="transcription_page" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" data-zoom-image="{{ MEDIA_URL }}{{ object.image }}">
@@ -58,55 +99,42 @@
 			{% thumbnail object.image "1000" as im %}
 				<img id="transcription_page" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" data-zoom-image="{{ MEDIA_URL }}{{ object.image }}">
 			</div>
-			<div class="transcription singletranscription panel paneldefault">
-			<div style="min-height:{{ im.height }}px;">
 			{% endthumbnail %}
 		{% endif %}
-				<div class="panel-body">
-					<div class="transcription-content">
-						{{ object.transcription|safe }}
+			<div class="transcription singletranscription panel paneldefault">
+				<div class="excerpt-panel">
+					<div class="panel-heading">
+						Transcription
 					</div>
-					<div class="referenced_transcription-content" style="display: none;">
-						{% show_ref_tag object.transcription %}
+					<div class="panel-body panel-excerpt">
+						<div class="transcription-content">
+							{{ object.transcription|safe }}
+						</div>
+						<div class="referenced_transcription-content" style="display: none;">
+							{% show_ref_tag object.transcription %}
+						</div>
+					</div>
+					<div class="panel-nav">
+						<a class="notred neverred list-group-item" href="{% url 'manuscripts_list' item.recurse %}"><span class="glyphicon glyphicon-list"></span> Transcription list</a>
+						<a id="references_button" class="notred neverred list-group-item" href="#referenced_transcription-content"><span class="glyphicon glyphicon-link"></span> Notebooks</a>
+						<a class="notred neverred list-group-item" href="" data-toggle="modal" data-target="#infomodal"><span class="glyphicon glyphicon-question-sign"></span> Info</a>
 					</div>
 				</div>
 			</div>
-			</div>
+		</div>
+		<div id="page-view" role="tabpanel" class="tab-pane active">
+		{% if object.image|is_portrait %}
+			{% thumbnail object.image "x700" as im %}
+				<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" data-zoom-image="{{ MEDIA_URL }}{{ object.image }}">
+			{% endthumbnail %}
+		{% else %}
+			{% thumbnail object.image "1000" as im %}
+				<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" data-zoom-image="{{ MEDIA_URL }}{{ object.image }}">
+			{% endthumbnail %}
+		{% endif %}
 		</div>
 	</div>
-{% endblock %}
 
-
-{% block desk_paginator %}
-	<div class="clear"></div>
-	<div class="page-row-well well well-sm">
-		{% if previous_image %}	
-			<div class="page-row">
-			{% thumbnail previous_image.image "x100" as previous_thum %}
-				<a href="{% url 'manuscripts_page' slug=item.slug page=previous_image.page_number|slugify %}" title="{{ previous_image.page_number }}">
-					<img class="thumbnail" style="margin-bottom:0;" src="{{ previous_thum.url }}" width="{{ previous_thum.width }}" height="{{ previous_thum.height }}">
-					<div class="caption thum_caption" >{{ previous_image.page_number }}</div>
-				</a>
-			{% endthumbnail %}
-			</div>
-		{% endif %}
-			<div class="page-row">
-			{% thumbnail chosen_image.image "x100" as actual_thum %}
-				<img class="thumbnail active" style="margin-bottom:0;" src="{{ actual_thum.url }}" width="{{ actual_thum.width }}" height="{{ actual_thum.height }}">
-				<div class="caption thum_caption">{{ chosen_image.page_number }}</div>
-			{% endthumbnail %}
-			</div>
-		{% if next_image %}
-			<div class="page-row">
-			{% thumbnail next_image.image "x100" as next_thum %}
-				<a href="{% url 'manuscripts_page' slug=item.slug page=next_image.page_number|slugify %}" title="{{ next_image.page_number }}">
-					<img class="thumbnail" style="margin-bottom:0;" src="{{ next_thum.url }}" width="{{ next_thum.width }}" height="{{ next_thum.height }}">
-					<div class="caption thum_caption">{{ next_image.page_number }}</div>
-				</a>
-			{% endthumbnail %}
-			</div>
-		{% endif %}
-	</div>
 {% endblock %}
 
 
@@ -133,7 +161,7 @@ button.on('click', function() {
 });
 
 </script>
-<script src="{{ STATIC_URL }}JJDLP/js/jquery.elevatezoom.js" type="text/javascript"></script>
+<script src="{% static 'JJDLP/js/jquery.elevatezoom.js' %}" type="text/javascript"></script>
 <script>
 var transcribebutton = $('#transcribe_button');
 var zoombutton = $('#zoom_button');
@@ -156,7 +184,7 @@ zoombutton.on('click', function () {
 		image.elevateZoom({
 			scrollZoom: true,
 			constrainType:"height",
-			constrainSize:274,
+			lensSize:300,
 			zoomType: "lens",
 			containLensZoom: true,
 			cursor: 'pointer',

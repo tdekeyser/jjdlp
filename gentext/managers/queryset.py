@@ -18,7 +18,7 @@ class PageQuerySet(models.query.QuerySet):
         try:
             return self.get(page_number__contains='frontcover')
         except ObjectDoesNotExist:
-            return self.all().first()
+            return self.first()
 
     def get_backcover(self):
         return self.get(page_number__contains='backcover')
@@ -86,57 +86,59 @@ class PageQuerySet(models.query.QuerySet):
         '''
         Returns dictionary with a requested image and its neighbours
         '''
-        chosen_image = self.get(page_number__exact=req_page)
+        chosen_page = self.get(page_number__exact=req_page)
 
-        previous_images = []
-        next_images = []
+        previous_pages = []
+        next_pages = []
         chosen_index = None
 
         # get ordered queryset
         contentimages = self.reorder(self.all_but_frontcover())
 
         for index, item in enumerate(contentimages):
-            if item == chosen_image:
+            if item == chosen_page:
                 chosen_index = index
             else:
                 if chosen_index is None:
-                    previous_images.append(item)
+                    previous_pages.append(item)
                 else:
-                    next_images.append(item)
+                    next_pages.append(item)
 
         get_images = {
-            'current_image': chosen_image,
-            'previous_images': previous_images,
-            'next_images': next_images,
+            'current_page': chosen_page,
+            'previous_pages': previous_pages,
+            'next_pages': next_pages,
             }
 
         return get_images
 
     def get_two_surroundingimages(self, req_page):
-        '''Returns previous and next image'''
-        images = self.reorder(self.all_but_frontcover())
+        '''
+        Returns previous and next image
+        '''
+        pages = self.reorder(self.all_but_frontcover())
         # create paginator to find next and previous images
-        p = Paginator(images, 1)
+        p = Paginator(pages, 1)
 
         # get index in ordered queryset
         current_index = 0
-        current_image = self.get(page_number__exact=req_page)
-        for index, item in enumerate(images):
-            if item == current_image:
+        current_page = self.get(page_number__exact=req_page)
+        for index, item in enumerate(pages):
+            if item == current_page:
                 current_index = index + 1
                 break
 
         # get next and previous image
-        current_page = p.page(current_index)
-        next_image = None
-        previous_image = None
-        if current_page.has_next():
-            next_image = p.page(current_index+1).object_list[0]
-        if current_page.has_previous():
-            previous_image = p.page(current_index-1).object_list[0]
+        this_page = p.page(current_index)
+        next_page = None
+        previous_page = None
+        if this_page.has_next():
+            next_page = p.page(current_index+1).object_list[0]
+        if this_page.has_previous():
+            previous_page = p.page(current_index-1).object_list[0]
 
         return {
-            'previous_image': previous_image,
-            'current_image': current_image,
-            'next_image': next_image
+            'previous_page': previous_page,
+            'current_page': current_page,
+            'next_page': next_page
         }

@@ -1,9 +1,7 @@
 {% extends "gentext/catalogue.html" %}
-{% load humanize %}
-{% load markdown_filter %}
 {% load thumbnail %}
+{% load humanize %}
 {% load staticfiles %}
-
 
 {% block heads %}
 {% endblock %}
@@ -13,31 +11,33 @@
 
 
 {% block item_title %}
-	<div class="small" style="margin-bottom: 1em;"><span class="glyphicon glyphicon-book"></span> {{ item.collection_type|title }} Collection</div>
+	<div class="small" style="margin-bottom: 1em;"><span class="glyphicon glyphicon-book"></span> Manuscript</div>
 	{{ item }}
 {% endblock %}
 
 
-{% block description %}
-	<div class="titleinfo">{{ item.publication_period }}</div>
-{% endblock %}
-
-
 {% block info %}
-	{% if item.info %}
+	{% if item.info or item.note_on_transcriptions %}
 		{% load markdown_filter %}
 		{{ item.info|markdownify|safe }}
+		{{ item.note_on_transcriptions|markdownify|safe }}
 	{% endif %}
 {% endblock %}
 
 
 {% block nav %}
 	<div class="list-group">
-		<a class="list-group-item disabled notred neverred">Related collections:</a>
+		{% if collection_list %}
+		<a class="list-group-item notred" href="{% url 'manuscripts_list' item.recurse %}">
+			<span class="glyphicon glyphicon-list"></span> 
+			List transcription
+		</a>
+		{% endif %}
+		<a class="list-group-item disabled notred neverred">Related manuscripts:</a>
 		{% with item.get_parent_collections as parents %}
 		{% if parents %}
 			{% for parent in parents %}
-			<a class="list-group-item notred" id="{{ parent.slug }}" href="{% url 'library_collection' parent.recurse %}" title="{{ parent }}">
+			<a class="list-group-item notred" id="{{ parent.slug }}" href="{% url 'manuscripts_collection' parent.recurse %}" title="{{ parent }}">
 				{{ parent.short }}
 			</a>
 			{% endfor %}
@@ -66,25 +66,31 @@
 				<div class="grid-header small">Available items (<strong>{{ collection_list.count }}</strong> of <strong>{{ item_count }}</strong>)</div>
 			  	{% for child in collection_list %}
 			  	<div class="col-sm-3 col-md-3" style="margin-bottom: 5px;">
-			  	<a href="{% url 'library_item' item.recurse child.slug %}" class="thumbnail notred neverred" title="{{ child }}">
-				    {% if child.page_set.get_frontcover %}
-				    	{% thumbnail child.page_set.get_frontcover.image "123x159" crop="top" as thum %}
+			  	<a href="{% url 'manuscripts_page' item.recurse child.slug %}" class="thumbnail notred neverred" title="{{ child }}">
+				    {% if child %}
+				    	{% thumbnail child.image "123x85" crop="top" as thum %}
 				      	<img src="{{ thum.url }}" height="{{ thum.height }}" width="{{ thum.width }}">
 				      	{% endthumbnail %}
-				    {% else %}
-				    	<img src="{% static 'JJDLP/images/gen_frontcover_thum.jpg' %}">
 				    {% endif %}
 			        	<div class="caption-title" style="padding: 1px;">
-			        		<div class="thum-info"><i>{{ child.short }}</i></div>
-			        		{% if child.date < 5000 %}
-			        			<div class="thum-info">{{ child.get_date }}</div>
-			        		{% endif %}
+			        		<div class="thum-info"><i>{{ child }}</i></div>
 			        	</div>
 				</a>
 				</div>
 				{% endfor %}
 			</div>
 			<br/>
+
+			{% if all_pages %}
+			<div class="paginator_select" style="text-align:center;">
+			    <select class="selector" onchange="location = this.options[this.selectedIndex].value;">
+			    	{% for element in all_pages %}
+			    	<option value="{% url 'manuscripts_page' item.recurse element.slug %}">{{ element.page_number }}</option>
+			    	{% endfor %}
+			    </select>
+			</div>
+			{% endif %}
+
 			{% include 'gentext/includes/nums_paginator.html' %}
 			</div>
 		{% else %}
@@ -98,7 +104,7 @@
 					<div class="{{ name.slug }} preview" style="display: none;">
 					<h4>
 						<div class="small" style="margin-bottom: 1em;"><span class="glyphicon glyphicon-book"></span> {{ name.collection_type|title }} Collection</div>
-						<a href="{% url 'library_collection' name.recurse %}" class="notred">{{ name }}</a>
+						<a href="{% url 'manuscripts_collection' name.recurse %}" class="notred">{{ name }}</a>
 						<div class="small preview-info">{{ name.info|markdownify|safe }}</div>
 					</h4>
 					{% if collections %}
@@ -116,7 +122,7 @@
 						<div class="grid-header small">Preview of available items (<strong>{{ items.count }}</strong> of <strong>{{ name.item_set.count }}</strong>)</div>
 						{% for i in items %}
 							<div class="col-sm-3 col-md-3" style="margin-bottom: 5px;">
-							  	<a href="{% url 'library_item' name.recurse i.slug %}" class="thumbnail notred neverred" title="{{ i }}">
+							  	<a href="{% url 'manuscripts_page' name.recurse i.slug %}" class="thumbnail notred neverred" title="{{ i }}">
 							  	{% with i.page_set.get_frontcover as frontcover %}
 								    {% if frontcover %}
 								    	{% thumbnail frontcover.image "123x159" crop="top" as thum %}
@@ -127,10 +133,7 @@
 								    {% endif %}
 								{% endwith %}
 							        	<div class="caption-title" style="padding: 1px;">
-							        		<div class="thum-info"><i>{{ i.short }}</i></div>
-							        		{% if i.date < 5000 %}
-							        		<div class="thum-info">{{ i.get_date }}</div>
-							        		{% endif %}
+							        		<div class="thum-info"><i>{{ i }}</i></div>
 							        	</div>
 								</a>
 							</div>
@@ -151,11 +154,6 @@
 {% endblock %}
 
 
-{% block list_display %}
-
-{% endblock %}
-
-
 {% block finaljavascript %}
 <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
 <script>
@@ -173,3 +171,5 @@ $(document).ready(function() {
 });
 </script>
 {% endblock %}
+
+

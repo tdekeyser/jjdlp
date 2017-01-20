@@ -1,22 +1,14 @@
 {% load highlight %}
 
-<tr>
-    <td class="list_pages">
-    	<span class="glyphicon glyphicon-certificate"></span>
-    </td>
-    <td class="bib_info">
-        {% with result.object.novel.slug as slug %}
-        <a class="notred" href="{% url 'texts_page' slug result.object.page.page_number %}">
-	        {% ifequal slug 'finnegans-wake' %}
-	        FW
-	        {% endifequal %}
-	        {{ result.object.linenumber }}	
-	    {% endwith %}
+<div class="result-element">
+    <div class="result-item">
+        <a class="notred notunderline" href="{% url 'texts_page' result.object.text.slug result.object.page.page_number %}">
+            {{result.object.short}}
+            &emsp;
+            {% with result.object.content|safe as content %}
+            {% highlight content with query max_length 100000000 %}
+            {% endwith %}
         </a>
-    </td>
-    <td class="second_bib_info">
-        {% with result.object.content|safe as content %}
-        {% highlight content with query max_length 100000000 %}
-        {% endwith %}
-    </td>
-</tr>
+    </div>
+</div>
+<hr class="search-hr" />

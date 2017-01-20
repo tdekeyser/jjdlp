@@ -1,12 +1,10 @@
 * {
-  margin: 0;
-  padding: 0;
+  margin:0;
+  padding:0;
 }
 html {
   height: 100%;
   width: 100%;
-}
-html {
   font-size: 90%;
   position: relative;
   min-height: 100%;
@@ -23,6 +21,24 @@ h1, h2, h3, h4, h5, h6 {
 }
 div {
   display: block;
+}
+
+ul {
+  margin-left: 10px;
+}
+
+#login {
+  margin-left: auto;
+  margin-right: auto;
+  width: 400px;
+  padding: 3em;
+  margin-top: 80px;
+  margin-bottom: 80px;
+  background: #eee;
+}
+.login-btn {
+  margin-top: 20px;
+  
 }
 .page-wrap {
   max-width: 1280px;
@@ -182,12 +198,12 @@ div.footer .footerimages{
 }
 
 .timeline-wrap {
-  padding-top: 2em;
+  padding-top: 0em;
 }
 
 .detail-timeline {
   padding-top: -2em;
-  padding-bottom: 1em;
+  padding-bottom: 0em;
 }
 .novel_page {
   width: 800px;
@@ -333,10 +349,6 @@ div.search_docs {
   border-radius: 10px;
 }
 
-.noteinfo {
-  display:none;
-}
-
 span.column {
   display: inline-block;
   min-width: 150px;
@@ -479,9 +491,10 @@ div.transcription {
   margin-right: 0;
   display:inline-block;
   text-align:left;
+  float: left;
 }
 .singletranscription {
-  width: 48%;
+  width: 58%;
 }
 div#transcription-view .page1 {
   box-shadow: 0 8px 16px rgba(0,0,0,.45);
@@ -551,9 +564,9 @@ div#transcription-view .page1 {
 }
 div.page1 {
   display: inline;
-  width: 50%;
+  width: 40%;
   margin-right: 10px;
-  float: left;
+  float: right;
 }
 .clear {
   padding-top: 2em;
@@ -655,7 +668,7 @@ hi[rend='italic'] {
   margin-bottom: 5px;
 }
 .desk-pagination {
-  margin-top: 1em;
+  margin-top: 5px;
 }
 .desk-pagination .pagination-page {
   width: 33%;
@@ -674,6 +687,7 @@ hi[rend='italic'] {
 .excerpt-panel {
   margin-top: 10px;
   margin-bottom: 10px;
+  width: 100%;
 }
 .excerpt-panel:after {
   content: ' ';
@@ -720,4 +734,10 @@ hi[rend='italic'] {
 .pag-hr {
   height: 2px;
   background-color: #ddd;
+}
+
+.evidenceModal-item {
+  display: block;
+  margin-top: 5px;
+  margin-bottom: 5px;
 }

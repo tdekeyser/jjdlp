@@ -14,42 +14,44 @@ Visualisation of the relations within the James Joyce database.
 {% endblock %}
 
 {% block body %}
-<!-- Tabs -->
-<ul class="nav nav-tabs" role="tablist">
-    <li role="presentation" class="active"><a href="#tree" aria-controls="tree" role="tab" data-toggle="tab" class="taba">Tree</a></li>
-    <li role="presentation"><a href="#pathway" aria-controls="pathway" role="tab" data-toggle="tab" class="taba">Pathway</a></li>
-</ul>
+<div class="connect-tab-wrap">
+	<!-- Tabs -->
+	<ul class="nav nav-tabs" role="tablist">
+	    <li role="presentation" class="active"><a href="#tree" aria-controls="tree" role="tab" data-toggle="tab" class="taba">Tree</a></li>
+	    <li role="presentation"><a href="#pathway" aria-controls="pathway" role="tab" data-toggle="tab" class="taba">Pathway</a></li>
+	</ul>
 
-<!-- Tab frames -->
-<div class="tab-content">
-	<div role="tabpanel" class="tab-pane fade in active" id="tree">
-		<div class="connect-form">
-			<button type="button" class="btn btn-default" onclick="loadTree()">Load tree</button>
-			<input id="rootInput" type="text" />
-			<input id="modelInput" type="text" />
-			<button type="button" class="btn btn-default" onclick="reset()">Reset</button>
-		</div>
+	<!-- Tab frames -->
+	<div class="tab-content">
+		<div role="tabpanel" class="tab-pane fade in active" id="tree">
+			<div class="connect-form">
+				<button type="button" class="btn btn-default" onclick="loadTree()">Load tree</button>
+				<input id="rootInput" type="text" />
+				<input id="modelInput" type="text" />
+				<button type="button" class="btn btn-default" onclick="reset()">Reset</button>
+			</div>
 
-		<div id="tree-frame" class="connect-frame">
-			<div id="connect-content" class="connect">
-				<div class="ui-widget" style="float: right; margin: 5px;">
-				   <input id="search">
-				   <button type="button" class="btn btn-default btn-xs" onclick="searchNode()">Search</button>
+			<div id="tree-frame" class="connect-frame">
+				<div id="connect-content" class="connect">
+					<div class="ui-widget" style="float: right; margin: 5px;">
+					   <input id="search">
+					   <button type="button" class="btn btn-default btn-xs" onclick="searchNode()">Search</button>
+					</div>
+					<div id="connect-tree"></div>
 				</div>
-				<div id="connect-tree"></div>
 			</div>
 		</div>
-	</div>
 
-	<div role="tabpanel" class="tab-pane fade" id="pathway">
-		<div id="pathway-frame">
-			<div id="connect-pathway"></div>
+		<div role="tabpanel" class="tab-pane fade" id="pathway">
+			<div id="pathway-frame">
+				<div id="connect-pathway"></div>
 
-		    <div id="branch"></div>
+			    <div id="branch"></div>
 
+			</div>
+			<button id="reloader" type="button" class="btn btn-default btn-xs" onclick="loadPathwayContent()" style="float: right; margin: 5px;">Reload</button>
+			<button id="enable-drag" type="button" class="btn btn-default btn-xs" onclick="makeDraggable()" style="float: right; margin: 5px;">Drag</button>
 		</div>
-		<button id="reloader" type="button" class="btn btn-default btn-xs" onclick="loadPathwayContent()" style="float: right; margin: 5px;">Reload</button>
-		<button id="enable-drag" type="button" class="btn btn-default btn-xs" onclick="makeDraggable()" style="float: right; margin: 5px;">Drag</button>
 	</div>
 </div>
 {% endblock %}

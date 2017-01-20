@@ -48,7 +48,7 @@ class Node(object):
     @param: String name
     @param: Node parent
     '''
-    __slots__ = ('name', 'parent')
+    __slots__ = ('parent', 'name')
 
     def __init__(self, name, parent):
         self.name = name
@@ -58,10 +58,7 @@ class Node(object):
         return u'{}'.format(self.name)
 
     def __repr__(self):
-        return '{0}/{1}'.format(
-            self.parent,
-            self.name
-            )
+        return '%r/%r' % self
 
     def __hash__(self):
         # set hash definition
@@ -79,7 +76,6 @@ class Node(object):
 
 
 class Tree(object):
-    # PERHAPS MAKE SOME NAMED_TUPLE HERE?
     '''
     A Tree graph is a set of tuples (int layer, Node node).
     Uses a limited breadth-first method to develop each layer.

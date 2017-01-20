@@ -23,21 +23,16 @@
 {% endblock %}
 
 
-{% block info %}
-	{% if item.info %}
-		{% load markdown_filter %}
-		{{ item.info|markdownify|safe }}
-	{% endif %}
-{% endblock %}
+{% block info %}{{ item.info|markdownify|safe }}{% endblock %}
 
 
 {% block nav %}
 	<div class="list-group">
 		<a class="list-group-item disabled notred neverred">Related collections:</a>
-		{% with item.get_parent_collections as parents %}
+		{% with item.get_parents as parents %}
 		{% if parents %}
 			{% for parent in parents %}
-			<a class="list-group-item notred" id="{{ parent.slug }}" href="{% url 'library_collection' parent.recurse %}" title="{{ parent }}">
+			<a class="list-group-item notred" id="{{ parent.slug }}" href="{% url 'notebooks_collection' parent.recurse %}" title="{{ parent }}">
 				{{ parent.short }}
 			</a>
 			{% endfor %}
@@ -66,19 +61,18 @@
 				<div class="grid-header small">Available items (<strong>{{ collection_list.count }}</strong> of <strong>{{ item_count }}</strong>)</div>
 			  	{% for child in collection_list %}
 			  	<div class="col-sm-3 col-md-3" style="margin-bottom: 5px;">
-			  	<a href="{% url 'library_item' item.recurse child.slug %}" class="thumbnail notred neverred" title="{{ child }}">
-				    {% if child.page_set.get_frontcover %}
-				    	{% thumbnail child.page_set.get_frontcover.image "123x159" crop="top" as thum %}
+			  	<a href="{% url 'notebooks_item' item.recurse child %}" class="thumbnail notred neverred" title="{{ child }}">
+			  		{% with child.page_set.get_frontcover as frontcover %}
+				    {% if frontcover.image %}
+				    	{% thumbnail frontcover.image "123x159" crop="top" as thum %}
 				      	<img src="{{ thum.url }}" height="{{ thum.height }}" width="{{ thum.width }}">
 				      	{% endthumbnail %}
 				    {% else %}
 				    	<img src="{% static 'JJDLP/images/gen_frontcover_thum.jpg' %}">
 				    {% endif %}
+				   	{% endwith %}
 			        	<div class="caption-title" style="padding: 1px;">
-			        		<div class="thum-info"><i>{{ child.short }}</i></div>
-			        		{% if child.date < 5000 %}
-			        			<div class="thum-info">{{ child.get_date }}</div>
-			        		{% endif %}
+			        		<div class="thum-info"><i>{{ child }}</i></div>
 			        	</div>
 				</a>
 				</div>
@@ -97,15 +91,15 @@
 				{% if collections or items %}
 					<div class="{{ name.slug }} preview" style="display: none;">
 					<h4>
-						<div class="small" style="margin-bottom: 1em;"><span class="glyphicon glyphicon-book"></span> {{ name.collection_type|title }} Collection</div>
-						<a href="{% url 'library_collection' name.recurse %}" class="notred">{{ name }}</a>
+						<div class="small" style="margin-bottom: 1em;"><span class="glyphicon glyphicon-book"></span> Collection</div>
+						<a href="{% url 'notebooks_collection' name.recurse %}" class="notred">{{ name }}</a>
 						<div class="small preview-info">{{ name.info|markdownify|safe }}</div>
 					</h4>
 					{% if collections %}
 						<div class="grid-header small">Available collections</div>
 						<div class="preview-collections">
 						{% for c in collections %}
-							<a href="{% url 'library_collection' c.recurse %}" class="notred">
+							<a href="{% url 'notebooks_collection' c.recurse %}" class="notred">
 								{{ c }}
 								<span class="small">{% if c.collection_set.count > 0 %}<span class="glyphicon glyphicon-book" aria-hidden="true"></span> {{ c.collection_set.count }}{% endif %} {% if c.item_set.count > 0 %}<span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> {{ c.item_set.count }}{% endif %}</span>
 							</a>
@@ -116,9 +110,9 @@
 						<div class="grid-header small">Preview of available items (<strong>{{ items.count }}</strong> of <strong>{{ name.item_set.count }}</strong>)</div>
 						{% for i in items %}
 							<div class="col-sm-3 col-md-3" style="margin-bottom: 5px;">
-							  	<a href="{% url 'library_item' name.recurse i.slug %}" class="thumbnail notred neverred" title="{{ i }}">
+							  	<a href="{% url 'notebooks_item' name.recurse i %}" class="thumbnail notred neverred" title="{{ i }}">
 							  	{% with i.page_set.get_frontcover as frontcover %}
-								    {% if frontcover %}
+								    {% if frontcover.image %}
 								    	{% thumbnail frontcover.image "123x159" crop="top" as thum %}
 								      	<img src="{{ thum.url }}" height="{{ thum.height }}" width="{{ thum.width }}">
 								      	{% endthumbnail %}
@@ -127,10 +121,7 @@
 								    {% endif %}
 								{% endwith %}
 							        	<div class="caption-title" style="padding: 1px;">
-							        		<div class="thum-info"><i>{{ i.short }}</i></div>
-							        		{% if i.date < 5000 %}
-							        		<div class="thum-info">{{ i.get_date }}</div>
-							        		{% endif %}
+							        		<div class="thum-info"><i>{{ i }}</i></div>
 							        	</div>
 								</a>
 							</div>

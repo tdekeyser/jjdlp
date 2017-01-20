@@ -1,9 +1,14 @@
 {% load highlight %}
 
-<tr>
-    <td class="list_pages">
-        <span class="glyphicon glyphicon-duplicate"></span>
-    </td>
-    <td class="bib_info"><a class="notred" href="{% url 'manuscriptpage_detail' collectionslug=result.object.manuscript.slug manuscriptpage=result.object.slug %}">{{ result.object.page_number }}</a></td>
-    <td><div class="transcription second_bib_info">{% highlight result.object.transcription with query max_length 150 %}</div></td>
-</tr>
+<div class="result-element">
+	<div class="result-item">
+		<a class="notred notunderline" href="{% url 'manuscripts_page' result.object.manuscript.recurse result.object.slug %}">
+
+			<strong>{{ result.object.manuscript }}</strong>, {{ result.object.page_number }}
+			<br/>
+			{% highlight result.object.transcription with query max_length 200 %}
+		
+		</a>
+	</div>
+</div>
+<hr class="search-hr" />

@@ -12,7 +12,7 @@ from haystack.forms import HighlightedModelSearchForm
 import library
 import notebooks
 import texts
-from manuscripts.models import ManuscriptCollection, ManuscriptPage
+from manuscripts.models import ManuscriptPage, Manuscript
 
 from library.views import LibraryItemView, LibraryPageView
 from notebooks.views import NotebookView, NotebookPageView
@@ -23,6 +23,8 @@ from connect.graph import GraphLayout
 
 from cache_utils.decorators import cached
 
+
+import time
 
 MODELVIEWS = {
     'libraryitem': LibraryItemView,
@@ -53,9 +55,9 @@ class StatsView(TemplateView):
         context['library_traces'] = library.models.LibraryExcerpt.objects.count()
         context['notebooks'] = notebooks.models.Notebook.objects.count()
         context['notebooks_notes'] = notebooks.models.Note.objects.count()
-        context['manuscript_collections'] = ManuscriptCollection.objects.count()
+        context['manuscript_collections'] = Manuscript.objects.count()
         context['manuscript_pages'] = ManuscriptPage.objects.count()
-        context['novels'] = texts.models.Novel.objects.count()
+        context['novels'] = texts.models.Text.objects.count()
         context['novels_pages'] = texts.models.Page.objects.count()
 
         return context
@@ -75,9 +77,11 @@ class ConnectView(TemplateView):
 
 # @cached(60*5)
 def make_tree(root, model, upstream=True, downstream=True):
+    start_time = time.time()
     tree = PathwayTree(root, model)
     # tree.set_query(upstream, downstream)
-    tree.grow(6)
+    tree.grow(4)
+    print("--- %s seconds ---" % (time.time() - start_time))
     return tree
 
 

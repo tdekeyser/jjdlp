@@ -9,7 +9,7 @@ from gentext.views.collection import CollectionView
 
 from library.models import LibraryItem, LibraryCollection, LibraryExcerpt
 
-# from cache_utils.decorators import cached
+from cache_utils.decorators import cached
 
 import json
 
@@ -18,7 +18,7 @@ LIBRARY_DUMMY_BASE = 'library/dummy_base.html'
 
 
 # use make_data.invalidate() to reset
-# @cached(60)
+@cached(60*60*24)
 def make_data():
     '''
     Set up item dataset for visualisation.

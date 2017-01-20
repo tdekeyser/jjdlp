@@ -9,7 +9,7 @@
 
 {% block item_title %}
 <div class="small" style="margin-bottom: 1em;"><span class="glyphicon glyphicon-list-alt"></span> Page</div>
-{{ current_image.actual_pagenumber }}
+{{ current_page.actual_pagenumber }}
 {% endblock %}
 
 
@@ -18,24 +18,17 @@
 	{{ item.bib }}
 </div>
 {% endblock %}
-{% block test %}
-<div class="titleinfo">
-	<br/>
-	<br/>
-	{% if item.publisher %}{{ item.publisher }}{% endif %}
-</div>
-{% endblock %}
 
 
 {% block cover %}
-	{% if current_image.image|is_portrait %}
-		{% thumbnail current_image.image "576" upscale=False as im %}
+	{% if current_page.image|is_portrait %}
+		{% thumbnail current_page.image "576" upscale=False as im %}
 		<a href="#" data-toggle="modal" data-target="#desk-modal">
 			<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
 		</a>
 		{% endthumbnail %}
 	{% else %}
-		{% thumbnail current_image.image "576" upscale=False as im %}
+		{% thumbnail current_page.image "576" upscale=False as im %}
 		<a href="#" data-toggle="modal" data-target="#desk-modal">
 			<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
 		</a>
@@ -47,12 +40,12 @@
 {% block frontmodal %}
 <div class="modal fade" id="desk-modal" role="dialog">
 	<div class="modal-dialog">
-		{% if current_image.image|is_portrait %}
-			{% thumbnail current_image.image "x900" as im %}
+		{% if current_page.image|is_portrait %}
+			{% thumbnail current_page.image "x900" as im %}
 				<img class="modal_image" src="{{ im.url }}">
 			{% endthumbnail %}
 		{% else %}
-			{% thumbnail current_image.image "1000" as im %}
+			{% thumbnail current_page.image "1000" as im %}
 				<img class="modal_image" src="{{ im.url }}">
 			{% endthumbnail %}
 		{% endif %}
@@ -77,7 +70,7 @@
 			<div class="panel-nav">
 				<a class="notred neverred disabled list-group-item">Notes taken:</a>
 	    		{% for note in notes %}
-	    		<a class="notunderline notred list-group-item list-child" href="{% url 'notebooks_page' note.noteb note.page %}">
+	    		<a class="notunderline notred list-group-item list-child" href="{% url 'notebooks_page' note.noteb.collection.recurse note.noteb note.page %}">
 	    			{{ note|safe }}
 	    		</a>
 	    		{% endfor %}
@@ -98,14 +91,14 @@
 
 {% block pagination %}
 	<div class="desk-pagination">
-		{% if previous_image %}
+		{% if previous_page %}
 			<div class="pagination-page col-sm-3 col-md-3">
 			<div class="grid-header small">Previous</div>
-			{% thumbnail previous_image.image "123x85" crop="top" as thum %}
-				<a class="thumbnail notred neverred" href="{% url 'library_page' item.collection.recurse item.slug previous_image.actual_pagenumber %}">
+			{% thumbnail previous_page.image "123x85" crop="top" as thum %}
+				<a class="thumbnail notred neverred" href="{% url 'library_page' item.collection.recurse item.slug previous_page.actual_pagenumber %}">
 					<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
 					<div class="caption-title">
-						<div class="thum-info">{{ previous_image.actual_pagenumber }}</div>
+						<div class="thum-info">{{ previous_page.actual_pagenumber }}</div>
 					</div>
 				</a>
 			{% endthumbnail %}
@@ -114,24 +107,24 @@
 
 		<div class="pagination-page col-sm-3 col-md-3">
 		<div class="grid-header small">Current</div>
-		{% thumbnail current_image.image "123x85" crop="top" as thum %}
+		{% thumbnail current_page.image "123x85" crop="top" as thum %}
 		<a class="thumbnail notred neverred" href="#">
 			<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
 			<div class="caption-title">
-				<div class="thum-info">{{ current_image.actual_pagenumber }}</div>
+				<div class="thum-info">{{ current_page.actual_pagenumber }}</div>
 			</div>
 		</a>	
 		{% endthumbnail %}
 		</div>
 
-		{% if next_image %}
+		{% if next_page %}
 			<div class="pagination-page col-sm-3 col-md-3">
 			<div class="grid-header small">Next</div>
-			{% thumbnail next_image.image "123x85" crop="top" as thum %}
-				<a class="thumbnail notred neverred" href="{% url 'library_page' item.collection.recurse item.slug next_image.actual_pagenumber %}">
+			{% thumbnail next_page.image "123x85" crop="top" as thum %}
+				<a class="thumbnail notred neverred" href="{% url 'library_page' item.collection.recurse item.slug next_page.actual_pagenumber %}">
 					<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
 					<div class="caption-title">
-						<div class="thum-info">{{ next_image.actual_pagenumber }}</div>
+						<div class="thum-info">{{ next_page.actual_pagenumber }}</div>
 					</div>
 				</a>
 			{% endthumbnail %}

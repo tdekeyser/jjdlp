@@ -1,6 +1,7 @@
 {% load highlight %}
 
 <div class="result-element">
+	{% if result.object.bib %}
 	<div class="result-item">
 		<a class="notred notunderline" href="{% url 'library_item' result.object.collection.recurse result.object.slug %}">
 			{% highlight result.object.bib with query max_length 100000000 %}
@@ -13,5 +14,14 @@
 			{% endif %}
 		{% endwith %}
 	</div>
+	{% else %}
+	<div class="result-item">
+		<a class="notred notunderline" href="{% url 'library_page' result.object.item.collection.recurse result.object.item.slug result.object.page.actual_pagenumber %}">
+			<strong>{{ result.object.item }}</strong>, p. {{ result.object.page.actual_pagenumber }}
+			<br/>
+			{% highlight result.object.content with query max_length 200 %}
+		</a>
+	</div>
+	{% endif %}
 </div>
 <hr class="search-hr" />

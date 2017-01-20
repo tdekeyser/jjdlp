@@ -8,6 +8,16 @@ from django.template.defaultfilters import slugify
 from gentext.managers.queryset import PageQuerySet
 
 
+def short(name):
+    '''
+    Returns shortened unicode string of input string.
+    '''
+    if len(name) > 19:
+        return u'{}...'.format(name[:19])
+    else:
+        return u'{}'.format(name)
+
+
 class RecursiveCollectionModel(models.Model):
     '''
     Recursive collection model. Instances can therefore
@@ -23,6 +33,9 @@ class RecursiveCollectionModel(models.Model):
 
     def __unicode__(self):
         return u'{}'.format(self.title)
+
+    def short(self):
+        return short(self.title)
 
     def get_parents(self):
         '''
@@ -43,7 +56,7 @@ class RecursiveCollectionModel(models.Model):
 
     def save(self, *args, **kwargs):
         # override
-        if not self.id:
+        if not self.slug:
             self.slug = slugify(' '.join(str(self).split()[:7]))
         super(RecursiveCollectionModel, self).save(*args, **kwargs)
 
@@ -51,23 +64,19 @@ class RecursiveCollectionModel(models.Model):
         abstract = True
 
 
-class ItemModel(models.Model):
+class SlugModel(models.Model):
     '''
     Basic model for an item of any kind that automatically saves
-    a slug.
-
-    Can be combined with BibModel to create a model for
-    items that need to be bibliographically referenced.
+    a slug from the model's unicode() method.
     '''
-    info = models.TextField(blank=True)
     slug = models.SlugField(unique=True, max_length=255, blank=True)
 
     def save(self, *args, **kwargs):
         # override
-        if not self.id:
+        if not self.slug:
             # create slug; take 7 first words
             self.slug = slugify(' '.join(str(self).split()[:7]))
-        super(ItemModel, self).save(*args, **kwargs)
+        super(SlugModel, self).save(*args, **kwargs)
 
     class Meta:
         abstract = True
@@ -82,7 +91,8 @@ class PageModel(models.Model):
 
     All methods are based on input in the page_number field. As it is
     a CharField, identifiers like "frontcover" are allowed and, in fact,
-    recommended.
+    recommended. Such CharField also allows double scanned pages to be
+    documented as e.g. p. 1-2.
 
     Warning: the page_number field needs to be unique!
     '''
@@ -91,6 +101,9 @@ class PageModel(models.Model):
 
     # manager
     objects = PageQuerySet.as_manager()
+
+    def __unicode__(self):
+        return u'{}'.format(self.page_number)
 
     def save(self, *args, **kwargs):
         # create a slug

@@ -1,44 +1,47 @@
-{% extends 'manuscripts/dummy_base.html' %}
+{% extends "library/dummy_base.html" %}
 {% load staticfiles %}
-{% load highlight %}
 
-{% block heads %}
-{% endblock %}
-
-{% block body_title %}
+{% block extra_tools %}
 {% endblock %}
 
 {% block content %}
 <div class="books_list">
 	{% if query %}
-		{% include 'search/includes/top_paginator.html' %}
-		{% include 'search/includes/bottom_paginator.html' %}
-	<div class="panel panel-default">
-	<div class="panel-body">
-	<table class="result_list">
+	<div class="left-paginator">
+		<div class="more-search">
+			<form class="form-wrap" action="{% url 'manuscripts_fast_search' %}" method="get">
+				<input class="form-control" id="searchquery" type="text" name='q' placeholder="Search transcriptions...">
+				<input type="hidden" name="models" value="manuscripts.manuscriptpage" />
+				<button class="searchbutton btn btn-default" type="submit">Search</button>
+			</form>
+			<div style="text-align: right;float: right;">
+				<a href="{% url 'haystack_search' %}">advanced search</a>
+			</div>
+		</div>
+	</div>
+	<div class="search-results">
+		{% with page as page_obj %}
+		{% include 'gentext/includes/count_paginator.html' %}
+		{% endwith %}
+		<hr class="pag-hr"/>
 		{% with result_list=page.object_list %}
 		{% if result_list %}
 			{% for result in result_list %}
-			{% with result.object as manuscriptpage %}
-
-			{% if manuscriptpage %}
 				{% include 'manuscripts/includes/manuscripts_searchresults.html' %}
-			{% endif %}
-			
-			{% endwith %}
 			{% empty %}
-			<tr>
-				<td class="fail">No sources matched your search criteria "<strong>{{ query }}</strong>". Modify your existing search or try a new query.</td>
-			</tr>
+			<div class="fail">
+				No sources matched your search criteria "<strong>{{ query }}</strong>". Modify your existing search or try a new query.
+			</div>
 			{% endfor %}
 		{% endif %}
 		{% endwith %}
-	</table>
+
+		{% with page as page_obj %}
+		{% include 'gentext/includes/nums_paginator.html' %}
+		{% endwith %}
 	</div>
-	</div>
-			{% include 'search/includes/bottom_paginator.html' %}
 	{% else %}
-	<div class="pagination" style="text-align:center;">No search query found</div>
+	<div class="pagination" id="pag_info">No search query found</div>
 	{% endif %}
 </div>
 {% endblock %}

@@ -1,53 +1,50 @@
-	! DANGER !
 
-	The transcription of the notes and manuscript pages (which admins will be able to add and change) are not escaped. They are marked as "safe", meaning that <html> tags will not be removed.	This is a very important issue, because these XMLs may include <script> tags that will not be deleted. Malicious people could thereby crash the website.
+# The workings of the site
+## The library
 
-	Solution: perhaps use django-bleach to ensure absence of <script> tags via whitelists?
+### What users see
 
+Like all modules, the Joyce library is organized into items, like books, newspapers, articles, and collections, like magazines, book collections, encyclopaedias and newspaper editions.
 
-This text has been written during the development of the website between 2015-2018, i.e. during the PhD years of Tom De Keyser, and serves as a practical aid for (future) administrators and developers of the project. A first section focuses on the layout of the database. Detailed coding information is given in a second section.
+Each module consists of 4 web page views:
 
+- homepage,
+- collection view,
+- item view,
+- page view.
 
-## 1. The database
-### 1.1. A note on [Markdown](https://daringfireball.net/projects/markdown/)
-***
-Most database objects provide an `info` field, which includes an explanation of the current collection or item. These fields are automatically converted from [Markdown](https://daringfireball.net/projects/markdown/) for simplicity and safety, meaning that all HTML tags will be escaped. Fortunately, Markdown is easy to use and has the simple advantage that no tags need to be used. (This document has also been created using Markdown; it is possible to inspect the raw file [here](raw-markdown).)
+The homepage presents a list of available collections. Clicking on the "MORE" link directs to detailed information about the collection, and shows any items or subcollections contained therein. For example, the [Books at the Wake](/library/books-at-the-wake) collection contains books that have been connected to the composition of *Finnegans Wake*. 
 
-### 1.2. Adding collections and items
-***
-#### 1.2.1. Libraryitems and collections
+Choosing one of these books, for instance [*Les Monstres Humains*](/library/virtual-library/books-at-the-wake/item:les-monstres-humains-histoire-superstitions-croyances/), provides an overview of the scanned pages that contain reading traces. In addition, the toolbar on the left contains some useful links with information about the item in the following order (if available):
 
-Although it seems self evident, a careful explanation of the distinction between a `collection` and an `item` is useful here. Collections contain items. They can be whole libraries, but also newspapers collections or encyclopedias. `Items` can be books, articles, issues, lemmas, etc. In order to avoid unexpected behaviour of the website, it is important to be aware of the way an object is recognized and visualised by the database.
+- a link to more scans,
+- a list of all reading traces for this particular item,
+- links to all notebooks that include notes taken from this item,
+- a link to the connection tool that creates a connection tree starting from this item as the root.
 
-The latter issue is not trivial, as some objects may be suitable both as a collection and an item. For instance, the [Encyclopaedia Britannica]() could be classified as a collection containing entries, or as an item within the extant or virtual library collection. In this case, we have chosen to classify it as a collection, because the focus will not be on the [Encyclopaedia]() in itself, but rather to its lemmas. The distinction between lemmas has shown to be of great importance in Joyce's note taking, as a lemma title is sometimes enough for Joyce to make a note. [The Decline and Fall of the Roman Empire](), on the other hand, which exists of 6 volumes, is classified as an item of the virtual library. Another reason for this decision is the content of the objects. While [The Decline and Fall]() only incorporates about 50 relevant pages, the amount of pages is much larger for the Encycopaedia.
+Clicking on one of the pages that contain reading traces refers to a detailed page view. Each reading trace is listed and is associated with a toolbar on its left-hand side that includes the same information as an item:
 
-A new `collection` can be made by clicking on the `Library Collections` section and choosing `add new collection`. Empty fields are available to connect relevant information to the collection. When finished, save the collection by clicking the `save` button.
+- links to notes that are related to the reading trace,
+- a link to the connection tool that creates a connection tree starting from this reading trace as the root.
 
-A new `item` can be added to the database in the same way, but, in this case, it allows the addition of more specialised bibliographical information such as author(s), a publisher, a publication date, etc. An extra field for external links can be used to refer to a complete digitisation elsewhere.
+### What users don't see
+The [admin](/admin) page can be accessed by clicking on the admin link in the settings list. After logging in, a list of all modules with their models can be seen. Clicking on one of the models shows the data available in that model. For example, the model `library collection` gives a list of collections such as the Sunday Independent, Freeman's Journal, or Books at the Wake. The model `library items` returns all items in the library.
 
-#### 1.2.2. Notebooks
+Although it seems self evident, a careful explanation of the distinction between a "collection" and an "item" is useful here. Collections contain items. They can be whole libraries, but also newspapers collections or encyclopedias. Items can be books, articles, issues, lemmas, etc. In order to avoid unexpected behaviour of the website, it is important to be aware of the way an object is recognized and visualised by the database.
 
-`Notebooks` can be added by clicking on the `add new notebook` button in the `Notebook` section of the admin area. The notebook title **must** have a name according to [the James Joyce Catalog of the University of Buffalo](http://library.buffalo.edu/pl/collections/jamesjoyce/catalog/index.php). Put differently, a notebook title must start according to the following classification code:
+The latter issue is not trivial, as some objects may be suitable both as a collection and an item. For instance, the [Encyclopaedia Britannica](/library/encyclopaedia-britannica-11th-edition/) could be classified as a collection containing entries, or as an item within the extant or virtual library collection. In this case, we have chosen to classify it as a collection, because the focus will not be on the [Encyclopaedia]() in itself, but rather to its lemmas. The distinction between lemmas has shown to be of great importance in Joyce's note taking, as a lemma title is sometimes enough for Joyce to make a note. [The Decline and Fall of the Roman Empire](/library/virtual-library/books-at-the-wake/item:the-decline-and-fall-of-the-roman/), on the other hand, which exists of 6 volumes, is classified as an item of the virtual library. Another reason for this decision is the content of the objects. While [The Decline and Fall](/library/virtual-library/books-at-the-wake/item:the-decline-and-fall-of-the-roman/) only incorporates about 50 relevant pages, the amount of pages is much larger for the Encycopaedia.
 
-> collection_identifier(dot)notebook_identifier(dot)notebook_number(dot)
+Clicking on a collection of item reveals all specific data available. These data are called fields, such as a title, author, publisher, etc.
 
-For example:
-	
-	VI.B.1.
-	V.A.3.
-	V.A.1.b.i.
+#### Adding data
 
-The database will not accept names that do not have these identifiers. (Alternatively, it *may* accept them and crash.)
+A new collection can be made by clicking on the `Library Collection` section and choosing `add new collection`. Empty fields are available to connect relevant information to the collection. When finished, save the collection by clicking the `save` button.
 
+A new item can be added to the database in the same way, but, in this case, it allows the addition of more specialised bibliographical information such as author(s), a publisher, a publication date, etc. An extra field for external links can be used to refer to a complete digitisation elsewhere.
 
-### 1.3. Adding images
-***
+The database saves two kinds of names for the images: `page_number` and `actual_page_number`. The first is the only required field to save a new page. Somewhat counterintuitively, this field is not considered an integer by the database, but by a string of characters. In that case, the database can distinguish between  However, the `page_number` identifier has to be different from all the other images, so be sure that all images have **unique** names.
 
-The database saves two kinds of names for the images: `page number` and `actual page number`. The first is the only required field to save a new page. Somewhat counterintuitively, this field is not considered an integer by the database, but by a string of characters. In that case, the database can distinguish between  However, the `page number` identifier has to be different from all the other images, so be sure that all images have **unique** names.
-
-A naming convention for `page number` is the following:
-
-> X-Y,Z-A
+> A naming convention for `page_number` is the following: X-Y,Z-A
 	
 For `X` the capitalized three first letters of the last name of the author, `Y` the capitalized three first letters of the item, and `Z` the page number or page identifier. Use a hyphen to distinguish between identifiers (`A`).
 
@@ -88,39 +85,60 @@ In the case of multiple title pages or charts, use a hyphenated identifier. For 
 	HEN-FOU,title-page-v.jpg
 	GWY-HIS,chart-a.png
 
-Next to `page number`, each image also receives a so-called `actual page number`. This is a non-unique page number that ignores the unique `X-Y` identifier, and allows all pages to be numerically ordered. When a new image is saved, an `actual page number` is automatically created. (This is done by simply calling Python's `split(',')` function  on `page number`. That is why the naming convention is so important next to uniqueness!)
-
-### 1.3. Adding notes
-***
+Next to `page number`, each image also receives a so-called `actual page number`. This is a non-unique page number that ignores the unique `X-Y` identifier, and allows all pages to be numerically ordered. When a new image is saved, an `actual page number` is automatically created. (This is done by calling Python's `split(",")` function  on `page number`. That is why the naming convention is so important next to uniqueness!)
 
 
 
 
-### 1.4. Linking items
+
+
+#### Notebooks
+
+`Notebooks` can be added by clicking on the `add new notebook` button in the `Notebook` section of the admin area. The notebook title **must** have a name according to [the James Joyce Catalog of the University of Buffalo](http://library.buffalo.edu/pl/collections/jamesjoyce/catalog/index.php). Put differently, a notebook title must start according to the following classification code:
+
+> collection_identifier(dot)notebook_identifier(dot)notebook_number(dot)
+
+For example:
+	
+	VI.B.1.
+	V.A.3.
+	V.A.1.b.i.
+
+The database will not accept names that do not have these identifiers. (Alternatively, it *may* accept them and crash.)
+
+
+### Linking items
 ***
 
 When new data has been added to the database, it is possible that connections exist the added data and the current data. These connections are links between any database field of a different module. These links are usually based in the `Note` section and typically come in the following form:
 
-> - from a note to a library excerpt,
-> - from a note to a manuscript excerpt,
-> - from a note to a novel line.
+ - from a note to a library excerpt,
+ - from a note to a manuscript excerpt,
+ - from a note to a novel line.
 
 Linking items can be done manually in the "change item" section or programmatically using the Linkify() class. The class allows to search and match existing `Notes` and `LibraryExcerpts` in the database. The `Notes` and `LibraryExcerpts` need to be uploaded to be found, so the class will not upload new excerpts or notes.
 
 The program looks for matches between a note's Source content with a library excerpt's content. The standard word span of the search query is 5 words. Sometimes, this is not enough to find all connections. The word limit can be increased by changing the left and right border of the search query. Logically, a smaller border will generate more connections, but will also
 generate more false positives (i.e. those that are classified as a match, but are actually not a match). These matches have to be removed by hand. Good test borders are: L=0, R=8; L=10, R=18. For more specialised info, see the coding section below.
 
-.
+
+# Remarks for admins
+These notes are important if to know before everything else in case you want to add data to the database. If not, you can skip to "The workings of the site".
+
+## HTML in transcriptions
+The transcription of the notes and manuscript pages (which admins will be able to add and change) are not escaped. This means that they are marked as "safe", that HTML tags will not be removed, and that it is possible to use an XML-based transcription and visualise it in the website. 
+
+>  Warning: Transcriptions are allowed to have <script> tags. Because these tags are not deleted by default, an adversary could crash the website by inserting a malicious script. Therefore never allow unknown people to add data to the database!
+
+## Markdown
+Most database objects provide an `info` field, which includes an explanation of the current collection or item. These fields are automatically converted from [Markdown](https://daringfireball.net/projects/markdown/) for simplicity and safety, meaning that all HTML tags will be escaped. Fortunately, Markdown is easy to use and has the simple advantage that no tags need to be used. (This document has also been created using Markdown; it is possible to inspect the raw file [here](raw-markdown).)
 
 .
 
-##2. Coding info
+# Coding info
 
-### Database tools and classes
-***
-#### 1. database connections - Linkify()
-
-Search and match existing Notes and LibraryExcerpts in the database.
+## Linking data
+**Linkify() :** Search and match existing Notes and LibraryExcerpts in the database.
 The Notes and LibraryExcerpts have to be uploaded to be found,
 i.e. this program will NOT upload new excerpts or notes.
 
@@ -157,9 +175,9 @@ Good test borders are: L=0, R=8; L=10, R=18.
 
 .
 
-#### 2. connect - PathwayTree(), PathwayBranch() and GraphLayout()
+## connect
 
-Builds writing pathways as `Tree` objects. The class iteratively builds simple tree structures,
+**PathwayTree(), PathwayBranch() and GraphLayout() :** Builds writing pathways as `Tree` objects. The class iteratively builds simple tree structures,
 represented as a set of nodes accompanied with layer numbers. It has a `PathwayBranch` object that selects a single branch from the `PathwayTree` object. In order to visualise the tree using the Javascript library [D3](https://d3js.org/), wrap the tree object in a `GraphLayout` to convert the tree into json format.
 
 The nodes of each tree object are developed using queries into the database. These queries have been programmatically constrained such that a query deeper in the tree is controlled, logical and (from the perspective of genetic criticism) valid.
@@ -181,24 +199,20 @@ Example graph usage:
 	{'nodes': [{'referent': 'libraryexcerpt', 'layer': 1, 'name': 'MAX-FIS,51|615', 'pk': 615L}, {'referent': 'note', 'layer': 2, 'name': 'VI.B.2.053(f)', 'pk': 57792L}, {'referent': 'libraryexcerpt', 'layer': 1, 'name': 'MAX-FIS,103|613', 'pk': 613L}, {'referent': 'note', 'layer': 2, 'name': 'VI.B.2.053(i)', 'pk': 57795L}, {'referent': 'note', 'layer': 2, 'name': 'VI.B.2.053(g)', 'pk': 57793L}, {'referent': 'note', 'layer': 2, 'name': 'VI.B.2.053(e)', 'pk': 57791L}, {'referent': 'libraryitem', 'layer': 0, 'name': 'Fishing at Home and Abroad', 'pk': 23L}, {'referent': 'libraryexcerpt', 'layer': 1, 'name': 'MAX-FIS,191|616', 'pk': 616L}, {'referent': 'libraryexcerpt', 'layer': 1, 'name': 'MAX-FIS,38|614', 'pk': 614L}], 'edges': [{'source': 6, 'target': 7}, {'source': 6, 'target': 7}, {'source': 6, 'target': 2}, {'source': 6, 'target': 2}, {'source': 6, 'target': 0}, {'source': 6, 'target': 0}, {'source': 6, 'target': 8}, {'source': 6, 'target': 8}, {'source': 7, 'target': 3}, {'source': 0, 'target': 4}, {'source': 2, 'target': 5}, {'source': 8, 'target': 1}]}
 
 
-.
 
-### Useful commands and packages
-***
-#### Check ./manage.py commands:	
+
+## Useful commands and packages
+
+Check ./manage.py commands:	
 
 	$ python manage.py
 
-.
 
-#### Create new app:
+Create new app:
 
 	$ python manage.py startapp newapp
-.
 
-#### Migrations:
-
-In new app, do
+In order to do migrations in a new app, do
 
 	$ python manage.py makemigrations newapp
 
@@ -216,11 +230,7 @@ This should rebuild the database.
 
 returns the SQL code that should change db accordingly.
 
-.
-
-#### Renew search index ([Haystack](http://django-haystack.readthedocs.org/en/v2.4.0/)):
-
-Create the following files:
+Renew search index ([Haystack](http://django-haystack.readthedocs.org/en/v2.4.0/)): Create the following files:
 'search_indexes.py' in app dir,
 '*targetmodel*_text.py' in project templates/search/indexes/app/ dir
 
@@ -231,11 +241,7 @@ or
 
 to update or rebuild the search index. 
 
-.
-
-#### Clear cache ([Sorl-thumbnail](https://sorl-thumbnail.readthedocs.org/en/latest/)):
-
-First delete the /media/cache folder.
+Clear cache ([Sorl-thumbnail](https://sorl-thumbnail.readthedocs.org/en/latest/)): First delete the /media/cache folder.
 Then,
 
 	$ python manage.py thumbnail cleanup
@@ -256,11 +262,7 @@ absolutely everything in the thumbnail cache directory causing thumbnail regener
 all sites and projects. When file system storage is used, it is equivalent to
 rm -rf MEDIA_ROOT + THUMBNAIL_PREFIX."
 
-.
-
-#### Create database visualisation ([django-extensions](http://django-extensions.readthedocs.org/en/latest/)):
-
-For app1 and app2,
+Create database visualisation ([django-extensions](http://django-extensions.readthedocs.org/en/latest/)): For app1 and app2,
 
 	$ python manage.py graph_models app1 app2 -g -o models.png
 
@@ -268,11 +270,7 @@ For all apps,
 
 	$ python manage.py graph_models -a -g -o models.png
 
-.
-
-#### Change database by hand ([MySQL](https://www.digitalocean.com/community/tutorials/a-basic-mysql-tutorial)):
-
-Connect to the MySQL server with the following command:
+Change database by hand ([MySQL](https://www.digitalocean.com/community/tutorials/a-basic-mysql-tutorial)): Connect to the MySQL server with the following command:
 
 	$ mysql -u root -p
 
@@ -304,10 +302,4 @@ MySQL sneaks swedish in there sometimes for no sensible reason. Change the MySQL
 	>> `Illegal mix of collations (latin1_swedish_ci,IMPLICIT) and (utf8_general_ci,COERCIBLE) for operation '='`
 
 
-##3. When something goes terribly wrong
-
-###3.1. Creating and importing MySQL dump
-
-Try to [export and import a MySQL dump file](https://dev.mysql.com/doc/refman/5.7/en/mysqldump-sql-format.html).
-
-###3.2. Rebuilding the database from scratch
+[TOC]

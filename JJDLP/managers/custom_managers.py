@@ -22,27 +22,27 @@ class LibraryPageQuerySet(PageQuerySet):
             ).order_by('library_librarypage_actual_pagenumber')
 
 
-class ManuscriptPageQueryset(PageQuerySet):
+# class ManuscriptPageQueryset(PageQuerySet):
 
-    def get_two_surroundingimages(self, req_page):
-        '''
-        @override
-        Manuscript pages have been ordered by numerical_order field.
-        '''
-        try:
-            previous_image = self.filter(numerical_order__lt=req_page).reverse()[0]
-        except IndexError:
-            previous_image = ''
+#     def get_two_surroundingimages(self, req_page):
+#         '''
+#         @override
+#         Manuscript pages have been ordered by numerical_order field.
+#         '''
+#         try:
+#             previous_image = self.filter(numerical_order__lt=req_page).reverse()[0]
+#         except IndexError:
+#             previous_image = ''
 
-        try:
-            next_image = self.filter(numerical_order__gt=req_page)[0]
-        except IndexError:
-            next_image = ''
+#         try:
+#             next_image = self.filter(numerical_order__gt=req_page)[0]
+#         except IndexError:
+#             next_image = ''
 
-        get_images = {
-                    'previous_image': previous_image,
-                    'next_image': next_image,
-                    'chosen_image': None
-                }
+#         get_images = {
+#                     'previous_image': previous_image,
+#                     'next_image': next_image,
+#                     'chosen_image': None
+#                 }
 
-        return get_images
+#         return get_images

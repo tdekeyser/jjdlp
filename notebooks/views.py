@@ -3,11 +3,13 @@ from django.views.generic import TemplateView
 from haystack.views import SearchView
 from haystack.forms import HighlightedModelSearchForm
 
-from notebooks.models import Notebook, NotebookPage, Note
+from notebooks.models import NotebookCollection, Notebook, NotebookPage, Note
+from gentext.views.collection import CollectionView
 from gentext.views.item import ItemView
 from gentext.views.page import PageView
 
-notebooks_dummy_base = 'notebooks/dummy_base.html'
+
+NOTEBOOKS_DUMMY_BASE = 'notebooks/dummy_base.html'
 
 
 class NotebookHomeView(TemplateView):
@@ -42,16 +44,38 @@ class NoteSearchView(SearchView):
         return {'specific_model': 'models=notebooks.note'}
 
 
+class NotebookCollectionView(CollectionView):
+    paginate_by = 12
+
+    model = NotebookCollection
+    slug_name = 'collection'
+
+    template = 'notebooks/collection.html'
+    dummybase_template = NOTEBOOKS_DUMMY_BASE
+
+    def get_context_data(self, **kwargs):
+        # override
+        context = super(NotebookCollectionView, self).get_context_data(**kwargs)
+        context['child_objects'] = []
+        for child in context['child_collections']:
+            # pass each child collection together with their subcollections
+            # and a sample of their items to template
+            collections = child.collection_set.all()
+            items = child.item_set.all()[:8]
+            context['child_objects'].append((child, collections, items))
+        return context
+
+
 class NotebookView(ItemView):
     paginate_by = 8
     model = Notebook
 
     template = 'notebooks/item.html'
-    dummybase_template = notebooks_dummy_base
+    dummybase_template = NOTEBOOKS_DUMMY_BASE
 
     def get_item(self):
         # override
-        return self.model.objects.get(name=self.kwargs['noteb'])
+        return self.model.objects.get(name=self.kwargs['item'])
 
     def all_pages(self):
         return self.pages().all()
@@ -62,11 +86,11 @@ class NotebookView(ItemView):
 
 class NotebookPageView(PageView):
     parent_model = Notebook
-    itemslug = 'noteb'
-    pageslug = 'notebpage'
+    itemslug = 'item'
+    pageslug = 'page'
 
     template = 'notebooks/page.html'
-    dummybase_template = notebooks_dummy_base
+    dummybase_template = NOTEBOOKS_DUMMY_BASE
 
     def get_item(self):
         # override

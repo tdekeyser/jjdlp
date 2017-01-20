@@ -3,90 +3,107 @@
 {% load thumbnail %}
 
 {% block heads %}
-<script src="{% static 'JJDLP/js/jquery-1.11.2.js' %}"></script>
-<script src="{% static 'notebooks/js/noteinfo_onclick.js' %}"></script>
-{% endblock %}
-
-{% block title_display %}
-    <h4 class="media-heading">{{ item.item_type }} {{ item }}</h4>
-	Current page: {{ object.page_number }}
-	<br/>
 {% endblock %}
 
 
-{% block desk_content %}
-	<div class="gallery_toolbar">
-		<div class="btn-group">
-			<button id="info-toggle" type="button" class="btn btn-default button off">
-				<span class="glyphicon glyphicon-align-justify"></span>
-			</button>
-			<button type="button" class="btn btn-default">
-				<span class="glyphicon glyphicon-question-sign"></span>
-			</button>
-		</div>
+{% block item_title %}
+<div class="small" style="margin-bottom: 1em;"><span class="glyphicon glyphicon-list-alt"></span> Page</div>
+{{ current_page.page_number }}
+{% endblock %}
+
+
+{% block description %}
+<div class="titleinfo">
+	{{ item }}
+</div>
+{% endblock %}
+
+
+{% block cover %}
+	{% if current_image.image|is_portrait %}
+		{% thumbnail current_page.image "576" upscale=False as im %}
+		<a href="#" data-toggle="modal" data-target="#desk-modal">
+			<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+		</a>
+		{% endthumbnail %}
+	{% else %}
+		{% thumbnail current_page.image "576" upscale=False as im %}
+		<a href="#" data-toggle="modal" data-target="#desk-modal">
+			<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+		</a>
+		{% endthumbnail %}
+	{% endif %}
+{% endblock %}
+
+
+{% block frontmodal %}
+<div class="modal fade" id="desk-modal" role="dialog">
+	<div class="modal-dialog">
+		{% if current_page.image|is_portrait %}
+			{% thumbnail current_page.image "x900" as im %}
+				<img class="modal_image" src="{{ im.url }}">
+			{% endthumbnail %}
+		{% else %}
+			{% thumbnail current_page.image "1000" as im %}
+				<img class="modal_image" src="{{ im.url }}">
+			{% endthumbnail %}
+		{% endif %}
 	</div>
+</div>
+{% endblock %}
 
-	<div class="page_and_transcription">
+
+{% block grid %}
 		<div class="detail_page">
 		{% if notes %}
-			<div class="page1">
-			{% thumbnail object.image "500" as im %}
-				<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" style="border:1px solid black">
-			</div>
-			<div class="transcription singletranscription panel paneldefault">
-			<div height="{{ im.height }}px;">
-			{% endthumbnail %}
-				<div class="panel-body">
-					{% if notes %}
-					{% for note in notes %}
-					<div class="media">
-					  <div class="media-body">
-					    <h4 class="media-heading notejj noteclick">{{ note.notejj|safe }}</h4>
-					    	{% with note.libraryexcerpt.all as libraryexcerpts %}
-					    	{% if libraryexcerpts %}
+			{% for note in notes %}
+			<div class="transcription excerpt-panel">
+			    <div class="panel-heading notejj noteclick">
+			    	<strong>{{ note.notejj|safe }}</strong>
+			    </div>
+			{% with note.libraryexcerpt.all as libraryexcerpts %}
+		    {% with note.annotation as annotation %}
+		    {% with note.ctransfer as ctransfer %}
+		    {% with note.manuscriptexcerpt as manuscriptexcerpt %}
+			{% with note.textline as textline %}
+					<div class="panel-body panel-excerpt">
+				    	{% if libraryexcerpts %}
+							<div class="media sourceinfo noteinfo">
+								{% for excerpt in libraryexcerpts %}
+								    <a class="thumbnail notred neverred" href="{% url 'library_page' excerpt.item.collection.recurse excerpt.item.slug excerpt.page.actual_pagenumber %}">
+										<div>
+											<i>{{ excerpt.item }}</i>, {{ excerpt.page.actual_pagenumber }}:
+											<br/>
+											{{ excerpt.content }}
+										</div>
+									</a>
+								{% endfor %}
+							</div>
+						{% else %}
+					    	{% if note.source %}
 								<div class="media sourceinfo noteinfo">
-								  <div class="media-left">
-								      <span style="color: #c34528;" class="glyphicon glyphicon-book"></span>
-								  </div>
 								  <div class="media-body">
-									{% for excerpt in libraryexcerpts %}
-									    <a class="notred notunderline" href="{% url 'library_page' itemslug=excerpt.item.slug req_page=excerpt.page.actual_pagenumber %}">
-											<div>
-												<i>{{ excerpt.item }}</i>, {{ excerpt.page.actual_pagenumber }}:
-												<br/>
-												{{ excerpt.content }}
-											</div>
-										</a>
-									{% endfor %}
-								  </div>
-								</div>
-							{% else %}
-						    	{% if note.source %}
-									<div class="media sourceinfo noteinfo">
-									  <div class="media-left">
-									      <span class="glyphicon glyphicon-book"></span>
-									  </div>
-									  <div class="media-body">
-										{{ note.source }}
-									  </div>
-									</div>
-								{% endif %}
-							{% endif %}
-							{% endwith %}
-
-							
-
-							{% with note.annotation as annotation %}
-							{% if annotation %}
-								<div class="media annotation noteinfo">
-								  <div class="media-body">
-								  	{{ annotation }}
+									{{ note.source }}
 								  </div>
 								</div>
 							{% endif %}
-							{% endwith %}
+						{% endif %}
 
-							{% with note.ctransfer as ctransfer %}
+						{% if annotation %}
+							<div class="media annotation noteinfo">
+							  <div class="media-body">
+							  	{{ annotation }}
+							  </div>
+							</div>
+						{% endif %}
+
+						{% if note.note %}
+							<div class="media note noteinfo">
+							<a class="thumbnail notred neverred" href="{% url 'notebooks_page' note.note.noteb.collection.recurse note.note.noteb note.note.page.page_number %}">
+								{{ note.note }}
+							</a>
+							</div>
+						{% else %}
 							{% if ctransfer %}
 								<div class="media ctransfer noteinfo">
 								  <div class="media-body">
@@ -94,94 +111,104 @@
 								  </div>
 								</div>
 							{% endif %}
-							{% endwith %}
+						{% endif %}
 
-							{% with note.manuscriptexcerpt as manuscriptexcerpt %}
-					    	{% if manuscriptexcerpt %}
-				    			<div class="media msinfo noteinfo">
+						{% if note.note_set %}
+							{% for n in note.note_set.all %}
+							<div class="media note noteinfo">
+							<a class="thumbnail notred neverred" href="{% url 'notebooks_page' n.noteb.collection.recurse n.noteb n.page.page_number %}">
+								{{ n }}
+							</a>
+							</div>
+							{% endfor %}
+						{% endif %}
+
+				    	{% if manuscriptexcerpt %}
+			    			<div class="media msinfo noteinfo">
+							  	 <a class="thumbnail notred neverred" href="{% url 'manuscripts_page' manuscriptexcerpt.manuscript.slug manuscriptexcerpt.manuscriptpage.slug %}">
+									<div>{{ manuscriptexcerpt.content|safe }}</div>
+								 </a>
+							</div>
+				    	{% else %}
+							{% with note.msinfo as msinfo %}
+							{% if msinfo %}
+								<div class="media msinfo noteinfo">
 								  <div class="media-left">
-										<span style="color: #c34528;" class="glyphicon glyphicon-duplicate"></span>
+										<span class="glyphicon glyphicon-duplicate"></span>
 								  </div>
 								  <div class="media-body">
-								  	 <a class="notred notunderline" href="{% url 'manuscriptpage_detail' collectionslug=manuscriptexcerpt.manuscript.slug manuscriptpage=manuscriptexcerpt.manuscriptpage.slug %}">
-										<div>{{ manuscriptexcerpt.manuscript }}: "{{ manuscriptexcerpt.content|safe }}"</div>
-									 </a>
-								  </div>
-								</div>
-					    	{% else %}
-								{% with note.msinfo as msinfo %}
-								{% if msinfo %}
-									<div class="media msinfo noteinfo">
-									  <div class="media-left">
-											<span class="glyphicon glyphicon-duplicate"></span>
-									  </div>
-									  <div class="media-body">
-									  	{{ msinfo }}
-									  </div>
-									</div>
-								{% endif %}
-								{% endwith %}
-							{% endif %}
-							{% endwith %}
-
-							{% with note.textline as textline %}
-							{% if textline %}
-								<div class="media novelpage noteinfo">
-								  <div class="media-left">
-								      <span style="color: #c34528;" class="glyphicon glyphicon-certificate"></span>
-								  </div>
-								  <div class="media-body">
-								  	<a class="notred notunderline" href="{% url 'texts_page' slug=textline.novel.slug page=textline.page.page_number %}">{{ textline.novel }} {{ textline.linenumber }}</a>
+								  	{{ msinfo }}
 								  </div>
 								</div>
 							{% endif %}
 							{% endwith %}
+						{% endif %}
 
-					  </div>
-					</div>
-					{% endfor %}
-					{% endif %}
-				</div>
+						{% if textline %}
+							<div class="media textpage noteinfo">
+							  	<a class="thumbnail notred neverred" href="{% url 'texts_page' textline.text.slug textline.page.page_number %}">{{ textline.short }}</a>
+							</div>
+						{% endif %}
+						</div>
+						<div class="panel-nav">
+				    		<a class="list-group-item notred notunderline" target="_blank" href="{% url 'connect' %}?model=note&pk={{ note.pk }}">
+				    			<span class="glyphicon glyphicon-tree-deciduous"></span>
+				    			View relations
+				    		</a>
+				    	</div>
+				    
 			</div>
-		{% else %}
-			<div>
-			{% thumbnail object.image "500" as im %}
-				<img id="source_page" alt="" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" style="border:1px solid black">
-			{% endthumbnail %}
-			</div>
+			{% endwith %}
+			{% endwith %}
+			{% endwith %}
+			{% endwith %}
+			{% endwith %}
+
+			{% endfor %}
 		{% endif %}
-		</div>
 		</div>
 {% endblock %}
 
-{% block desk_paginator %}
-	<div class="clear"></div>
-	<div class="page-row-well well well-sm">
-		{% if previous_image %}	
-			<div class="page-row">
-			{% thumbnail previous_image.image "x100" as previous_thum %}
-				<a href="{% url 'notebooks_page' noteb=item.name notebpage=previous_image.page_number %}" title="{{ previous_image.page_number }}">
-					<img class="thumbnail" style="margin-bottom:0;" src="{{ previous_thum.url }}" width="{{ previous_thum.width }}" height="{{ previous_thum.height }}">
-					<div class="caption thum_caption" >{{ previous_image.page_number }}</div>
+{% block pagination %}
+	<div class="desk-pagination">
+		{% if previous_page %}
+			<div class="pagination-page col-sm-3 col-md-3">
+			<div class="grid-header small">Previous</div>
+			{% thumbnail previous_page.image "123x85" crop="top" as thum %}
+				<a class="thumbnail notred neverred" href="{% url 'notebooks_page' item.collection.recurse item previous_page.page_number %}">
+					<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
+					<div class="caption-title">
+						<div class="thum-info">{{ previous_page.page_number }}</div>
+					</div>
 				</a>
 			{% endthumbnail %}
 			</div>
 		{% endif %}
-			<div class="page-row">
-			{% thumbnail chosen_image.image "x100" as actual_thum %}
-				<img class="thumbnail active" style="margin-bottom:0;" src="{{ actual_thum.url }}" width="{{ actual_thum.width }}" height="{{ actual_thum.height }}">
-				<div class="caption thum_caption">{{ chosen_image.page_number }}</div>
-			{% endthumbnail %}
+
+		<div class="pagination-page col-sm-3 col-md-3">
+		<div class="grid-header small">Current</div>
+		{% thumbnail current_page.image "123x85" crop="top" as thum %}
+		<a class="thumbnail notred neverred" href="#">
+			<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
+			<div class="caption-title">
+				<div class="thum-info">{{ current_page.page_number }}</div>
 			</div>
-		{% if next_image %}
-			<div class="page-row">
-			{% thumbnail next_image.image "x100" as next_thum %}
-				<a href="{% url 'notebooks_page' noteb=item.name notebpage=next_image.page_number %}" title="{{ next_image.page_number }}">
-					<img class="thumbnail" style="margin-bottom:0;" src="{{ next_thum.url }}" width="{{ next_thum.width }}" height="{{ next_thum.height }}">
-					<div class="caption thum_caption">{{ next_image.page_number }}</div>
+		</a>	
+		{% endthumbnail %}
+		</div>
+
+		{% if next_page %}
+			<div class="pagination-page col-sm-3 col-md-3">
+			<div class="grid-header small">Next</div>
+			{% thumbnail next_page.image "123x85" crop="top" as thum %}
+				<a class="thumbnail notred neverred" href="{% url 'notebooks_page' item.collection.recurse item next_page.page_number %}">
+					<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
+					<div class="caption-title">
+						<div class="thum-info">{{ next_page.page_number }}</div>
+					</div>
 				</a>
 			{% endthumbnail %}
-			</div>
+			</div>	
 		{% endif %}
 	</div>
 {% endblock %}
@@ -189,15 +216,12 @@
 {% block finaljavascript %}
 <script>
 $("#info-toggle").click(function() {
-	$(".noteinfo").toggle("fast");
+	$(".panel-excerpt").toggle("fast");
 	if ($(this).children(":first-child").hasClass("glyphicon-align-justify")) {
 		$(".glyphicon-align-justify").toggleClass("glyphicon-align-justify glyphicon-minus"); 
 	} else {
 		$(".glyphicon-minus").toggleClass("glyphicon-minus glyphicon-align-justify"); 
 	}
-});
-$(".noteclick").click(function() {
-	$(this).siblings(".noteinfo").toggle("fast");
 });
 </script>
 {% endblock %}

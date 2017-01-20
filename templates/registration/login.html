@@ -1,0 +1,31 @@
+{% extends "JJDLP/dummy_base.html" %}
+{% block body %}
+<h2>Welcome to the James Joyce Digital Library!</h2>
+
+<div class="login-wrapper">
+    <div id="login">
+        <form class="form-signin" name="LoginForm" action="/login/" method="post">
+        <h2 class="form-signin-heading">Please login</h2>
+        {% csrf_token %}
+        {% if next %}
+            <input type="hidden" name="next" value="{{ next }}" />
+        {% endif %}
+        <div class="control-group">
+            <div class="controls">
+                <input class="form-control" type="text" id="username" name="username"  placeholder="Username">
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="controls">
+                <input class="form-control" type="password" name="password" id="password" placeholder="Password">
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="controls">
+                <button type="submit" class="login-btn btn btn-lg btn-block">Login</button>
+            </div>
+        </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

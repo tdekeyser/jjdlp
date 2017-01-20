@@ -10,10 +10,6 @@
 					<img class="frontcover" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
 				</a>
 				{% endthumbnail %}
-			{% else %}
-				{% block no_cover %}
-					<img class="frontcover" height="550" width="300" src="{% block ghost_frontcover %}{% endblock %}">
-				{% endblock %}
 			{% endif %}
 		{% endblock %}
 	</div>
@@ -23,7 +19,7 @@
 		<div class="modal fade" id="detailModal" role="dialog">
 			<div class="modal-dialog">
 				{% thumbnail frontcover.image "x900" as im %}
-					<div class="modal_titleHeading" style="width: {{ im.width }}px;">{{ item.biblio }}</div>
+					<div class="modal_titleHeading" style="width: {{ im.width }}px;">{{ item.bib }}</div>
 					<img class="modal_image" src="{{ im.url }}">
 				{% endthumbnail %}
 			</div>
@@ -31,7 +27,7 @@
 		{% endif %}
 	{% endblock %}
 
-	<div class="column650">
+	<div class="{% block column %}{% if frontcover.image %}column650{% endif %}{% endblock %}">
 
 		<h2>{% block item_title %}{{ item }}{% endblock %}</h2>
 		{% block description %}{% endblock %}

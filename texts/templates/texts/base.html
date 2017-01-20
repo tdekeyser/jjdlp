@@ -1,49 +1,77 @@
 {% extends 'JJDLP/dummy_base.html' %}
 {% load staticfiles %}
+{% load markdown_filter %}
 
 
 {% block heads %}
-<link rel="stylesheet" type="text/css" href="{% static 'library/css/library_homepage_css.css' %}" />
+<link rel="stylesheet" href="{% static 'JJDLP/css/homepage.css' %}"/>
 {% endblock %}
+
 
 {% block title %}Texts{% endblock %}
 
-{% block body_title %}
-<table id="head_banner">
-	<tr>
-		<section id="title">Texts</section>
-	</tr>
-	<tr>
-			<div id="info">
-				<p></p>
-			</div>
-	</tr>
-	<tr>
-		<div id="lib_pic">
-			<img id="library_picture" src="">
-		</div>
-	</tr>
-</table>
-{% endblock %}
 
 {% block body %}
-<div class="module" id="database-count-module">
-	<strong>{{ books.count }}</strong> text{{ books.count|pluralize }} and <strong>{{ lines }}</strong> lines in the texts database
-</div>
-
-<div style="text-align: center;">
-{% for book in books %}
-<a href="{% url 'texts_item' slug=book.slug %}">			
-	<div class="panel panel-default" style="min-height: 170px;">
-		<div class="panel-heading">
-		{{ book }} | {{ book.line_set.count }} lines
+<div class="homepage-wrap">
+	
+	<div class="module module-header">
+		<div class="left">
+			<div class="title">James Joyce's texts</div>
+			<div class="info"></div>
+			<div class="module-counter">
+				Texts: <strong>{{ textcount }}</strong>
+				<br/>
+				Lines: <strong>{{ linecount }}</strong>
+			</div>
 		</div>
-		<div class="panel-body">
-				<img src="{% static 'JJDLP/images/finneganswake_cover.jpg' %}" width="150" height="230" style="border-radius: 5px;">
+
+		<div class="search">
+			<form class="form-wrap" action="{% url 'notebooks_fast_search' %}" method="get">
+				<input class="form-control" id="searchquery" type="text" name='q' placeholder="Search text lines...">
+				<input type="hidden" name="models" value="texts.line" />
+				<button class="searchbutton btn btn-default" type="submit">Search</button>
+			</form>
+			<div style="text-align: right;float: right;">
+				<a href="{% url 'haystack_search' %}">advanced search</a>
+			</div>
 		</div>
 	</div>
-</a>
-{% endfor %}
+
+<hr/>
+	<table id="head_banner">
+	<tr>
+	</tr>
+	</table>
+	<div class="chart-info" style="color:#999; margin-top: 15px; margin-left: 15px;">
+		<span class="small"></span>
+	</div>
+<hr style="margin-top: 5px;" />
+
+	<div class="texts">
+		<div class="viewer">
+			<div class="module-title">
+				<div class="module-info">
+					<p>Text blabla</p>
+				</div>		
+				<span class="title-text">Available texts</span>
+				<div class="module-info">
+					<p>more text blabla</p>
+				</div>
+			</div>
+			<div class="col-md-12">
+				{% for text in texts %}
+				<div class="pane">
+					<div class="pane-title">
+						{{text}}
+					</div>
+					<div class="pane-body">{{ text.info|markdownify|safe }}</div>
+					<a class="pane-link notunderline" href="{% url 'texts_item' text.slug %}"><span class="pane-link-text">more</span> <span class="glyphicon glyphicon-link"></span></a>
+				</div>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+
 </div>
 
 {% endblock %}

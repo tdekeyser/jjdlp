@@ -1,11 +1,10 @@
 {% load highlight %}
 
-<tr>
-    <td class="list_pages">
-        <span class="glyphicon glyphicon-list-alt"></span>
-    </td>
-    <td class="bib_info"><a class="notred" href="{% url 'notebookpage_detail' noteb=result.object.noteb notebpage=notepagenumber %}">{{ notepagenumber }}&emsp;&emsp;{% highlight result.object.notejj with query max_length 100000000 %}</a></td>
-    {% if result.object.sourcepageexcerpt != None %}
-    <td class="bib_info" style="margin: 5px; margin-left: 50px;">{{ result.object.sourcepageexcerpt.content }}</td>
-    {% endif %}
-</tr>
+<div class="result-element">
+	<div class="result-item">
+		<a class="notred notunderline" href="{% url 'notebooks_page' result.object.noteb.collection.recurse result.object.noteb result.object.page %}">
+			{{result.object.page}} {% highlight result.object.notejj with query max_length 100000000 %}
+		</a>
+	</div>
+</div>
+<hr class="search-hr" />

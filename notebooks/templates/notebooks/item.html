@@ -1,9 +1,12 @@
 {% extends 'gentext/catalogue.html' %}
+{% load markdown_filter %}
+{% load staticfiles %}
 {% load humanize %}
 {% load thumbnail %}
 
+
 {% block heads %}
-<link rel="stylesheet" href="{{ STATIC_URL }}notebooks/css/timeline.css">
+<link rel="stylesheet" href="{% static 'notebooks/css/timeline.css' %}">
 <link title="timeline-styles" rel="stylesheet" href="//cdn.knightlab.com/libs/timeline3/latest/css/fonts/font.pt.css">
 {% endblock %}
 
@@ -11,98 +14,144 @@
 {% block ghost_frontcover %}{{ MEDIA_URL }}JJDLP/images/generic_frontcover.jpg{% endblock %}
 
 
+{% block item_title %}
+	<div class="small" style="margin-bottom: 1em;"><span class="glyphicon glyphicon-list-alt"></span> {% if item.item_type %}{{ item.item_type|title }}{% else %}Notebook{% endif %}</div>
+	{{ item }}
+{% endblock %}
+
+
 {% block description %}
-	{{ item.item_type }}
-	{% if item.draft_period %}
-		<br/>
-		{{ item.draft_period }}
+<div class="titleinfo">
+	{% if item.draft_period %}{{ item.draft_period }}{% endif %}
+	<br/>
+
+	<div class="extra-info small database-id">
+		{% if item.discovered_by %}
+			pointer: <i>{{ item.discovered_by }}</i>
+		{% endif %}
+	</div>
+	
+</div>
+{% endblock %}
+
+
+{% block info %}
+	{% if item.info %}
+		{% load markdown_filter %}
+		<hr/>
+		{{ item.info|markdownify|safe }}
 	{% endif %}
 {% endblock %}
 
 
-{% block frontmodal %}
-	{% if frontcover %}
-	<div class="modal fade" id="detailModal" role="dialog">
-		<div class="modal-dialog">
-			{% thumbnail frontcover "x900" as im %}
-				<div class="modal_titleHeading" style="width: {{ im.width }}px;">{{ item }}</div>
-				<img class="modal_image" src="{{ im.url }}">
-			{% endthumbnail %}
+{% block nav %}
+	{% with view.all_lib_items as lib_items %}
+	<div class="list-group">
+			{% if item.link %}
+			<a class="list-group-item notred" id="external-link" target="_blank" href="{{ item.link }}">
+				<span class="glyphicon glyphicon-link"></span> More info
+			</a>
+			{% endif %}
+		{% if lib_items %}
+			<a class="list-group-item notred" href="#" data-toggle="modal" data-target="#evidenceModal"><span class="glyphicon glyphicon-book"></span> Library references</a>
+		{% endif %}
+			<a class="list-group-item notred notunderline" target="_blank" href="{% url 'connect' %}?model=notebook&pk={{ item.pk }}">
+    			<span class="glyphicon glyphicon-tree-deciduous"></span>
+    			View relations
+	    	</a>
+	</div>
+
+	{% if lib_items %}
+	<div class="modal fade" id="evidenceModal" role="dialog">
+		<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">
+				<div class="small" style="margin-bottom: 1em;"><span class="glyphicon glyphicon-list-alt"></span> {% if item.item_type %}{{ item.item_type|title }}{% else %}Notebook{% endif %}</div>
+				<strong>{{ item }}</strong>
+				<div class="titleinfo small">
+					Library references
+				</div>
+				</h4>
+			</div>
+			<div class="modal-body">
+				<div class="grid-header small"><strong>{{lib_items.count}}</strong> items</div>
+			{% for lib in lib_items %}
+				<div class="evidenceModal-item">
+					<a class="notred notunderline" href="{% url 'library_item' lib.collection.recurse lib.slug %}">{{ lib.bib }}</a>
+				</div>
+			{% endfor %}
+			</div>
+		</div>
 		</div>
 	</div>
 	{% endif %}
+
+	{% endwith %}
 {% endblock %}
 
 
-{% block info %}{{ item.info|safe }}{% endblock %}
-
-
-{% block extra_info %}
+{% block grid %}
+	<div class="grid-header small">Timeline</div>
 	<div class="timeline-wrap detail-timeline detailtimeline">
 		<div id='timeline-embed' style="width: 100%; height: 170px;"></div>
 	</div>
-	{% if item.link %}
-		For more information, please be referred <a href="{{ item.link }}" target="_blank">elsewhere</a>.
-	{% endif %}
 
-	{% if view.all_lib_items %}
-	<hr>
-	<div>
-		Library items consulted for this {{ item.item_type }}:
-		<ul style="margin:1em;">
-			{% for item in view.all_lib_items %}
-			<li>
-				<a href="{% url 'library_item' slug=item.slug %}">
-					{{ item.biblio }}
-				</a>
-			</li>
-			{% endfor %}
-		</ul>	
-	</div>
-	{% endif %}
-{% endblock %}
-
-
-{% block cover_display %}
+	{% if covers or collection_list %}
+	{% if covers %}
+	<div class="grid-header small">Front matter</div>
 	<div class="row">
 		{% for cover in covers %}
-			<div class="col-sm-2 col-md-3" style="margin-bottom: 1em;">
-			{% thumbnail cover.image "x85" as thum %}
-				<a class="thumbnail" href="{% url 'notebooks_page' noteb=item notebpage=cover.page_number %}" title="{{ cover.page_number }}">
+			<div class="col-sm-3 col-md-3" style="margin-bottom: 5px;">
+			{% thumbnail cover.image "123x85" crop="top" as thum %}
+				<a class="thumbnail notredneverred" href="{% url 'notebooks_page' item.collection.recurse item cover.page_number %}">
 					<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
-					<div class="caption thum_caption">{{ cover.page_number }}</div>
+					<div class="caption-title">
+						<div class="thum-info">{{ cover.page_number }}</div>
+					</div>
 				</a>
 			{% endthumbnail %}
 			</div>
 		{% endfor %}
 	</div>
-{% endblock %}
+	{% endif %}
 
-
-{% block list_display %}
-	<hr>
-	Content: {{ detail_count|apnumber|title }} page{{ detail_count|pluralize }}
-	<hr>
+	{% if collection_list %}
+	<div class="grid-header small"><strong>{{ detail_count }}</strong> scanned page{{ detail_count|pluralize }} with notes</div>
 	<div class="row">
 		{% for element in collection_list %}
-			<div class="col-sm-2 col-md-3" style="margin-bottom: 1em;">
-			{% thumbnail element.image "x85" as thum %}
-				<a class="thumbnail" href="{% url 'notebooks_page' noteb=item notebpage=element.page_number %}" title="{{ element.page_number }}">
-					<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
-					<div class="caption thum_caption">{{ element.page_number }}</div>
-				</a>
+		<div class="col-xs-3 col-md-3" style="margin-bottom: 5px;">
+			{% if element.image %}
+			{% thumbnail element.image "123x85" crop="top" as thum %}
+			<a class="thumbnail notred neverred" title="{{ element.page_number }}" href="{% url 'notebooks_page' item.collection.recurse item element.page_number %}">
+				<img src="{{ thum.url }}" width="{{ thum.width }}" height="{{ thum.height }}">
+				<div class="caption-title">
+					<div class="thum-info">
+						{{ element.page_number }}
+					</div>
+				</div>
+			</a>
 			{% endthumbnail %}
-			</div>
+			{% else %}
+			<a class="thumbnail notred neverred" title="{{ element.page_number }}" href="{% url 'notebooks_page' item.collection.recurse item element.page_number %}">
+				<img src="{{ STATIC_URL }}JJDLP/images/gen_frontcover_thum_crop-0.jpg" width="123" height="85">
+				<div class="caption-title">
+					<div class="thum-info">
+						{{ element.page_number }}
+					</div>
+				</div>
+			</a>
+			{% endif %}
+		</div>
 		{% endfor %}
 	</div>
+	{% include 'gentext/includes/nums_paginator.html' %}
+	{% endif %}
 
-	<div class="paginator_select" style="text-align:center;">
-	    <select class="selector" onchange="location = this.options[this.selectedIndex].value;">
-	    	{% for element in view.all_pages %}
-	    	<option value="{% url 'notebooks_page' noteb=item.name notebpage=element.page_number %}">{{ element.page_number }}</option>
-	    	{% endfor %}
-	    </select>
-	</div>
+	{% else %}
+		<div class="grid-header small collection preview">No scans found.</div>
+	{% endif %}
+
 {% endblock %}
 
 
@@ -126,6 +175,10 @@
 
 </script>
 <script type="text/javascript">
+
+$('#evidenceModal').on('shown.bs.modal', function () {
+  $('#myInput').focus()
+})
 
 $('.modal_image').hover(function() {
 	$('.modal_titleHeading').slideToggle('fast');

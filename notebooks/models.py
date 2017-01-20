@@ -1,68 +1,52 @@
 from django.db import models
-from model_utils.managers import PassThroughManager
-from django.template.defaultfilters import slugify
 
-from JJDLP.managers import custom_managers
 from library.models import LibraryExcerpt, LibraryItem
 from manuscripts.models import ManuscriptExcerpt
-from texts.models import Line
+from texts.models import Text, Line
 
-from gentext.managers.queryset import PageQuerySet
+from gentext.models.structure import RecursiveCollectionModel, SlugModel, PageModel
 
 
 def upload_to_file(instance, filename):
-    '''Defines where newly uploaded notebook images should be saved.'''
+    '''
+    Defines where newly uploaded notebook images should be saved.
+    '''
     url = 'notebooks/images/{0}/{1}'.format(instance.notebook.name, filename)
     return url
 
 
-class Notebook(models.Model):
+class NotebookCollection(RecursiveCollectionModel):
+    '''
+    A basic collection model for a set of notebooks.
+    '''
+    pass
+
+
+class Notebook(SlugModel):
     '''
     Basic Notebook model
     '''
+    collection = models.ForeignKey(NotebookCollection, default='', related_name='item_set', blank=True)
+    libraryitem = models.ManyToManyField(LibraryItem, related_name='notebook_set', blank=True)
+    text = models.ForeignKey(Text, default='', related_name='notebook_set', blank=True)
     name = models.CharField(max_length=80, primary_key=True, verbose_name='title')
-    info = models.TextField(max_length=1000, blank=True)
     item_type = models.CharField(max_length=100, blank=True)
     link = models.CharField(max_length=255, blank=True)
+    info = models.TextField(blank=True)
     draft_period = models.CharField(max_length=255, blank=True)
-    libraryitem = models.ManyToManyField(LibraryItem, related_name='notebook_set', blank=True)
-
-    slug = models.SlugField(unique=True, max_length=255, blank=True)
-
-    # override save() to make slug on save
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
-        super(Notebook, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return u'{}'.format(self.name)
 
 
-class NotebookPage(models.Model):
+class NotebookPage(PageModel):
     '''
     NotebookPage model,
         linked to Notebook with ForeignKey,
-        saves uploaded image to notebooks media folder,
-        depends on PageQuerySet, a custom manager that provides specific page querysets like
-            get_contentimages(), get_frontcover(), get_backcover()
+        saves uploaded image to notebooks media folder.
     '''
     notebook = models.ForeignKey(Notebook, max_length=50, related_name='page_set')
-    page_number = models.CharField(max_length=255, primary_key=True)
     image = models.ImageField(upload_to=upload_to_file, blank=True)
-    slug = models.SlugField(max_length=255, blank=True)
-
-    # override save() to make slug on save
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.page_number)
-        super(NotebookPage, self).save(*args, **kwargs)
-
-    def __unicode__(self):
-        return u'{}'.format(self.page_number)
-
-    # manager
-    objects = PassThroughManager.for_queryset_class(PageQuerySet)()
 
     class Meta:
         ordering = ['notebook']
@@ -91,8 +75,10 @@ class Note(models.Model):
     libraryexcerpt = models.ManyToManyField(LibraryExcerpt, related_name='note_set', blank=True)
     # manuscript reference field; Joyce did not use a note twice --> ForeignKey
     manuscriptexcerpt = models.ForeignKey(ManuscriptExcerpt, related_name='note_set', blank=True, null=True)
-    # novel reference field
+    # text reference field
     textline = models.ForeignKey(Line, max_length=255, related_name='note_set', blank=True, null=True)
+    # note reference field
+    note = models.ForeignKey('self', on_delete=models.CASCADE, related_name='note_set', blank=True, null=True)
 
     def __unicode__(self):
         return u'{0}{1}'.format(self.page, self.notejj[:3])

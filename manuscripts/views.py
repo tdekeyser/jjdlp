@@ -3,8 +3,8 @@ from django.views.generic import TemplateView
 from haystack.views import SearchView
 from haystack.forms import HighlightedModelSearchForm
 
-from manuscripts.models import ManuscriptCollection
-from gentext.views.item import ItemView
+from manuscripts.models import Manuscript, ManuscriptPage
+from gentext.views.collection import CollectionView
 from gentext.views.page import PageView
 
 
@@ -12,21 +12,13 @@ MANUSCRIPTS_DUMMY_BASE = 'manuscripts/dummy_base.html'
 
 
 class ManuscriptsHomeView(TemplateView):
-    '''
-    MANUSCRIPTS_HOME presents:
-    - information about collections ('home_info' field)
-    - list of available collections
-    - amount of collections etc.
-    '''
+    template_name = 'manuscripts/base.html'
+
     def get_context_data(self, **kwargs):
         context = super(ManuscriptsHomeView, self).get_context_data(**kwargs)
-        context['manuscripts'] = ManuscriptCollection.objects.all()
-        context['counted_manuscripts'] = ManuscriptCollection.objects.all().count()
-
+        context['counted_manuscripts'] = Manuscript.objects.count()
+        context['counted_pages'] = ManuscriptPage.objects.count()
         return context
-
-    def get_template_names(self, **kwargs):
-        return 'manuscripts/base.html'
 
 
 class ManuscriptsSearchView(SearchView):
@@ -37,35 +29,46 @@ class ManuscriptsSearchView(SearchView):
         return {'specific_model': 'models=manuscripts.manuscriptpage'}
 
 
-class ManuscriptCollectionView(ItemView):
-    model = ManuscriptCollection
-    slug_name = 'slug'
+class ManuscriptView(CollectionView):
+    model = Manuscript
+    slug_name = 'collection'
+
+    template = 'manuscripts/collection.html'
+    dummybase_template = MANUSCRIPTS_DUMMY_BASE
 
     target = ''
-    template = ''
-    dummybase_template = MANUSCRIPTS_DUMMY_BASE
 
     def __init__(self, **kwargs):
         # override
         if kwargs['target'] == 'detail':
-            self.paginate_by = 8
-            self.template = 'manuscripts/item.html'
+            self.paginate_by = 12
+            self.template = 'manuscripts/collection.html'
         elif kwargs['target'] == 'pagelist':
             self.paginate_by = 10
             self.template = 'manuscripts/list.html'
 
-    def all_pages(self):
-        return self.pages().all()
+    def set_page_caller(self):
+        # override
+        self.pageQ = self.get_item().page_set
+
+    def get_context_data(self, **kwargs):
+        # override
+        context = super(ManuscriptView, self).get_context_data(**kwargs)
+        context['all_pages'] = self.pages().all()
+        context['child_objects'] = []
+        for child in context['child_collections']:
+            # pass each child collection together with their subcollections
+            # and a sample of their items to template
+            collections = child.collection_set.all()
+            items = child.item_set.all()[:8]
+            context['child_objects'].append((child, collections, items))
+        return context
 
 
 class ManuscriptPageView(PageView):
-    parent_model = ManuscriptCollection
-    itemslug = 'slug'
+    parent_model = Manuscript
+    itemslug = 'collection'
     pageslug = 'page'
 
     template = 'manuscripts/page.html'
     dummybase_template = MANUSCRIPTS_DUMMY_BASE
-
-    def get_pagenumber(self):
-        # override
-        return self.page.numerical_order

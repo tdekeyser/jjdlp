@@ -1,32 +1,44 @@
 {% extends 'gentext/catalogue.html' %}
 {% load staticfiles %}
 {% load markdown_filter %}
+{% load humanize %}
 
 {% block heads %}
 {% endblock %}
 
 
-{% block cover %}
-	<img class="frontcover" src="{% static 'JJDLP/images/finneganswake_cover.jpg' %}" width="360" height="550">
+{% block item_title %}
+	<div class="small" style="margin-bottom: 1em;"><span class="glyphicon glyphicon-book"></span> {% if item.item_type %}{{ item.item_type|title }}{% else %}Text{% endif %}</div>
+	{{ item }}
 {% endblock %}
 
 
 {% block description %}
-	<table id="item_info">
-		{% if item.publication_date %}<tr><td><span class="glyphicon glyphicon-option-vertical"></td><td>{{ item.publication_date }}</td></tr>{% endif %}
-		{% if item.publisher %}<tr><td><span class="glyphicon glyphicon-option-vertical"></span></td><td>{{ item.publisher }}</td></tr>{% endif %}
-	</table>
+	<div class="titleinfo">
+		{% if item.publication_date %}{{ item.publication_date }}{% endif %}
+		<br/>
+		{% if item.publisher %}{{ item.publisher }}{% endif %}
+	</div>
 {% endblock %}
 
 
 {% block info %}{{ item.info|markdownify|safe }}{% endblock %}
 
 
-{% block list_display %}
+{% block nav %}
+	<div class="list-group">
+		<a class="list-group-item notred" href="{% url 'notebooks_home' %}">
+			<span class="glyphicon glyphicon-list-alt"></span> {{ view.notebooks }} notebook{{ view.notebooks|pluralize }}
+		</a>
+	</div>
+{% endblock %}
+
+
+{% block grid %}
 	{% for section in view.sections %}
 		{% for chapter in section.chapter_set.all %}
 		<div>
-			{{ section }}.{{ chapter }}: pp. {{ chapter.page_set.first.page_number }} - {{ chapter.page_set.last.page_number }}
+			{{ chapter }}: pp. {{ chapter.page_set.first.page_number }} - {{ chapter.page_set.last.page_number }}
 		</div>
 		{% endfor %}
 	{% endfor %}

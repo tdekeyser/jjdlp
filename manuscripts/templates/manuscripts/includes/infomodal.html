@@ -1,4 +1,5 @@
 {% load thumbnail %}
+{% load markdown_filter %}
 
 <div class="modal fade" id="infomodal" tabindex="-1" role="dialog">
 	<div class="modal-dialog" role="document" style="width: 800px;">
@@ -17,8 +18,8 @@
 				  	</div>
 				 	{% endif %}
 					<div class="media-body">
-						<h4 class="media-heading">Note on the {{ object.title }}</h4>
-							{{ object.note_on_transcriptions|safe }}
+						<h4 class="media-heading">Note on the {{ item.title }}</h4>
+							{{ item.note_on_transcriptions|markdownify|safe }}
 							<!-- All transcriptions have been encoded in TEI-XML, <a href="http://www.tei-c.org/ns/1.0">namespace 1.0</a>, at University of Antwerp. -->
 							The XML files can be accessed by clicking the download button in the toolbar.
 					</div>

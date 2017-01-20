@@ -1,5 +1,17 @@
 from django.contrib import admin
-from notebooks.models import Notebook, NotebookPage, Note
+from notebooks.models import NotebookCollection, Notebook, NotebookPage, Note
+
+
+class NotebookCollectionAdmin(admin.ModelAdmin):
+    list_display = ('__unicode__',)
+    search_fields = (
+        'title',
+        )
+    fields = (
+        'title',
+        'collection',
+        'info',
+        )
 
 
 class NotebookAdmin(admin.ModelAdmin):
@@ -10,6 +22,8 @@ class NotebookAdmin(admin.ModelAdmin):
         )
     fields = (
         'name',
+        'collection',
+        'text',
         'info',
         'item_type',
         'draft_period',
@@ -46,11 +60,13 @@ class NoteAdmin(admin.ModelAdmin):
         'source',
         'textline',
         'manuscriptexcerpt',
-        'libraryexcerpt'
+        'libraryexcerpt',
+        'note'
         )
     filter_horizontal = ('libraryexcerpt',)
-    raw_id_fields = ('page', 'textline',)
+    raw_id_fields = ('page', 'textline', 'note')
 
+admin.site.register(NotebookCollection, NotebookCollectionAdmin)
 admin.site.register(Notebook, NotebookAdmin)
 admin.site.register(NotebookPage, NotebookPageAdmin)
 admin.site.register(Note, NoteAdmin)

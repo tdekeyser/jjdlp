@@ -38,7 +38,7 @@ column100
 			<div class="panel-nav">
 				<a class="notred neverred disabled list-group-item">Notes taken:</a>
 	    		{% for note in notes %}
-	    		<a class="notunderline notred list-group-item list-child" href="{% url 'notebooks_page' note.noteb note.page %}">
+	    		<a class="notunderline notred list-group-item list-child" href="{% url 'notebooks_page' note.noteb.collection.recurse note.noteb note.page %}">
 	    			{{ note|safe }}
 	    		</a>
 	    		{% endfor %}
