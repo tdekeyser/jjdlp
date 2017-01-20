@@ -68,14 +68,14 @@ class DocsView(TemplateView):
     raw = False
 
     def docs(self):
-        return open('DOCS.txt', 'r').read()
+        return open('templates/JJDLP/DOCS.txt', 'r').read()
 
 
 class ConnectView(TemplateView):
     template_name = 'JJDLP/connect.html'
 
 
-# @cached(60*5)
+@cached(60*5)
 def make_tree(root, model, upstream=True, downstream=True):
     start_time = time.time()
     tree = PathwayTree(root, model)
