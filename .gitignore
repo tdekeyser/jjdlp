@@ -5,6 +5,8 @@
 *.ico
 *~
 
+JJDLP/settings.py
+
 .idea
 media/
 */migrations/
