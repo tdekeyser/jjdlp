@@ -1,1 +1,0 @@
-1. When uploading text content, watch out for unicode characters like --- (large hyphen) or ' (slanted quotation marks). Gives huge error. Perhaps look at smart_str in django.utils.encoding?
