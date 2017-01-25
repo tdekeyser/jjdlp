@@ -5,6 +5,8 @@
 *.ico
 *~
 
+.DS_Store
+
 JJDLP/settings.py
 static/JJDLP/images
 static/JJDLP/js

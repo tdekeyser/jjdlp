@@ -33,7 +33,7 @@ class ManuscriptPage(PageModel):
     '''
     Basic model for a manuscript page
     '''
-    manuscript = models.ManyToManyField(Manuscript, related_name='page_set', blank=True)
+    manuscript = models.ManyToManyField(Manuscript, related_name="page_set", blank=True)
     jja = models.CharField(max_length=10, blank=True)
     image = models.ImageField(upload_to=upload_to_file, blank=True)
     numerical_order = models.PositiveSmallIntegerField()
