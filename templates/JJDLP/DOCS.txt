@@ -297,6 +297,14 @@ then for your databases
 
 	>> ALTER TABLE table CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci
 
+Sometimes, this may throw a Foreign Key error. In that case, do
+
+	>> SET FOREIGN_KEY CHECKS=0;
+
+Remember to set it back to the default after it.
+
+	>> SET FOREIGN_KEY CHECKS=1;
+
 MySQL sneaks swedish in there sometimes for no sensible reason. Change the MySQL character set to avoid strange errors of the form:
 
 	>> `Illegal mix of collations (latin1_swedish_ci,IMPLICIT) and (utf8_general_ci,COERCIBLE) for operation '='`

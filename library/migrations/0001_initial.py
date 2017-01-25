@@ -8,73 +8,80 @@ import library.models
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('gentext', '__first__'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Author',
+            name='LibraryCollection',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('first_name', models.CharField(max_length=30, blank=True)),
-                ('last_name', models.CharField(max_length=50, blank=True)),
-            ],
-            options={
-                'ordering': ['last_name'],
-            },
-        ),
-        migrations.CreateModel(
-            name='Publisher',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('publisher_name', models.CharField(max_length=100, blank=True)),
-                ('city', models.CharField(max_length=50, blank=True)),
-            ],
-        ),
-        migrations.CreateModel(
-            name='Source',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('source_type', models.CharField(max_length=10, blank=True)),
                 ('title', models.CharField(max_length=300)),
-                ('publication_date', models.PositiveSmallIntegerField()),
-                ('lib_type', models.CharField(max_length=10, blank=True)),
-                ('note', models.TextField(max_length=1000, blank=True)),
-                ('source_link', models.CharField(max_length=255, blank=True)),
-                ('certainty_info', models.TextField(max_length=500, blank=True)),
+                ('info', models.TextField(blank=True)),
                 ('slug', models.SlugField(unique=True, max_length=255, blank=True)),
-                ('author', models.ManyToManyField(to='library.Author', blank=True)),
-                ('publisher', models.ForeignKey(blank=True, to='library.Publisher', null=True)),
+                ('collection_type', models.CharField(max_length=50, blank=True)),
+                ('publication_period', models.CharField(max_length=100, blank=True)),
+                ('image', models.ImageField(upload_to=library.models.upload_to_collection, blank=True)),
+                ('collection', models.ForeignKey(related_name='collection_set', blank=True, to='library.LibraryCollection', null=True)),
             ],
             options={
-                'ordering': ['title'],
+                'abstract': False,
             },
         ),
         migrations.CreateModel(
-            name='SourcePage',
-            fields=[
-                ('page_number', models.CharField(max_length=20, serialize=False, primary_key=True)),
-                ('image', models.ImageField(upload_to=library.models.upload_to_item, blank=True)),
-                ('image_caption', models.CharField(max_length=200)),
-                ('actual_pagenumber', models.CharField(max_length=10, blank=True)),
-                ('source_ref', models.ForeignKey(related_name='page_of_source', blank=True, to='library.Source', max_length=255, null=True)),
-            ],
-            options={
-                'ordering': ['source_ref'],
-                'verbose_name': 'Source page',
-                'verbose_name_plural': 'Source pages',
-            },
-        ),
-        migrations.CreateModel(
-            name='Usage',
+            name='LibraryExcerpt',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('used_book', models.CharField(max_length=100)),
-                ('used_book_chapter', models.CharField(max_length=15, blank=True)),
+                ('content', models.TextField()),
             ],
+            options={
+                'ordering': ['page'],
+            },
+        ),
+        migrations.CreateModel(
+            name='LibraryItem',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('title', models.CharField(max_length=300)),
+                ('item_type', models.CharField(max_length=10, blank=True)),
+                ('date', models.PositiveIntegerField(null=True, blank=True)),
+                ('bib', models.TextField(blank=True)),
+                ('slug', models.SlugField(unique=True, max_length=255, blank=True)),
+                ('discovered_by', models.CharField(max_length=300, blank=True)),
+                ('info', models.TextField(blank=True)),
+                ('side_note', models.TextField(blank=True)),
+                ('link', models.CharField(max_length=255, blank=True)),
+                ('notebooks', models.CharField(max_length=300, blank=True)),
+                ('author', models.ManyToManyField(to='gentext.Author', blank=True)),
+                ('collection', models.ForeignKey(related_name='item_set', blank=True, to='library.LibraryCollection', null=True)),
+                ('publisher', models.ForeignKey(default=b'', blank=True, to='gentext.Publisher', null=True)),
+            ],
+            options={
+                'ordering': ['date'],
+                'abstract': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='LibraryPage',
+            fields=[
+                ('page_number', models.CharField(max_length=50, serialize=False, primary_key=True)),
+                ('slug', models.SlugField(max_length=255, blank=True)),
+                ('image', models.ImageField(upload_to=library.models.upload_to_item, blank=True)),
+                ('actual_pagenumber', models.CharField(max_length=50, blank=True)),
+                ('item', models.ForeignKey(related_name='page_set', blank=True, to='library.LibraryItem', max_length=255, null=True)),
+            ],
+            options={
+                'ordering': ['actual_pagenumber'],
+            },
         ),
         migrations.AddField(
-            model_name='source',
-            name='usage',
-            field=models.ManyToManyField(to='library.Usage', blank=True),
+            model_name='libraryexcerpt',
+            name='item',
+            field=models.ForeignKey(related_name='excerpt_set', to='library.LibraryItem'),
+        ),
+        migrations.AddField(
+            model_name='libraryexcerpt',
+            name='page',
+            field=models.ForeignKey(related_name='excerpt_set', to='library.LibraryPage'),
         ),
     ]

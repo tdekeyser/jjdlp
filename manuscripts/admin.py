@@ -17,7 +17,6 @@ class ManuscriptAdmin(admin.ModelAdmin):
 
 class ManuscriptPageAdmin(admin.ModelAdmin):
     list_display = (
-        'manuscript',
         'page_number',
         'numerical_order',
         'image',
