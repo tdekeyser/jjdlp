@@ -6,11 +6,19 @@
 *~
 
 JJDLP/settings.py
-manage.py 
+static/JJDLP/images
+static/JJDLP/js
+
+manage.py
 
 .idea
 media/
-*/migrations/
+library/migrations/
+notebooks/migrations/
+manuscripts/migrations/
+texts/migrations/
+m_backups/
+
 scripts/
 static/JJDLP/bootstrap-3.3.5-dist/
 static/JJDLP/js/bootstrap*
