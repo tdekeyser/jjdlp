@@ -13,12 +13,6 @@ html {
   text-align: center;
   font-family: 'Open Sans', Arial, 'Liberation Sans', Freesans, sans-serif;
 }
-h1, h2, h3, h4, h5, h6 {
-  font-weight: normal;
-  font-size: 30px;
-  margin-bottom: 5px;
-  margin-top: 0px !important;
-}
 div {
   display: block;
 }

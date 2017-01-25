@@ -36,7 +36,7 @@ The latter issue is not trivial, as some objects may be suitable both as a colle
 
 Clicking on a collection of item reveals all specific data available. These data are called fields, such as a title, author, publisher, etc.
 
-#### Adding data
+### Adding data
 
 A new collection can be made by clicking on the `Library Collection` section and choosing `add new collection`. Empty fields are available to connect relevant information to the collection. When finished, save the collection by clicking the `save` button.
 
@@ -59,7 +59,7 @@ Example:
 
 	FRJ-19220224,5.png
 
-Stands for the 5th page of an issue of the Freeman's Journal of 24 February 1922.
+Represents the 5th page of an issue of the Freeman's Journal of 24 February 1922.
 
 The following names are recognized as title pages, acknowledgement pages, figures, etc:
 
@@ -87,14 +87,7 @@ In the case of multiple title pages or charts, use a hyphenated identifier. For 
 
 Next to `page number`, each image also receives a so-called `actual page number`. This is a non-unique page number that ignores the unique `X-Y` identifier, and allows all pages to be numerically ordered. When a new image is saved, an `actual page number` is automatically created. (This is done by calling Python's `split(",")` function  on `page number`. That is why the naming convention is so important next to uniqueness!)
 
-
-
-
-
-
-#### Notebooks
-
-`Notebooks` can be added by clicking on the `add new notebook` button in the `Notebook` section of the admin area. The notebook title **must** have a name according to [the James Joyce Catalog of the University of Buffalo](http://library.buffalo.edu/pl/collections/jamesjoyce/catalog/index.php). Put differently, a notebook title must start according to the following classification code:
+Notebooks can be added by clicking on the `add new notebook` button in the `Notebook` section of the admin area. The notebook title **must** have a name according to [the James Joyce Catalog of the University of Buffalo](http://library.buffalo.edu/pl/collections/jamesjoyce/catalog/index.php). Put differently, a notebook title must start according to the following classification code:
 
 > collection_identifier(dot)notebook_identifier(dot)notebook_number(dot)
 
@@ -106,21 +99,7 @@ For example:
 
 The database will not accept names that do not have these identifiers. (Alternatively, it *may* accept them and crash.)
 
-
-### Linking items
 ***
-
-When new data has been added to the database, it is possible that connections exist the added data and the current data. These connections are links between any database field of a different module. These links are usually based in the `Note` section and typically come in the following form:
-
- - from a note to a library excerpt,
- - from a note to a manuscript excerpt,
- - from a note to a novel line.
-
-Linking items can be done manually in the "change item" section or programmatically using the Linkify() class. The class allows to search and match existing `Notes` and `LibraryExcerpts` in the database. The `Notes` and `LibraryExcerpts` need to be uploaded to be found, so the class will not upload new excerpts or notes.
-
-The program looks for matches between a note's Source content with a library excerpt's content. The standard word span of the search query is 5 words. Sometimes, this is not enough to find all connections. The word limit can be increased by changing the left and right border of the search query. Logically, a smaller border will generate more connections, but will also
-generate more false positives (i.e. those that are classified as a match, but are actually not a match). These matches have to be removed by hand. Good test borders are: L=0, R=8; L=10, R=18. For more specialised info, see the coding section below.
-
 
 # Remarks for admins
 These notes are important if to know before everything else in case you want to add data to the database. If not, you can skip to "The workings of the site".
@@ -133,11 +112,131 @@ The transcription of the notes and manuscript pages (which admins will be able t
 ## Markdown
 Most database objects provide an `info` field, which includes an explanation of the current collection or item. These fields are automatically converted from [Markdown](https://daringfireball.net/projects/markdown/) for simplicity and safety, meaning that all HTML tags will be escaped. Fortunately, Markdown is easy to use and has the simple advantage that no tags need to be used. (This document has also been created using Markdown; it is possible to inspect the raw file [here](raw-markdown).)
 
-.
+***
 
 # Coding info
 
-## Linking data
+## Run the site locally
+
+If someone needs to be able to use the site locally, follow these steps to install the required packages and settings. This guide assumes that Python has been installed on the user's computer. Check if the Python package handler `pip` is correctly installed as well:
+
+	$ python --version
+	$ pip --version
+
+The guide also assumes you have a mysqldump file in your possession that can recreate the database.
+
+**1) Install the MySQL database program**
+
+The site uses the popular database tool MySQL. Install the program for your operating system via the [official website](https://dev.mysql.com/doc/refman/5.7/en/windows-installation.html). I will assume that you can access the root user with a password. To test this, see if you can gain access to the MySQL client using the following command.
+
+	$ mysql -u root -p
+
+**2) Synchronize the complete database**
+
+Save the mysqldump file in your home folder. Now log into the MySQL client using the command above. The following lines will create and reconstruct the complete database.
+
+	mysql> create database jjdlp;
+	mysql> use jjdlp;
+	mysql> source mysqldump.sql;
+
+Now that the database is ready, we can install the required code.
+
+**3) Make a virtual environment** (not required)
+
+Python provides a useful tool to keep development environment separate from each other. This is called a "virtual" environment. Install this both with the package `virtualenvwrapper`, which makes it easier to work with the environments. Note that this step is not required, but is certainly 
+
+	$ pip install virtualenv
+	$ pip install virtualenvwrapper
+
+Then in your home directory, open the file `.bashrc` (also called `.bash_profile`) and type the following lines in them:
+
+	# where to store our virtual envs
+	export WORKON_HOME=$HOME/virtualenvs
+	# where projects will reside
+	export PROJECT_HOME=$HOME/projects-venvs
+	# where is the virtualenvwrapper.sh
+	source /usr/local/bin/virtualenvwrapper.sh
+
+Save the file. Now you should be able to create a virtualenvironment using
+
+	$ mkvirtualenv jjdlp
+
+This creates a new environment called "jjdlp". It must first be activated using 
+
+	$ workon jjdlp
+
+The `workon` command activates the virtual environment, and everything that is installed will be sealed off in it. To return outside the virtual environment write
+
+	$ deactivate jjdlp
+
+**4) Get the files and install the required packages**
+
+Copy the complete site folder (JJDLP/) to a location of your choice. (If you're in a virtualenv, this will be inside the environment's bin/ folder.) Then get into the JJDLP folder and type in a terminal
+
+	$ pip install -r requirements.txt
+
+This will install all the necessary requirements for the site to run. The requirements file can also be found on the site's [Github repository](https://github.com/tdekeyser/jjdlp/edit/master/requirements.txt).
+
+**5) Point to the correct image database folder**
+
+Now that all the requirements are installed, the site must now know where the image files are stored. Open the file `JJDLP/settings.py`, and change the value of `MEDIA_ROOT` to the path to the image database folder (starting from the root, e.g. your home directory).
+
+	MEDIA_ROOT = os.path.join('[your/path/to/the/folder]/database', 'media')
+
+**6) Point to the database**
+
+The program also needs to be able to access the database. Find the variable `DATABASES` and change the value of `PASSWORD` to your own MySQL password for root user.
+
+**7) Run the website**
+
+The site is now ready to be run. Open a terminal, get into the virtual environment, go to the JJDLP/ folder and type
+
+	$ python manage.py runserver
+
+If all is well, the last lines of the output should be
+
+	Django version 1.8, using settings 'JJDLP.settings'
+	Starting development server at http://127.0.0.1:8000/
+	Quit the server with CONTROL-C.
+
+In a browser, the website will be running at `http://127.0.0.1:8000/`.
+
+## connect
+
+**PathwayTree(), PathwayBranch() and GraphLayout() :** Builds writing pathways as `Tree` objects. The class iteratively builds simple tree structures,
+represented as a set of nodes accompanied with layer numbers. It has a `PathwayBranch` object that selects a single branch from the `PathwayTree` object. In order to visualise the tree using the Javascript library [D3](https://d3js.org/), wrap the tree object in a `GraphLayout` to convert the tree into json format.
+
+The nodes of each tree object are developed using queries into the database. These queries have been programmatically constrained such that a query deeper in the tree is controlled, logical and (from the perspective of genetic criticism) valid.
+
+Example usage:
+
+	$ python manage.py shell
+	>>> from connect.pathway import PathwayTree
+	>>> tree = PathwayTree('fishing at home and abroad', 'libraryitem')
+	>>> tree.grow(2)					# grow the tree by 2 layers
+	>>> print tree
+	[(0, []/Fishing at Home and Abroad), (1, [[]/Fishing at Home and Abroad, []/Fishing at Home and Abroad]/MAX-FIS,191|616), (1, [[]/Fishing at Home and Abroad, []/Fishing at Home and Abroad]/MAX-FIS,103|613), (1, [[]/Fishing at Home and Abroad, []/Fishing at Home and Abroad]/MAX-FIS,38|614), (1, [[]/Fishing at Home and Abroad, []/Fishing at Home and Abroad]/MAX-FIS,51|615), (2, [[[]/Fishing at Home and Abroad, []/Fishing at Home and Abroad]/MAX-FIS,103|613]/VI.B.2.053(e)), (2, [[[]/Fishing at Home and Abroad, []/Fishing at Home and Abroad]/MAX-FIS,38|614]/VI.B.2.053(f)), (2, [[[]/Fishing at Home and Abroad, []/Fishing at Home and Abroad]/MAX-FIS,191|616]/VI.B.2.053(i)), (2, [[[]/Fishing at Home and Abroad, []/Fishing at Home and Abroad]/MAX-FIS,51|615]/VI.B.2.053(g))]
+
+Example graph usage:
+
+	>>> from connect.graph import GraphLayout
+	>>> graph = GraphLayout(tree)		# wrap tree in a graph layout
+	>>> print graph.layout
+	{'nodes': [{'referent': 'libraryexcerpt', 'layer': 1, 'name': 'MAX-FIS,51|615', 'pk': 615L}, {'referent': 'note', 'layer': 2, 'name': 'VI.B.2.053(f)', 'pk': 57792L}, {'referent': 'libraryexcerpt', 'layer': 1, 'name': 'MAX-FIS,103|613', 'pk': 613L}, {'referent': 'note', 'layer': 2, 'name': 'VI.B.2.053(i)', 'pk': 57795L}, {'referent': 'note', 'layer': 2, 'name': 'VI.B.2.053(g)', 'pk': 57793L}, {'referent': 'note', 'layer': 2, 'name': 'VI.B.2.053(e)', 'pk': 57791L}, {'referent': 'libraryitem', 'layer': 0, 'name': 'Fishing at Home and Abroad', 'pk': 23L}, {'referent': 'libraryexcerpt', 'layer': 1, 'name': 'MAX-FIS,191|616', 'pk': 616L}, {'referent': 'libraryexcerpt', 'layer': 1, 'name': 'MAX-FIS,38|614', 'pk': 614L}], 'edges': [{'source': 6, 'target': 7}, {'source': 6, 'target': 7}, {'source': 6, 'target': 2}, {'source': 6, 'target': 2}, {'source': 6, 'target': 0}, {'source': 6, 'target': 0}, {'source': 6, 'target': 8}, {'source': 6, 'target': 8}, {'source': 7, 'target': 3}, {'source': 0, 'target': 4}, {'source': 2, 'target': 5}, {'source': 8, 'target': 1}]}
+
+## Linking items
+
+When new data has been added to the database, it is possible that connections exist the added data and the current data. These connections are links between any database field of a different module. These links are usually based in the `Note` section and typically come in the following form:
+
+ - from a note to a library excerpt,
+ - from a note to a manuscript excerpt,
+ - from a note to a novel line.
+
+Linking items can be done *manually* in the "change item" section or *programmatically* using the Linkify() class. The class allows to search and match existing `Notes` and `LibraryExcerpts` in the database. The `Notes` and `LibraryExcerpts` need to be uploaded to be found, so the class will not upload new excerpts or notes.
+
+The program looks for matches between a note's Source content with a library excerpt's content. The standard word span of the search query is 5 words. Sometimes, this is not enough to find all connections. The word limit can be increased by changing the left and right border of the search query. Logically, a smaller border will generate more connections, but will also
+generate more false positives (i.e. those that are classified as a match, but are actually not a match). These matches have to be removed by hand. Good test borders are: L=0, R=8; L=10, R=18. For more specialised info, see the coding section below.
+
 **Linkify() :** Search and match existing Notes and LibraryExcerpts in the database.
 The Notes and LibraryExcerpts have to be uploaded to be found,
 i.e. this program will NOT upload new excerpts or notes.
@@ -172,34 +271,6 @@ changing the left and right border of the search query using:
 Logically, a smaller border will generate more connections, but will also
 generate more false positives (which sadly have to be removed by hand).
 Good test borders are: L=0, R=8; L=10, R=18.
-
-.
-
-## connect
-
-**PathwayTree(), PathwayBranch() and GraphLayout() :** Builds writing pathways as `Tree` objects. The class iteratively builds simple tree structures,
-represented as a set of nodes accompanied with layer numbers. It has a `PathwayBranch` object that selects a single branch from the `PathwayTree` object. In order to visualise the tree using the Javascript library [D3](https://d3js.org/), wrap the tree object in a `GraphLayout` to convert the tree into json format.
-
-The nodes of each tree object are developed using queries into the database. These queries have been programmatically constrained such that a query deeper in the tree is controlled, logical and (from the perspective of genetic criticism) valid.
-
-Example usage:
-
-	$ python manage.py shell
-	>>> from connect.pathway import PathwayTree
-	>>> tree = PathwayTree('fishing at home and abroad', 'libraryitem')
-	>>> tree.grow(2)					# grow the tree by 2 layers
-	>>> print tree
-	[(0, []/Fishing at Home and Abroad), (1, [[]/Fishing at Home and Abroad, []/Fishing at Home and Abroad]/MAX-FIS,191|616), (1, [[]/Fishing at Home and Abroad, []/Fishing at Home and Abroad]/MAX-FIS,103|613), (1, [[]/Fishing at Home and Abroad, []/Fishing at Home and Abroad]/MAX-FIS,38|614), (1, [[]/Fishing at Home and Abroad, []/Fishing at Home and Abroad]/MAX-FIS,51|615), (2, [[[]/Fishing at Home and Abroad, []/Fishing at Home and Abroad]/MAX-FIS,103|613]/VI.B.2.053(e)), (2, [[[]/Fishing at Home and Abroad, []/Fishing at Home and Abroad]/MAX-FIS,38|614]/VI.B.2.053(f)), (2, [[[]/Fishing at Home and Abroad, []/Fishing at Home and Abroad]/MAX-FIS,191|616]/VI.B.2.053(i)), (2, [[[]/Fishing at Home and Abroad, []/Fishing at Home and Abroad]/MAX-FIS,51|615]/VI.B.2.053(g))]
-
-Example graph usage:
-
-	>>> from connect.graph import GraphLayout
-	>>> graph = GraphLayout(tree)		# wrap tree in a graph layout
-	>>> print graph.layout
-	{'nodes': [{'referent': 'libraryexcerpt', 'layer': 1, 'name': 'MAX-FIS,51|615', 'pk': 615L}, {'referent': 'note', 'layer': 2, 'name': 'VI.B.2.053(f)', 'pk': 57792L}, {'referent': 'libraryexcerpt', 'layer': 1, 'name': 'MAX-FIS,103|613', 'pk': 613L}, {'referent': 'note', 'layer': 2, 'name': 'VI.B.2.053(i)', 'pk': 57795L}, {'referent': 'note', 'layer': 2, 'name': 'VI.B.2.053(g)', 'pk': 57793L}, {'referent': 'note', 'layer': 2, 'name': 'VI.B.2.053(e)', 'pk': 57791L}, {'referent': 'libraryitem', 'layer': 0, 'name': 'Fishing at Home and Abroad', 'pk': 23L}, {'referent': 'libraryexcerpt', 'layer': 1, 'name': 'MAX-FIS,191|616', 'pk': 616L}, {'referent': 'libraryexcerpt', 'layer': 1, 'name': 'MAX-FIS,38|614', 'pk': 614L}], 'edges': [{'source': 6, 'target': 7}, {'source': 6, 'target': 7}, {'source': 6, 'target': 2}, {'source': 6, 'target': 2}, {'source': 6, 'target': 0}, {'source': 6, 'target': 0}, {'source': 6, 'target': 8}, {'source': 6, 'target': 8}, {'source': 7, 'target': 3}, {'source': 0, 'target': 4}, {'source': 2, 'target': 5}, {'source': 8, 'target': 1}]}
-
-
-
 
 ## Useful commands and packages
 
