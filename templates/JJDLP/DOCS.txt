@@ -1,8 +1,7 @@
 
 # The workings of the site
-## The library
 
-### What users see
+## What users see
 
 Like all modules, the Joyce library is organized into items, like books, newspapers, articles, and collections, like magazines, book collections, encyclopaedias and newspaper editions.
 
@@ -27,7 +26,7 @@ Clicking on one of the pages that contain reading traces refers to a detailed pa
 - links to notes that are related to the reading trace,
 - a link to the connection tool that creates a connection tree starting from this reading trace as the root.
 
-### What users don't see
+## What users don't see
 The [admin](/admin) page can be accessed by clicking on the admin link in the settings list. After logging in, a list of all modules with their models can be seen. Clicking on one of the models shows the data available in that model. For example, the model `library collection` gives a list of collections such as the Sunday Independent, Freeman's Journal, or Books at the Wake. The model `library items` returns all items in the library.
 
 Although it seems self evident, a careful explanation of the distinction between a "collection" and an "item" is useful here. Collections contain items. They can be whole libraries, but also newspapers collections or encyclopedias. Items can be books, articles, issues, lemmas, etc. In order to avoid unexpected behaviour of the website, it is important to be aware of the way an object is recognized and visualised by the database.
@@ -36,7 +35,7 @@ The latter issue is not trivial, as some objects may be suitable both as a colle
 
 Clicking on a collection of item reveals all specific data available. These data are called fields, such as a title, author, publisher, etc.
 
-### Adding data
+## Adding data
 
 A new collection can be made by clicking on the `Library Collection` section and choosing `add new collection`. Empty fields are available to connect relevant information to the collection. When finished, save the collection by clicking the `save` button.
 
@@ -171,7 +170,7 @@ The `workon` command activates the virtual environment, and everything that is i
 
 **4) Get the files and install the required packages**
 
-Copy the complete site folder (JJDLP/) to a location of your choice. (If you're in a virtualenv, this will be inside the environment's bin/ folder.) Then get into the JJDLP folder and type in a terminal
+Copy the complete site folder (JJDLP/) to a location of your choice. (If you're in a virtualenv, this will be inside the environment's bin/ folder.) Then get into the `JJDLP/` folder and type in a terminal
 
 	$ pip install -r requirements.txt
 
@@ -185,11 +184,11 @@ Now that all the requirements are installed, the site must now know where the im
 
 **6) Point to the database**
 
-The program also needs to be able to access the database. Find the variable `DATABASES` and change the value of `PASSWORD` to your own MySQL password for root user.
+The program also needs to be able to access the database. In the `JJDLP/settings.py` file, find the variable `DATABASES` and change the value of `PASSWORD` to your own MySQL password for root user.
 
 **7) Run the website**
 
-The site is now ready to be run. Open a terminal, get into the virtual environment, go to the JJDLP/ folder and type
+The site is now ready to be run. Open a terminal, get into the virtual environment, go to the `JJDLP/` folder and type
 
 	$ python manage.py runserver
 
