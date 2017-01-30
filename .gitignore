@@ -28,6 +28,8 @@ static/JJDLP/js/d3*
 static/JJDLP/js/elevate*
 static/JJDLP/js/jquery*
 
+notebooks/static/notebooks/css/timeline.css
+
 CODING_DIRECTIONS.txt
 NOTE_ON_IMAGES.txt
 tests.py

@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load activeurl %}
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
@@ -10,77 +11,107 @@
 <script src="{% static 'JJDLP/js/jquery-1.11.2.js' %}"></script>
 <script src="{% static 'JJDLP/js/bootstrap.min.js' %}"></script>
 {% block heads %}
-<link rel="stylesheet" href="{% static 'JJDLP/css/homepage.css' %}"/>
 {% endblock %}
 </head>
 <body>
 	{% block navigation %}
-	<div id="header-wrap">
-		<div class="page-wrap">
-		<div class="head_nav">
-			<ul id="CMG">
-				<li><a href="https://www.uantwerpen.be/en/rg/centre-for-manuscript-genetics/" style="color:#efefef;">Centre for Manuscript Genetics</a> presents</li>
+	<div id="mainheader-wrap">
+	<nav class="navbar navbar-default collapse navbar-collapse">
+
+	<div class="head_nav">
+		<div id="sec-wrap container-fluid">
+			<a class="navbar-brand" href="{% url 'home' %}" style="padding-left: 46.5%; padding-top: 5px">
+				<img class="img-circle" style="" src="{{ STATIC_URL }}JJDLP/images/jjoyce.png" width="50" height="40">
+			</a>
+			{% activeurl %}
+			<ul class="nav navbar-nav navbar-right">
+				<li><a style="cursor: default;">|</a></li>
+				{% if user.is_authenticated %}
+				<li style="margin-left: -10px;margin-right: -10px">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Gratings, <strong>{{ user }}</strong>!</a>
+					<ul class="dropdown-menu">
+						<li><a title="Logout" href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+					</ul>
+				</li>
+				{% else %}
+				<li>
+					<a title="Login" href="{% url 'login' %}"><span class="glyphicon glyphicon-log-in"></span></a>
+				</li>
+				{% endif %}
+				</li>
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-cog"></span> <span class="caret"></span></a>
+					<ul class="dropdown-menu">
+						<li><a title="Bibliography" href="{% url 'bibliography' %}"><span class="glyphicon glyphicon-bold"></span> Bibliography</a></li>				
+						<li><a href="{% url 'stats' %}"><span class="glyphicon glyphicon-stats"></span> Stats</a></li>
+						<li><a href="{% url 'about' %}"><span class="glyphicon glyphicon-question-sign"></span> About</a></li>
+						<li><a href="develop"><span class="glyphicon glyphicon-edit"></span> Notify</a></li>
+						<li><a href="{% url 'home' %}admin"><span class="glyphicon glyphicon-wrench"></span> Admin</a></li>
+						<li><a href="{% url 'docs' %}"><span class="glyphicon glyphicon-info-sign"></span> Docs</a></li>
+					</ul>
+				</li>
 			</ul>
-			<ul class="head_icons">
-					<li><a title="Stats" href="{% url 'stats' %}"><img src="{{ STATIC_URL }}JJDLP/images/stats.ico" height="15"></a></li>
-					<li><a title="About" href="{% url 'about' %}"><img src="{{ STATIC_URL }}JJDLP/images/about.ico" height="15"></a></li>
-					<li><a title="Notify developers" href=""><img src="{{ STATIC_URL }}JJDLP/images/message.ico" height="15"></a></li>
-					<li><a title="Login" href=""><img src="{{ STATIC_URL }}JJDLP/images/login.ico" height="15"></a></li>
-					<li><a title="Admin" href="{% url 'home' %}admin"><img src="{{ STATIC_URL }}JJDLP/images/admin.ico" height="15"></a></li>
-			</ul>
+			{% endactiveurl %}
 		</div>
 
-		<div id="homesection_1">
-			<a href="" title="Joyce Web Archive" class="hovertext"><img src="{{ STATIC_URL }}JJDLP/images/homep_joyce_image.jpg" title="Joyce Web Archive" id="homep_im"></a>
-			<ul id="homepage_navigator">
-				<li><a href="#homesection_2">Library</a></li>
-				<li>Notebooks</li>
-				<li>Manuscripts</li>
-				<li>Novels</li>
-			</ul>
-			<br/>
-			<div style="float:right;">Ready? <a href="login" style="text-decoration:underline;">Login</a>.</div>
-		</div>
-		</div>
 	</div>
+	
+	</nav>
+
+</div>
 	{% endblock %}
 	<div id="body">
-		<div id="banner-wrap">
-			<div class="page-wrap">
-			{% block pre_body %}{% endblock %}
-			</div>
+	{% block id_body %}
+	<div class="intro" style="background-image:url({{STATIC_URL}}JJDLP/images/half_lib.jpg); background: rgba(204, 204, 204); background-size:cover; background-repeat: no-repeat; background-position: center center; height:90vh; margin-top: -19px; margin-bottom: -79px; width: 99.2vw; filter:grayscale(50%);">
+
+	<div class="intro-text" style="max-width: 1280px; min-width: 1024px; margin: 0 auto; text-align:center; font-family: 'Raleway',sans-serif;">
+	  <h1 style="color:#efefef; font-size:62pt;padding-top: 3em; padding-bottom: 0.5em; font-weight: 800; line-height: 72px;">James Joyce digital library</h1>
+	  <p style="color: #efefef;padding-bottom: 3em; font-size: 25pt;">Studying genetic Joyce</p>
+		<div class="row">
+		  <div class="col-sm-6 col-md-3">
+		    <a class="thumbnail notunderline" style="cursor: pointer; background: rgba(195, 69, 40, 0.9);" href="{% url 'library_home' %}">
+		      <div class="caption" style="color: #efefef;">
+		        <h3>Library</h3>
+		        <p>James Joyce's personal library.</p>
+		      </div>
+		    </a>
+		  </div>
+
+		  <div class="col-sm-6 col-md-3">
+		    <a class="thumbnail notunderline" style="cursor: pointer; background: rgba(195, 69, 40, 0.9);" href="{% url 'notebooks_home' %}">
+		      <div class="caption" style="color: #efefef;">
+		        <h3>Notebooks</h3>
+		        <p>James Joyce's notebooks.</p>
+		      </div>
+		    </a>
+		  </div>
+
+		  <div class="col-sm-6 col-md-3">
+		    <a class="thumbnail notunderline" style="cursor: pointer; background: rgba(195, 69, 40, 0.9);" href="{% url 'manuscripts_home' %}">
+		      <div class="caption" style="color: #efefef;">
+		        <h3>Manuscripts</h3>
+		        <p>James Joyce's manuscripts.</p>
+		      </div>
+		    </a>
+		  </div>
+
+		  <div class="col-sm-6 col-md-3">
+		    <a class="thumbnail notunderline" style="cursor: pointer; background: rgba(195, 69, 40, 0.9);" href="{% url 'texts_home' %}">
+		      <div class="caption" style="color: #efefef;">
+		        <h3>Texts</h3>
+		        <p>James Joyce's published texts.</p>
+		      </div>
+		    </a>
+		  </div>
+
 		</div>
-		<div class="page-wrap">
-	{% block body %}
-		<div id="homesection_2">
-			<img id="library_image" src="{{ STATIC_URL }}JJDLP/images/library_cropped-0.jpg" width="100%">
-			<table class="homepage_table">
-				<tr>
-					<td style="text-align:right;">
-						<span style="font-size:400%;"><a href="{% url 'library_home' %}">Library</a></span>
-						<br/>
-						<br/>
-						<span style="font-size:150%;">Explore James Joyce's personal library, both extant and virtual.</span>
-						<br/>
-						<br/>
-						<span>Just getting started? Try our <a href="brokenlink!!!" style="text-decoration:underline;">tutorial</a>.</span>
-					</td>
-					<td>
-						<div id="page-wrap">
-							<div id="tech-slideshow">
-								<div id="slideshow"></div>
-							</div>
-						</div>
-					</td>
-				</tr>
-			</table>
-			<br/>
-			<div style="float:right;"><a href="#homesection_1">Back to top</a></div>
-		</div>
-	{% endblock %}
-		</div>
-		<div class="push"></div>
 	</div>
+	</div>
+
+	{% endblock %}
+	</div>
+	<div class="push"></div>
+
 	<div class="footer-wrap">
 		<div class="footer">
 			<div class="copyright info">© 2016 University of Antwerp, James Joyce Digital Library.</div>
