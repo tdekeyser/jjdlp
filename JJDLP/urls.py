@@ -73,10 +73,10 @@ urlpatterns += patterns('',
 # static/media config if Debug=True
 if settings.DEBUG:
     urlpatterns += patterns('',
-        url(r'^media/(?P<path>.*)$', login_required('django.views.static.serve'), {
+        url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {
             'document_root': settings.MEDIA_ROOT,
         }),
-        url(r'^static/(?P<path>.*)$', login_required('django.views.static.serve'), {
+        url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {
             'document_root': settings.STATIC_ROOT,
         }),
         )
