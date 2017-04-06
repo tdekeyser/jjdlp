@@ -12,7 +12,7 @@ def show_ref_tag(xml):
     '''
     Tag that takes as input XML and inserts links at each <ref> tag
     '''
-    soup = BeautifulSoup(xml, 'lxml')
+    soup = BeautifulSoup(xml, 'html.parser')
 
     # first create list of links that should be inserted
     linklist = []
