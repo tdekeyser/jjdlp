@@ -1,6 +1,6 @@
 beautifulsoup4==4.3.2
 bleach==1.4.2
-Django==1.8
+Django==2.2.24
 django-activeurl==0.1.8
 django-appconf==1.0.1
 django-classy-tags==0.6.1
